@@ -496,8 +496,8 @@
         </div>
 
         <div class="bilty-body" id="formContentWrapper" style="position: relative;">
-            <div id="formBlockedOverlay" style="position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(240, 240, 240, 0.65); z-index:100; display:flex; justify-content:center; align-items:center; backdrop-filter: blur(2px); transition: all 0.3s ease;">
-                <div style="background:white; border:1px solid #ccc; padding:20px 40px; border-radius:8px; box-shadow:0 4px 15px rgba(0,0,0,0.15); font-weight:700; color:#c92a2a; text-align:center;">
+            <div id="formBlockedOverlay" style="position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(240, 240, 240, 0.7); z-index:99999; display:flex; justify-content:center; align-items:center; backdrop-filter: blur(4px); transition: all 0.3s ease; pointer-events: auto;">
+                <div style="background:white; border:2px solid var(--secondary-color); padding:25px 50px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.25); font-weight:700; color:#c92a2a; text-align:center; font-size:15px; max-width:90%; position:sticky; top:35%;">
                     ⚠️ Please select a Billing Type at the top to fill this form.
                 </div>
             </div>
@@ -879,12 +879,28 @@
         const billingWrapper = document.getElementById('billing_party_wrapper');
         const billingSelect = document.getElementById('billing_party_id');
         
+        // Target all form elements (except the Billing Type radios) to disable interaction
+        const formElements = document.querySelectorAll('#biltyForm input:not([name="billing_type"]), #biltyForm select, #biltyForm textarea, #biltyForm button');
+        
         if (!checkedEl) {
             overlay.style.display = 'flex';
+            formElements.forEach(el => {
+                el.disabled = true;
+                if (el.tagName === 'SELECT' && $(el).data('select2')) {
+                    $(el).prop('disabled', true).trigger('change.select2');
+                }
+            });
             return;
         }
         
         overlay.style.display = 'none';
+        formElements.forEach(el => {
+            el.disabled = false;
+            if (el.tagName === 'SELECT' && $(el).data('select2')) {
+                $(el).prop('disabled', false).trigger('change.select2');
+            }
+        });
+
         const billingType = checkedEl.value;
         if (billingType === 'T.B.B.') {
             billingWrapper.style.display = 'flex';

@@ -411,11 +411,13 @@
 
         {{-- Form --}}
         @if($selected->id)
-            <form method="POST" action="{{ route('account.ledger.update', $selected->id) }}" id="ledgerForm">
+            <form method="POST" action="{{ route('account.ledger.update', $selected->id) }}" id="ledgerForm" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
                 @csrf @method('PUT')
+                <div class="ledger-form-body">
         @else
-            <form method="POST" action="{{ route('account.ledger.store') }}" id="ledgerForm">
+            <form method="POST" action="{{ route('account.ledger.store') }}" id="ledgerForm" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
                 @csrf
+                <div class="ledger-form-body">
         @endif
 
             {{-- SINGLE COLUMN FORM --}}
