@@ -17,9 +17,15 @@ class BiltyController extends Controller
     {
         $locations = CityModel::orderBy('name')->get();
         
-        $consignors = Party::where('type', 'consignor')->orWhere('type', 'both')->orderBy('name')->get();
-        $consignees = Party::where('type', 'consignee')->orWhere('type', 'both')->orderBy('name')->get();
-        $parties = Party::orderBy('name')->get();
+        // Load options from account_ledgers
+        $consignors = AccountLedger::whereIn('under_group', ['Debtors', 'Creditors'])->orderBy('ledger_name')->get()->map(function($l) {
+            return (object)[
+                'id' => $l->id,
+                'name' => $l->ledger_name
+            ];
+        });
+        $consignees = $consignors;
+        $parties = $consignors;
 
         // Pull unique ledger names (which contain vehicle numbers) under Vehicle Expense and Oil Expense
         $vehicles = AccountLedger::whereIn('under_group', ['Vehicle Expense', 'Oil Expense', 'Transport Expense'])
@@ -40,16 +46,16 @@ class BiltyController extends Controller
 
     public function getPartyDetails($id)
     {
-        $party = Party::find($id);
+        $party = AccountLedger::find($id);
         if (!$party) {
             return response()->json(['error' => 'Party not found'], 404);
         }
         // Normalize fields for Bilty Javascript mapping expects name, mobile, gstin, address
         return response()->json([
             'id' => $party->id,
-            'name' => $party->name,
-            'mobile' => $party->mobile,
-            'gstin' => $party->gstin,
+            'name' => $party->ledger_name,
+            'mobile' => $party->mobile ?: $party->phone_o ?: $party->phone_r,
+            'gstin' => $party->gst_no,
             'address' => $party->address
         ]);
     }

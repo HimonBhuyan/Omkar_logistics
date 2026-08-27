@@ -1222,6 +1222,12 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Force window to scroll to top immediately on refresh
+        window.scrollTo(0, 0);
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
         // Attach calculators to initial row
         document.querySelectorAll('.grid-row').forEach(attachListenersToRow);
         
