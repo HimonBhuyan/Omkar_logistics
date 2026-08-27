@@ -231,7 +231,7 @@
             <div class="menu-item">
                 <a href="#">Transaction</a>
                 <div class="dropdown-menu">
-                    <a href="{{ route('bilty.create') }}" class="highlighted">C.N Book</a>
+                    <a href="{{ route('bilty.create') }}" target="_blank" class="highlighted">C.N Book</a>
                     <a href="#">Receipt</a>
                     <a href="#">Payment</a>
                     <a href="#">Party Bill</a>

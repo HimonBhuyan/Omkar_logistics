@@ -730,7 +730,16 @@
 
             // Simulate GST API lookup. Specifically handles the sample client GST code.
             setTimeout(() => {
-                if (gstVal === '18ABBCA1705D1ZA') {
+                if (gstVal === '18BHEPB5443C1ZT') {
+                    document.getElementById('ledger_name').value = 'ARYAHI TECH';
+                    document.getElementById('contact_person').value = 'RITA BORUAH';
+                    document.getElementById('address').value = '4th Floor, Madhab Tower, G S Road, Rukminigaon, Guwahati, Kamrup Metropolitan, Assam';
+                    document.getElementById('city').value = 'Guwahati';
+                    document.getElementById('state').value = 'Assam';
+                    document.getElementById('pin_code').value = '781022';
+                    statusEl.textContent = '✔ Verified';
+                    statusEl.style.color = 'green';
+                } else if (gstVal === '18ABBCA1705D1ZA') {
                     document.getElementById('ledger_name').value = 'ZIAGO TECHNOLOGIES PRIVATE LIMITED';
                     document.getElementById('contact_person').value = 'ZIAGO TECHNOLOGIES PRIVATE LIMITED';
                     document.getElementById('address').value = '4th Floor, Madhab Tower, Rukminigaon, Khanapara, G.S Road, Guwahati';

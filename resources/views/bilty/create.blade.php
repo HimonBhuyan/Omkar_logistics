@@ -12,9 +12,19 @@
         border: 1px solid #d1d5db !important;
         border-radius: 6px !important;
         padding-top: 2px !important;
+        font-size: 12px !important;
     }
     .select2-container--default .select2-selection--single .select2-selection__arrow {
         height: 30px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        font-size: 12px !important;
+        color: #333 !important;
+        line-height: 28px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        font-size: 12px !important;
+        color: #9ca3af !important;
     }
     .bilty-card {
         background: #ffffff;
@@ -496,7 +506,7 @@
         </div>
 
         <div class="bilty-body" id="formContentWrapper" style="position: relative;">
-            <div id="formBlockedOverlay" style="position:fixed; top:200px; left:0; right:0; bottom:0; background:rgba(240, 240, 240, 0.75); z-index:99999; display:flex; justify-content:center; align-items:flex-start; padding-top:100px; backdrop-filter: blur(4px); transition: all 0.3s ease; pointer-events: auto;">
+            <div id="formBlockedOverlay" style="position:fixed; top:200px; left:0; right:0; bottom:0; background:rgba(240, 240, 240, 0.75); z-index:9990; display:flex; justify-content:center; align-items:flex-start; padding-top:100px; backdrop-filter: blur(4px); transition: all 0.3s ease; pointer-events: auto;">
                 <div style="background:white; border:2px solid var(--secondary-color); padding:25px 50px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.25); font-weight:700; color:#c92a2a; text-align:center; font-size:15px; max-width:90%; position:sticky; top:280px;">
                     ⚠️ Please select a Billing Type at the top to fill this form.
                 </div>
@@ -639,7 +649,7 @@
 
                     <div class="form-group-custom" id="vehicle_select_wrapper" style="display: none;">
                         <label for="vehicle_no_select">Transport Name</label>
-                        <select id="vehicle_no_select">
+                        <select id="vehicle_no_select" style="width:100%;">
                             <option value="">Select Transport</option>
                             @foreach ($vehicles as $v)
                                 <option value="{{ $v }}">{{ $v }}</option>
@@ -705,13 +715,13 @@
                                 </select>
                             </td>
                             <td class="weight-col-cell">
-                                <input type="number" name="items[0][weight_val]" class="input-weight_val calc-trigger" step="0.001" value="0.000">
+                                <input type="number" name="items[0][weight_val]" class="input-weight_val calc-trigger" step="0.001" value="0">
                             </td>
                             <td>
-                                <input type="number" name="items[0][qty]" class="input-qty calc-trigger" required min="0.000" step="0.001" value="1.000">
+                                <input type="number" name="items[0][qty]" class="input-qty calc-trigger" required min="0" step="1" value="0" style="background-color: #ffffff; color: #333;">
                             </td>
                             <td>
-                                <input type="number" name="items[0][rate]" class="input-rate calc-trigger" required min="0.00" step="0.01" value="0.00">
+                                <input type="number" name="items[0][rate]" class="input-rate calc-trigger" required min="0.00" step="0.01" value="0.00" style="background-color: #ffffff; color: #333;">
                             </td>
                             <td>
                                 <input type="number" name="items[0][st]" class="input-st calc-trigger" value="0.00" step="0.01">
@@ -879,13 +889,26 @@
         const billingWrapper = document.getElementById('billing_party_wrapper');
         const billingSelect = document.getElementById('billing_party_id');
         
-        // Target all form elements (except the Billing Type radios) to disable interaction
-        const formElements = document.querySelectorAll('#biltyForm input:not([name="billing_type"]), #biltyForm select, #biltyForm textarea, #biltyForm button');
+        // Target all form elements (except the Billing Type radios and Row Rate inputs) to disable interaction
+        const formElements = document.querySelectorAll('#biltyForm select');
         
-        if (!checkedEl) {
+        // Check if any key input fields contain data (excluding defaults like packing, description)
+        let hasData = false;
+        const consignor = document.getElementById('consignor_id');
+        const consignee = document.getElementById('consignee_id');
+        const fromLoc = document.getElementById('from_location_id');
+        const toLoc = document.getElementById('to_location_id');
+        
+        if ((consignor && consignor.value) || 
+            (consignee && consignee.value) || 
+            (fromLoc && fromLoc.value) || 
+            (toLoc && toLoc.value)) {
+            hasData = true;
+        }
+
+        if (!checkedEl && !hasData) {
             overlay.style.display = 'flex';
             formElements.forEach(el => {
-                el.disabled = true;
                 if (el.tagName === 'SELECT' && $(el).data('select2')) {
                     $(el).prop('disabled', true).trigger('change.select2');
                 }
@@ -895,7 +918,6 @@
         
         overlay.style.display = 'none';
         formElements.forEach(el => {
-            el.disabled = false;
             if (el.tagName === 'SELECT' && $(el).data('select2')) {
                 $(el).prop('disabled', false).trigger('change.select2');
             }
@@ -915,10 +937,23 @@
             billingWrapper.style.display = 'none';
             billingSelect.removeAttribute('required');
             billingSelect.value = '';
-            // Make rate inputs editable
+            
+            // Explicitly enable and unlock all rate input fields
             document.querySelectorAll('.input-rate').forEach(input => {
                 input.readOnly = false;
+                input.disabled = false;
+                input.removeAttribute('readonly');
+                input.removeAttribute('disabled');
                 input.style.backgroundColor = '#ffffff';
+                input.style.color = '#333';
+            });
+
+            // Restore editable rate/weight fields based on each row's weight type setting
+            document.querySelectorAll('.grid-row').forEach(row => {
+                const wSelect = row.querySelector('.input-weight_type');
+                if (wSelect) {
+                    handleWeightTypeChange(wSelect);
+                }
             });
         }
         calculateAll();
@@ -952,10 +987,10 @@
                 </select>
             </td>
             <td class="weight-col-cell">
-                <input type="number" name="items[${rowIndex}][weight_val]" class="input-weight_val calc-trigger" step="0.001" value="0.000">
+                <input type="number" name="items[${rowIndex}][weight_val]" class="input-weight_val calc-trigger" step="0.001" value="0">
             </td>
             <td>
-                <input type="number" name="items[${rowIndex}][qty]" class="input-qty calc-trigger" required min="0.000" step="0.001" value="1.000">
+                <input type="number" name="items[${rowIndex}][qty]" class="input-qty calc-trigger" required min="0" step="1" value="0">
             </td>
             <td>
                 <input type="number" name="items[${rowIndex}][rate]" class="input-rate calc-trigger" required min="0.00" step="0.01" value="0.00">
@@ -981,6 +1016,12 @@
         
         // Attach change listeners to new row
         attachListenersToRow(newRow);
+        
+        // Explicitly set the initial enabled/disabled status of weight inputs
+        const newWeightSelect = newRow.querySelector('.input-weight_type');
+        if (newWeightSelect) {
+            handleWeightTypeChange(newWeightSelect);
+        }
         calculateAll();
     }
 
@@ -1001,6 +1042,14 @@
         row.querySelectorAll('.calc-trigger').forEach(input => {
             input.addEventListener('input', calculateAll);
         });
+        const wSelect = row.querySelector('.input-weight_type');
+        if (wSelect) {
+            wSelect.addEventListener('change', function() {
+                handleWeightTypeChange(this);
+            });
+            // Initial call to set fields enabled state correctly
+            handleWeightTypeChange(wSelect);
+        }
     }
 
     // Recalculate all billing totals
@@ -1106,6 +1155,7 @@
         const row = selectEl.closest('tr');
         if (!row) return;
         const qtyInput = row.querySelector('.input-qty');
+        const rateInput = row.querySelector('.input-rate');
         const weightCell = row.querySelector('.weight-col-cell');
         const weightInput = row.querySelector('.input-weight_val');
         if (!qtyInput) return;
@@ -1118,37 +1168,60 @@
             if (weightCell) weightCell.style.display = 'none';
             if (weightInput) {
                 weightInput.readOnly = true;
-                weightInput.value = '0.000';
+                weightInput.value = '0';
                 weightInput.style.backgroundColor = '#eaeaea';
             }
             weightHeaders.forEach(th => th.style.display = 'none');
 
-            // Hides/Locks Weight/Fixed input by setting readOnly, styling grey, and resetting values to 0
-            qtyInput.value = '0.000';
-            qtyInput.readOnly = true;
-            qtyInput.style.backgroundColor = '#eaeaea';
-            qtyInput.style.color = '#888';
+            // Enables Weight/Fixed and Rate inputs for KG type
+            qtyInput.readOnly = false;
+            qtyInput.removeAttribute('readonly');
+            qtyInput.removeAttribute('disabled');
+            qtyInput.style.backgroundColor = '#ffffff';
+            qtyInput.style.color = '#333';
+            
+            if (qtyInput.value === '0.000' || qtyInput.value === '0.00' || qtyInput.value === '0') {
+                qtyInput.value = '0';
+            }
+
+            if (rateInput) {
+                rateInput.readOnly = false;
+                rateInput.removeAttribute('readonly');
+                rateInput.removeAttribute('disabled');
+                rateInput.style.backgroundColor = '#ffffff';
+                rateInput.style.color = '#333';
+            }
         } else {
             // Shows weight column when Fixed
             if (weightCell) weightCell.style.display = 'table-cell';
             if (weightInput) {
                 weightInput.readOnly = false;
+                weightInput.removeAttribute('readonly');
+                weightInput.removeAttribute('disabled');
                 weightInput.style.backgroundColor = '#ffffff';
             }
             weightHeaders.forEach(th => th.style.display = 'table-cell'); // use table-cell to match headers structure
 
-            // Enables Weight/Fixed input for Fixed types
+            // Enables Weight/Fixed input for Fixed types, defaults value to 0
+            qtyInput.value = '0';
             qtyInput.readOnly = false;
+            qtyInput.removeAttribute('readonly');
+            qtyInput.removeAttribute('disabled');
             qtyInput.style.backgroundColor = '#ffffff';
             qtyInput.style.color = '#333';
+            
+            if (rateInput) {
+                rateInput.readOnly = false;
+                rateInput.removeAttribute('readonly');
+                rateInput.removeAttribute('disabled');
+                rateInput.style.backgroundColor = '#ffffff';
+                rateInput.style.color = '#333';
+            }
         }
         calculateAll();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        // Toggle billing party view
-        toggleBillingParty();
-        
         // Attach calculators to initial row
         document.querySelectorAll('.grid-row').forEach(attachListenersToRow);
         
@@ -1168,10 +1241,15 @@
             this.dispatchEvent(event);
         });
 
-        // Initialize default weight type selectors state
-        document.querySelectorAll('.input-weight_type').forEach(select => {
-            handleWeightTypeChange(select);
-        });
+        // Initialize default weight type selectors state with a small delay to prevent browser state overrides
+        setTimeout(() => {
+            document.querySelectorAll('.input-weight_type').forEach(select => {
+                handleWeightTypeChange(select);
+            });
+        }, 100);
+
+        // Configure overlay visibility and form locking state based on initial input values
+        toggleBillingParty();
 
         // Intercept form submit to prompt SweetAlert choices
         const biltyForm = document.getElementById('biltyForm');
@@ -1418,10 +1496,78 @@
             }, 300);
         }
 
+        // Enter key to move to next field script
+        biltyForm.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                const tag = e.target.tagName;
+                const type = e.target.type;
+                if (tag === 'TEXTAREA' || type === 'submit') {
+                    return;
+                }
+                e.preventDefault();
+
+                // Find all focusable fields that are visible and active
+                const focusables = Array.from(biltyForm.querySelectorAll('input:not([type="hidden"]):not([disabled]):not([readonly]), textarea:not([disabled]), button:not([disabled]), .select2-selection:not([tabindex="-1"])'));
+                
+                let currentTarget = e.target;
+                let nativeSelect = null;
+
+                if (e.target.classList.contains('select2-selection')) {
+                    const selectEl = $(e.target).closest('.select2-container').prev('select');
+                    if (selectEl.length) {
+                        nativeSelect = selectEl[0];
+                    }
+                } else if (e.target.tagName === 'SELECT') {
+                    nativeSelect = e.target;
+                }
+
+                // If this is a Select2 dropdown, decide whether to open or move next
+                if (nativeSelect) {
+                    const hasValue = nativeSelect.value !== '';
+                    
+                    if (!hasValue) {
+                        // Open the dropdown if empty
+                        $(nativeSelect).select2('open');
+                        return;
+                    }
+                    
+                    // If it has value, align currentTarget to its visible container to index correctly
+                    const select2Wrapper = $(nativeSelect).next('.select2-container').find('.select2-selection')[0];
+                    if (select2Wrapper) {
+                        currentTarget = select2Wrapper;
+                    }
+                }
+
+                let index = focusables.indexOf(currentTarget);
+
+                if (index > -1 && index < focusables.length - 1) {
+                    const nextField = focusables[index + 1];
+                    
+                    if (nextField.classList.contains('select2-selection')) {
+                        const associatedSelect = $(nextField).closest('.select2-container').prev('select');
+                        if (associatedSelect.length) {
+                            const nextHasValue = associatedSelect.val() !== '';
+                            if (!nextHasValue) {
+                                associatedSelect.select2('open');
+                            } else {
+                                nextField.focus();
+                            }
+                        }
+                    } else {
+                        nextField.focus();
+                        if (typeof nextField.select === 'function') {
+                            nextField.select();
+                        }
+                    }
+                }
+            }
+        });
+
+        // Search check for CN No lookup trigger
         biltyNoInput.addEventListener('keydown', function(e) {
             // Check if key is Enter
             if (e.key === 'Enter' || e.keyCode === 13) {
-                e.preventDefault(); // Prevent form from submitting when pressing enter in the CN No field
+                e.preventDefault();
                 performBiltyLookup(this.value);
             }
         });
@@ -1443,32 +1589,120 @@
         $('#from_location_id').select2({
             placeholder: 'Select From Location',
             allowClear: true,
-            width: '100%'
+            width: '100%',
+            minimumInputLength: 1
         });
         $('#to_location_id').select2({
             placeholder: 'Select To Location',
             allowClear: true,
-            width: '100%'
+            width: '100%',
+            minimumInputLength: 1
         });
         $('#consignor_id').select2({
             placeholder: 'Select Consignor',
             allowClear: true,
-            width: '100%'
+            width: '100%',
+            minimumInputLength: 1
         });
         $('#consignee_id').select2({
             placeholder: 'Select Consignee',
             allowClear: true,
-            width: '100%'
+            width: '100%',
+            minimumInputLength: 1
         });
         $('#billing_party_id').select2({
             placeholder: 'Select Billing Party',
             allowClear: true,
-            width: '100%'
+            width: '100%',
+            minimumInputLength: 1
         });
         $('#vehicle_no_select').select2({
             placeholder: 'Select Transport',
             allowClear: true,
-            width: '100%'
+            width: '100%',
+            minimumInputLength: 1
+        });
+
+        // Auto focus search field when Select2 dropdown is opened
+        $(document).on('select2:open', function() {
+            setTimeout(() => {
+                const searchField = document.querySelector('.select2-search__field');
+                if (searchField) {
+                    searchField.focus();
+
+                    // Lock Enter key inside the search field to stop event bubbling
+                    $(searchField).off('keydown').on('keydown', function(e) {
+                        if (e.key === 'Enter' || e.keyCode === 13) {
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                        }
+                    });
+                }
+            }, 100);
+        });
+
+        // When a value is selected, automatically trigger focus advance to the next element
+        let select2ClosingPreventReopen = false;
+        
+        // Track when a select2 dropdown is actively closing
+        $(document).on('select2:closing', function(e) {
+            select2ClosingPreventReopen = true;
+        });
+
+        $(document).on('select2:close', function(e) {
+            // Keep blocking reopen for a brief window to let focus move away
+            setTimeout(() => {
+                select2ClosingPreventReopen = false;
+            }, 300);
+        });
+
+        $(document).on('select2:select', function(e) {
+            const selectEl = e.target;
+            select2ClosingPreventReopen = true;
+            
+            // Close the dropdown immediately
+            $(selectEl).select2('close');
+
+            setTimeout(() => {
+                // Find all focusable fields that are visible and active
+                const form = document.getElementById('biltyForm');
+                const focusables = Array.from(form.querySelectorAll('input:not([type="hidden"]):not([disabled]):not([readonly]), textarea:not([disabled]), button:not([disabled]), .select2-selection:not([tabindex="-1"])'));
+                
+                // Get the select2 selection element for the current select
+                const currentSelection = $(selectEl).next('.select2-container').find('.select2-selection')[0];
+                
+                if (currentSelection) {
+                    // Blur the current select2 element so it cannot receive keydown bubble
+                    currentSelection.blur();
+                }
+
+                const index = focusables.indexOf(currentSelection);
+
+                if (index > -1 && index < focusables.length - 1) {
+                    const nextField = focusables[index + 1];
+                    
+                    if (nextField.classList.contains('select2-selection')) {
+                        const nextSelect = $(nextField).closest('.select2-container').prev('select');
+                        if (nextSelect.length) {
+                            nextSelect.select2('open');
+                        }
+                    } else {
+                        nextField.focus();
+                        if (typeof nextField.select === 'function') {
+                            nextField.select();
+                        }
+                    }
+                }
+            }, 100);
+        });
+
+        // Block reopening during selection/Enter transition
+        $(document).on('select2:opening', function(e) {
+            if (select2ClosingPreventReopen) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
         });
 
         // Initialize e-way tags from existing values if any
@@ -1483,7 +1717,7 @@
         const selectEl = document.getElementById('vehicle_no_select');
 
         if (type === 'Vehicle Number') {
-            textWrapper.style.display = 'block';
+            textWrapper.style.display = 'flex';
             selectWrapper.style.display = 'none';
             textInput.setAttribute('name', 'vehicle_no');
             // Remove name attribute from dropdown so it does not submit duplicate key data
@@ -1492,7 +1726,7 @@
             $(selectEl).val('').trigger('change');
         } else {
             textWrapper.style.display = 'none';
-            selectWrapper.style.display = 'block';
+            selectWrapper.style.display = 'flex';
             textInput.removeAttribute('name');
             selectEl.setAttribute('name', 'vehicle_no');
             // Clear opposite field

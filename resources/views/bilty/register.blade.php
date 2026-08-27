@@ -205,7 +205,7 @@
 
                 <div class="filter-group">
                     <label for="from_date">From</label>
-                    <input type="date" name="from_date" id="from_date" value="{{ request('from_date', date('Y-m-01')) }}">
+                    <input type="date" name="from_date" id="from_date" value="{{ request('from_date', date('Y-m-d')) }}">
                 </div>
 
                 <div class="filter-group">

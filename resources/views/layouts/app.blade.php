@@ -38,7 +38,7 @@
             top: 0;
             left: 0;
             right: 0;
-            z-index: 1000;
+            z-index: 999999;
             display: flex;
             flex-direction: column;
             margin: 12px 20px 0 20px;
@@ -360,7 +360,7 @@
 
     <div class="fixed-top-nav">
         <header>
-            <div class="header-logo">
+            <div class="header-logo" style="cursor: pointer;" onclick="window.location='{{ route('dashboard') }}'">
                 <span class="truck-icon">🚚</span>
                 <h1>
                     OMKAAR LOGISTICS
@@ -386,7 +386,7 @@
                 <li class="menu-item active">
                     <a href="#" class="menu-link">Transaction</a>
                     <div class="dropdown">
-                        <a href="{{ route('bilty.create') }}" class="highlighted">C.N Book</a>
+                        <a href="{{ route('bilty.create') }}" target="_blank" class="highlighted">C.N Book</a>
                         <a href="#">Receipt</a>
                         <a href="#">Payment</a>
                         <a href="#">Party Bill</a>
