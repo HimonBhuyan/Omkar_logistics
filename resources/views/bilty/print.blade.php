@@ -471,8 +471,20 @@
                                 <td>{{ $item->description }}</td>
                                 <td>{{ $item->invoice_no ?? '' }}</td>
                                 <td>{{ $item->invoice_value > 0 ? number_format($item->invoice_value, 2) : '' }}</td>
-                                <td>{{ $item->weight_val > 0 ? number_format($item->weight_val, 2) : '' }}</td>
-                                <td>{{ $item->qty > 0 ? number_format($item->qty, 2) : '' }}</td>
+                                <td>
+                                    @if ($item->weight_type === 'KG')
+                                        {{ $item->qty > 0 ? number_format($item->qty, 3) : '' }}
+                                    @else
+                                        {{ $item->weight_val > 0 ? number_format($item->weight_val, 3) : '' }}
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ($item->weight_type === 'KG')
+                                        {{-- KG type has no separate quantity --}}
+                                    @else
+                                        {{ $item->qty > 0 ? number_format($item->qty, 2) : '' }}
+                                    @endif
+                                </td>
                                 <td>{{ number_format($item->rate, 2) }}</td>
                             </tr>
                         @endforeach

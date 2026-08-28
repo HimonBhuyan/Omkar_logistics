@@ -718,7 +718,7 @@
                                 <input type="number" name="items[0][weight_val]" class="input-weight_val calc-trigger" step="0.001" value="0">
                             </td>
                             <td>
-                                <input type="number" name="items[0][qty]" class="input-qty calc-trigger" required min="0" step="1" value="0" style="background-color: #ffffff; color: #333;">
+                                <input type="number" name="items[0][qty]" class="input-qty calc-trigger" required min="0" step="0.001" value="0" style="background-color: #ffffff; color: #333;">
                             </td>
                             <td>
                                 <input type="number" name="items[0][rate]" class="input-rate calc-trigger" required min="0.00" step="0.01" value="0.00" style="background-color: #ffffff; color: #333;">
@@ -989,7 +989,7 @@
                 <input type="number" name="items[${rowIndex}][weight_val]" class="input-weight_val calc-trigger" step="0.001" value="0">
             </td>
             <td>
-                <input type="number" name="items[${rowIndex}][qty]" class="input-qty calc-trigger" required min="0" step="1" value="0">
+                <input type="number" name="items[${rowIndex}][qty]" class="input-qty calc-trigger" required min="0" step="0.001" value="0">
             </td>
             <td>
                 <input type="number" name="items[${rowIndex}][rate]" class="input-rate calc-trigger" required min="0.00" step="0.01" value="0.00">
