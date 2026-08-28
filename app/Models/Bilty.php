@@ -71,17 +71,17 @@ class Bilty extends Model
 
     public function consignor(): BelongsTo
     {
-        return $this->belongsTo(Party::class, 'consignor_id');
+        return $this->belongsTo(AccountLedger::class, 'consignor_id');
     }
 
     public function consignee(): BelongsTo
     {
-        return $this->belongsTo(Party::class, 'consignee_id');
+        return $this->belongsTo(AccountLedger::class, 'consignee_id');
     }
 
     public function billingParty(): BelongsTo
     {
-        return $this->belongsTo(Party::class, 'billing_party_id');
+        return $this->belongsTo(AccountLedger::class, 'billing_party_id');
     }
 
     public function items(): HasMany

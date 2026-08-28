@@ -159,6 +159,44 @@
     .btn-action:hover {
         background: #e0e0e0;
     }
+    @media print {
+        @page {
+            size: landscape;
+            margin: 10mm !important;
+        }
+        body {
+            background-color: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        /* Hide navbar navigation, filters wrapper and buttons */
+        .fixed-top-nav, footer, .filter-section, .action-buttons, .report-table td:last-child, .report-table th:last-child {
+            display: none !important;
+        }
+        body {
+            background-color: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .report-card {
+            border: none !important;
+            box-shadow: none !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .table-container {
+            max-height: none !important;
+            overflow: visible !important;
+        }
+        .report-table th {
+            position: static !important;
+            background-color: #f0f0f0 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
 </style>
 @endsection
 

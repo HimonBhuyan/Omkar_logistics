@@ -506,8 +506,8 @@
         </div>
 
         <div class="bilty-body" id="formContentWrapper" style="position: relative;">
-            <div id="formBlockedOverlay" style="position:fixed; top:200px; left:0; right:0; bottom:0; background:rgba(240, 240, 240, 0.75); z-index:9990; display:flex; justify-content:center; align-items:flex-start; padding-top:100px; backdrop-filter: blur(4px); transition: all 0.3s ease; pointer-events: auto;">
-                <div style="background:white; border:2px solid var(--secondary-color); padding:25px 50px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.25); font-weight:700; color:#c92a2a; text-align:center; font-size:15px; max-width:90%; position:sticky; top:280px;">
+            <div id="formBlockedOverlay" style="position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(240, 240, 240, 0.75); z-index:9990; display:flex; justify-content:center; align-items:flex-start; padding-top:120px; backdrop-filter: blur(4px); transition: all 0.3s ease; pointer-events: auto;">
+                <div style="background:white; border:2px solid var(--secondary-color); padding:25px 50px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.25); font-weight:700; color:#c92a2a; text-align:center; font-size:15px; max-width:90%; position:sticky; top:150px;">
                     ⚠️ Please select a Billing Type at the top to fill this form.
                 </div>
             </div>
@@ -899,10 +899,9 @@
         const fromLoc = document.getElementById('from_location_id');
         const toLoc = document.getElementById('to_location_id');
         
-        if ((consignor && consignor.value) || 
-            (consignee && consignee.value) || 
-            (fromLoc && fromLoc.value) || 
-            (toLoc && toLoc.value)) {
+        // Check if green success notification alert is present on the page
+        const successAlert = document.querySelector('div[style*="background:#d1fae5"]');
+        if (successAlert) {
             hasData = true;
         }
 

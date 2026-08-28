@@ -19,9 +19,6 @@
             font-size: 11px;
             padding: 0 !important;
             margin: 0 !important;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
         }
 
@@ -31,61 +28,63 @@
         }
 
         .receipt-outer {
-            width: 210mm !important;
-            height: 148mm !important;
+            width: 100% !important;
+            height: calc(100vh - 50px) !important;
             border: 1px solid #000000;
-            padding: 3px;
+            padding: 2px;
             position: relative;
             background: #fff;
+            overflow: hidden;
         }
 
         .receipt-container {
             width: 100%;
             height: 100%;
             border: 1.5px solid #000000;
-            padding: 8px 10px;
+            padding: 6px 8px;
             position: relative;
             background: #fff;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: space-between;
         }
 
         /* Branding and Header */
         .company-header {
             display: grid;
-            grid-template-columns: 130px 1fr 130px;
+            grid-template-columns: 100px 1fr 100px;
             align-items: center;
-            padding-bottom: 3px;
+            padding-bottom: 2px;
         }
 
         .logo-box img {
-            width: 115px;
+            width: 90px;
             height: auto;
             display: block;
         }
 
         .logo-text-middle {
             text-align: center;
-            line-height: 1.25;
+            line-height: 1.2;
         }
 
         .logo-text-middle .sub-header {
-            font-size: 9.5px;
+            font-size: 9px;
             letter-spacing: 0.5px;
+            font-weight: bold;
         }
 
         .logo-text-middle h1 {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: bold;
             letter-spacing: 0.5px;
-            margin: 1px 0 2px 0;
+            margin: 0px 0 1px 0;
         }
 
         .logo-text-middle .address-details {
-            font-size: 10.5px;
+            font-size: 9px;
             font-weight: normal;
-            line-height: 1.3;
+            line-height: 1.2;
         }
 
         .logo-text-middle .address-details .contact-line {
@@ -96,9 +95,9 @@
         .meta-row {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-top: 2px;
-            font-size: 11.5px;
+            align-items: flex-end;
+            margin-top: 1px;
+            font-size: 10.5px;
         }
 
         .meta-left {
@@ -111,28 +110,28 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 2px;
+            gap: 1px;
         }
 
         .cn-pill-box {
             border: 1.5px solid #000;
             border-radius: 0px;
-            padding: 1px 12px;
-            font-size: 12.5px;
+            padding: 1px 8px;
+            font-size: 11px;
             font-weight: bold;
-            min-width: 170px;
+            min-width: 140px;
             text-align: center;
         }
 
         .meta-date {
             font-weight: bold;
-            font-size: 11.5px;
+            font-size: 10.5px;
         }
 
         .party-name-row {
             font-weight: bold;
-            font-size: 11.5px;
-            margin-top: 2px;
+            font-size: 10.5px;
+            margin-top: 1px;
         }
 
         /* Locations Box */
@@ -140,40 +139,40 @@
             display: grid;
             grid-template-columns: 2.2fr 1.6fr 2.2fr;
             align-items: center;
-            margin-top: 3px;
-            margin-bottom: 3px;
+            margin-top: 2px;
+            margin-bottom: 2px;
         }
 
         .loc-pill {
             border: 1.5px solid #000;
             border-radius: 0px;
-            padding: 3px 8px;
+            padding: 2px 6px;
             font-weight: bold;
-            font-size: 13.5px;
+            font-size: 11.5px;
             display: flex;
-            gap: 12px;
+            gap: 10px;
         }
 
         .loc-pill label {
             font-weight: bold;
-            font-size: 13.5px;
+            font-size: 11.5px;
         }
 
         /* Parties Grid */
         .parties-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 4px;
+            gap: 6px;
+            margin-bottom: 2px;
         }
 
         .party-column {
             border: 1.5px solid #000;
             border-radius: 0px;
-            padding: 4px 6px;
-            font-size: 10.5px;
-            line-height: 1.4;
-            min-height: 80px;
+            padding: 2px 4px;
+            font-size: 9.5px;
+            line-height: 1.3;
+            min-height: 60px;
         }
 
         .party-row {
@@ -182,7 +181,7 @@
         }
 
         .party-row label {
-            width: 80px;
+            width: 70px;
             font-weight: bold;
         }
 
@@ -202,18 +201,18 @@
         .items-table th {
             border: 1px solid #000;
             border-bottom: 1.5px solid #000;
-            padding: 5px;
-            font-size: 11px;
+            padding: 3px;
+            font-size: 10px;
             font-weight: bold;
             text-align: center;
         }
 
         .items-table td {
             border: 1px solid #000;
-            padding: 5px;
-            font-size: 11px;
+            padding: 3px;
+            font-size: 10px;
             text-align: center;
-            height: 38px;
+            height: 22px;
             vertical-align: middle;
         }
 
@@ -225,7 +224,7 @@
             display: flex;
             justify-content: space-between;
             align-items: stretch;
-            margin-top: auto;
+            margin-top: 0;
         }
 
         .bottom-left {
@@ -233,12 +232,12 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            padding: 6px 10px;
+            padding: 4px 6px;
         }
 
         .signature-col {
-            font-size: 11px;
-            line-height: 1.6;
+            font-size: 10px;
+            line-height: 1.4;
         }
 
         .signature-col.left-col {
@@ -262,7 +261,7 @@
         }
 
         .signature-col .terms-footer {
-            font-size: 9.5px;
+            font-size: 8.5px;
             font-weight: bold;
             font-style: italic;
         }
@@ -270,18 +269,18 @@
         /* Charges table - full outer box, single internal vertical divider, no row lines */
         .charges-table {
             border-collapse: collapse;
-            width: 150px;
+            width: 140px;
             border: 1.5px solid #000;
         }
 
         .charges-table td {
-            padding: 3px 6px;
-            font-size: 11px;
+            padding: 2px 4px;
+            font-size: 10px;
         }
 
         .charges-table td:first-child {
             font-weight: bold;
-            width: 70px;
+            width: 60px;
             border-right: 1.5px solid #000;
         }
 
@@ -324,7 +323,8 @@
 
         @media print {
             body {
-                padding: 0;
+                padding: 0 !important;
+                margin: 0 !important;
                 background-color: transparent;
             }
 
@@ -334,9 +334,10 @@
             }
 
             .receipt-outer {
-                margin: 0;
-                width: 100%;
-                height: 100%;
+                border: none !important;
+                margin: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
             }
         }
     </style>
@@ -344,7 +345,7 @@
 
 <body>
 
-    <div style="position: relative; max-width: 210mm; margin: 45px auto 0 auto;">
+    <div style="position: relative; max-width: 100%; margin: 45px 15px 15px 15px;">
         <a href="{{ route('bilty.create') }}" class="btn-back-link">⬅ Back to Entry Form</a>
         <button class="btn-print" onclick="window.print()">🖨 Print Bill (A5)</button>
 
@@ -417,7 +418,7 @@
                         </div>
                         <div class="party-row">
                             <label>Mobile No:</label>
-                            <span>{{ $bilty->consignor->mobile }}</span>
+                            <span>{{ $bilty->consignor->mobile ?: $bilty->consignor->phone_o ?: $bilty->consignor->phone_r }}</span>
                         </div>
                         <div class="party-row">
                             <label>GSTIN No:</label>
@@ -435,7 +436,7 @@
                         </div>
                         <div class="party-row">
                             <label>Mobile No:</label>
-                            <span>{{ $bilty->consignee->mobile }}</span>
+                            <span>{{ $bilty->consignee->mobile ?: $bilty->consignee->phone_o ?: $bilty->consignee->phone_r }}</span>
                         </div>
                         <div class="party-row">
                             <label>GSTIN No:</label>
