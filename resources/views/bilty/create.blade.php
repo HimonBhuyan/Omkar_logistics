@@ -3,28 +3,80 @@
 @section('title', 'Lorry Receipt (Bilty) Entry - Omkaar Logistics')
 
 @section('styles')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
 <style>
-    /* Adjust Select2 styling to match theme inputs */
-    .select2-container .select2-selection--single {
-        height: 32px !important;
-        border: 1px solid #d1d5db !important;
-        border-radius: 6px !important;
-        padding-top: 2px !important;
-        font-size: 12px !important;
+    /* Autocomplete Input & Dropdown Styling */
+    .autocomplete-wrapper {
+        position: relative;
+        width: 100%;
     }
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 30px !important;
+    .autocomplete-input {
+        width: 100%;
+        padding: 6px 10px;
+        font-size: 12px;
+        border: 1px solid var(--border-color, #d1d5db);
+        border-radius: 6px;
+        background: #ffffff;
+        color: #333;
+        outline: none;
+        transition: all 0.2s ease;
+        height: 32px;
+        box-sizing: border-box;
     }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        font-size: 12px !important;
-        color: #333 !important;
-        line-height: 28px !important;
+    .autocomplete-input:focus {
+        border-color: var(--primary-color, #0f3460);
+        box-shadow: 0 0 6px rgba(15, 52, 96, 0.15);
     }
-    .select2-container--default .select2-selection--single .select2-selection__placeholder {
-        font-size: 12px !important;
-        color: #9ca3af !important;
+    .autocomplete-dropdown {
+        position: absolute;
+        top: calc(100% + 2px);
+        left: 0;
+        right: 0;
+        max-height: 220px;
+        overflow-y: auto;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        z-index: 99999;
+        display: none;
+    }
+    .autocomplete-item {
+        padding: 7px 12px;
+        font-size: 12px;
+        color: #1e293b;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.1s ease, color 0.1s ease;
+    }
+    .autocomplete-item:last-child {
+        border-bottom: none;
+    }
+    .autocomplete-item:hover,
+    .autocomplete-item.active {
+        background-color: #f1f5f9;
+        color: var(--primary-color, #0f3460);
+        font-weight: 600;
+    }
+    .autocomplete-item .match-text {
+        font-weight: 700;
+        color: var(--secondary-color, #c92a2a);
+        text-decoration: underline;
+    }
+    .autocomplete-item .item-meta {
+        font-size: 11px;
+        color: #64748b;
+        margin-left: 8px;
+        font-weight: normal;
+    }
+    .autocomplete-no-match {
+        padding: 8px 12px;
+        font-size: 12px;
+        color: #94a3b8;
+        font-style: italic;
     }
     .bilty-card {
         background: #ffffff;
@@ -536,35 +588,32 @@
                     
                     <div class="grid-fields-2">
                         <div class="form-group-custom">
-                            <label for="from_location_id">From Loc.</label>
-                            <select name="from_location_id" id="from_location_id" required>
-                                <option value="">Select From Location</option>
-                                @foreach ($locations as $loc)
-                                    <option value="{{ $loc->id }}" {{ old('from_location_id') == $loc->id ? 'selected' : '' }}>{{ $loc->name }}</option>
-                                @endforeach
-                            </select>
+                            <label for="from_location_text">From Loc.</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="from_location_text" class="autocomplete-input" placeholder="Type city name..." autocomplete="off" value="{{ old('from_location_text') }}">
+                                <input type="hidden" name="from_location_id" id="from_location_id" value="{{ old('from_location_id') }}">
+                                <div class="autocomplete-dropdown" id="from_location_dropdown"></div>
+                            </div>
                         </div>
                         
                         <div class="form-group-custom">
-                            <label for="to_location_id">To Loc.</label>
-                            <select name="to_location_id" id="to_location_id" required>
-                                <option value="">Select To Location</option>
-                                @foreach ($locations as $loc)
-                                    <option value="{{ $loc->id }}" {{ old('to_location_id') == $loc->id ? 'selected' : '' }}>{{ $loc->name }}</option>
-                                @endforeach
-                            </select>
+                            <label for="to_location_text">To Loc.</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="to_location_text" class="autocomplete-input" placeholder="Type city name..." autocomplete="off" value="{{ old('to_location_text') }}">
+                                <input type="hidden" name="to_location_id" id="to_location_id" value="{{ old('to_location_id') }}">
+                                <div class="autocomplete-dropdown" id="to_location_dropdown"></div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="grid-fields-2">
                         <div class="form-group-custom" style="grid-column: span 2;">
-                            <label for="consignor_id">Consignor Name</label>
-                            <select name="consignor_id" id="consignor_id" class="party-select" data-prefix="consignor" required>
-                                <option value="">Select Consignor</option>
-                                @foreach ($consignors as $p)
-                                    <option value="{{ $p->id }}" {{ old('consignor_id') == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>
-                                @endforeach
-                            </select>
+                            <label for="consignor_text">Consignor Name</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="consignor_text" class="autocomplete-input" placeholder="Type consignor name..." autocomplete="off" value="{{ old('consignor_text') }}">
+                                <input type="hidden" name="consignor_id" id="consignor_id" value="{{ old('consignor_id') }}">
+                                <div class="autocomplete-dropdown" id="consignor_dropdown"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -592,15 +641,13 @@
 
 
                     <div class="grid-fields-2">
-                        
                         <div class="form-group-custom" style="grid-column: span 2;">
-                            <label for="consignee_id">Consignee Name</label>
-                            <select name="consignee_id" id="consignee_id" class="party-select" data-prefix="consignee" required>
-                                <option value="">Select Consignee</option>
-                                @foreach ($consignees as $p)
-                                    <option value="{{ $p->id }}" {{ old('consignee_id') == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>
-                                @endforeach
-                            </select>
+                            <label for="consignee_text">Consignee Name</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="consignee_text" class="autocomplete-input" placeholder="Type consignee name..." autocomplete="off" value="{{ old('consignee_text') }}">
+                                <input type="hidden" name="consignee_id" id="consignee_id" value="{{ old('consignee_id') }}">
+                                <div class="autocomplete-dropdown" id="consignee_dropdown"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -629,13 +676,12 @@
                 <div class="section-title">Transport Details</div>
                 <div class="grid-fields-2" style="grid-template-columns: repeat(5, 1fr); gap: 10px;">
                     <div class="form-group-custom" id="billing_party_wrapper" style="display: {{ in_array(old('billing_type'), ['Paid', 'T.B.B.']) ? 'flex' : 'none' }};">
-                        <label for="billing_party_id">Third Party</label>
-                        <select name="billing_party_id" id="billing_party_id">
-                            <option value="">Select Third Party</option>
-                            @foreach ($parties as $p)
-                                <option value="{{ $p->id }}" {{ old('billing_party_id') == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>
-                            @endforeach
-                        </select>
+                        <label for="billing_party_text">Third Party</label>
+                        <div class="autocomplete-wrapper">
+                            <input type="text" id="billing_party_text" class="autocomplete-input" placeholder="Type third party..." autocomplete="off" value="{{ old('billing_party_text') }}">
+                            <input type="hidden" name="billing_party_id" id="billing_party_id" value="{{ old('billing_party_id') }}">
+                            <div class="autocomplete-dropdown" id="billing_party_dropdown"></div>
+                        </div>
                     </div>
 
                     <div class="form-group-custom">
@@ -652,18 +698,11 @@
                     </div>
                     
                     <div class="form-group-custom" id="vehicle_input_wrapper">
-                        <label for="vehicle_no_text">Vehicle No.</label>
-                        <input type="text" name="vehicle_no" id="vehicle_no_text" placeholder="e.g. AS-01-XX-1234" value="{{ old('vehicle_no') }}">
-                    </div>
-
-                    <div class="form-group-custom" id="vehicle_select_wrapper" style="display: none;">
-                        <label for="vehicle_no_select">Transport Name</label>
-                        <select id="vehicle_no_select" style="width:100%;">
-                            <option value="">Select Transport</option>
-                            @foreach ($vehicles as $v)
-                                <option value="{{ $v }}">{{ $v }}</option>
-                            @endforeach
-                        </select>
+                        <label for="vehicle_no_text" id="vehicle_no_label">Vehicle No.</label>
+                        <div class="autocomplete-wrapper">
+                            <input type="text" name="vehicle_no" id="vehicle_no_text" placeholder="e.g. AS-01-XX-1234" value="{{ old('vehicle_no') }}" autocomplete="off">
+                            <div class="autocomplete-dropdown" id="vehicle_no_dropdown"></div>
+                        </div>
                     </div>
                     
                     <div class="form-group-custom" style="position: relative;">
@@ -890,29 +929,73 @@
 
 @section('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     let rowIndex = 1;
 
-    // Toggle showing Billing Party dropdown when T.B.B. or Paid is selected
+    // Master data arrays for high-speed autocomplete
+    const locationsList = [
+        @foreach ($locations as $loc)
+            { id: {{ $loc->id }}, name: @json($loc->name) },
+        @endforeach
+    ];
+
+    const consignorsList = [
+        @foreach ($consignors as $p)
+            { 
+                id: {{ $p->id }}, 
+                name: @json($p->name), 
+                mobile: @json($p->mobile ?? ''), 
+                gstin: @json($p->gst_no ?? $p->gstin ?? ''), 
+                address: @json($p->address ?? '') 
+            },
+        @endforeach
+    ];
+
+    const consigneesList = [
+        @foreach ($consignees as $p)
+            { 
+                id: {{ $p->id }}, 
+                name: @json($p->name), 
+                mobile: @json($p->mobile ?? ''), 
+                gstin: @json($p->gst_no ?? $p->gstin ?? ''), 
+                address: @json($p->address ?? '') 
+            },
+        @endforeach
+    ];
+
+    const partiesList = [
+        @foreach ($parties as $p)
+            { 
+                id: {{ $p->id }}, 
+                name: @json($p->name) 
+            },
+        @endforeach
+    ];
+
+    const vehiclesList = [
+        @foreach ($vehicles as $v)
+            @json($v),
+        @endforeach
+    ];
+
+    // Toggle showing Billing Party input when T.B.B. or Paid is selected
     function toggleBillingParty() {
         const checkedEl = document.querySelector('input[name="billing_type"]:checked');
         const overlay = document.getElementById('formBlockedOverlay');
         const billingWrapper = document.getElementById('billing_party_wrapper');
-        const billingSelect = document.getElementById('billing_party_id');
+        const billingId = document.getElementById('billing_party_id');
         
-        // Target all form elements (except the Billing Type radios and Row Rate inputs) to disable interaction
-        const formElements = document.querySelectorAll('#biltyForm select');
-        
-        // Check if any key input fields contain data (excluding defaults like packing, description)
         let hasData = false;
         const consignor = document.getElementById('consignor_id');
         const consignee = document.getElementById('consignee_id');
         const fromLoc = document.getElementById('from_location_id');
         const toLoc = document.getElementById('to_location_id');
         
-        // Check if green success notification alert is present on the page
+        if ((consignor && consignor.value) || (consignee && consignee.value) || (fromLoc && fromLoc.value) || (toLoc && toLoc.value)) {
+            hasData = true;
+        }
+
         const successAlert = document.querySelector('div[style*="background:#d1fae5"]');
         if (successAlert) {
             hasData = true;
@@ -920,25 +1003,14 @@
 
         if (!checkedEl && !hasData) {
             overlay.style.display = 'flex';
-            formElements.forEach(el => {
-                if (el.tagName === 'SELECT' && $(el).data('select2')) {
-                    $(el).prop('disabled', true).trigger('change.select2');
-                }
-            });
             return;
         }
         
         overlay.style.display = 'none';
-        formElements.forEach(el => {
-            if (el.tagName === 'SELECT' && $(el).data('select2')) {
-                $(el).prop('disabled', false).trigger('change.select2');
-            }
-        });
 
         const billingType = checkedEl ? checkedEl.value : null;
         if (billingType === 'T.B.B.') {
             billingWrapper.style.display = 'flex';
-            billingSelect.setAttribute('required', 'required');
             // Empty and lock rate inputs as read-only
             document.querySelectorAll('.input-rate').forEach(input => {
                 input.value = '0.00';
@@ -947,7 +1019,6 @@
             });
         } else if (billingType === 'Paid') {
             billingWrapper.style.display = 'flex';
-            billingSelect.removeAttribute('required');
             
             // Explicitly enable and unlock all rate input fields
             document.querySelectorAll('.input-rate').forEach(input => {
@@ -968,11 +1039,8 @@
             });
         } else {
             billingWrapper.style.display = 'none';
-            billingSelect.removeAttribute('required');
-            billingSelect.value = '';
-            if ($(billingSelect).data('select2')) {
-                $(billingSelect).val('').trigger('change');
-            }
+            if (billingId) billingId.value = '';
+            if (window.billingPartyAuto) window.billingPartyAuto.clear();
             
             // Explicitly enable and unlock all rate input fields
             document.querySelectorAll('.input-rate').forEach(input => {
@@ -1154,37 +1222,31 @@
     }
 
     // Fetch and auto-populate party details (Mobile, Address, GSTIN)
-    function attachPartyLookup(selectElement) {
-        selectElement.addEventListener('change', function() {
-            const partyId = this.value;
-            const prefix = this.getAttribute('data-prefix');
-            
-            const mobileInput = document.getElementById(`${prefix}_mobile`);
-            const gstinInput = document.getElementById(`${prefix}_gstin`);
-            const addressInput = document.getElementById(`${prefix}_address`);
+    function fetchPartyDetails(prefix, partyId) {
+        const mobileInput = document.getElementById(`${prefix}_mobile`);
+        const gstinInput = document.getElementById(`${prefix}_gstin`);
+        const addressInput = document.getElementById(`${prefix}_address`);
 
-            if (!partyId) {
-                mobileInput.value = '';
-                gstinInput.value = '';
-                addressInput.value = '';
-                return;
-            }
+        if (!partyId) {
+            if (mobileInput) mobileInput.value = '';
+            if (gstinInput) gstinInput.value = '';
+            if (addressInput) addressInput.value = '';
+            return;
+        }
 
-            // Perform fetch lookup
-            fetch(`{{ url('/bilty/party-details') }}/${partyId}`)
-                .then(res => {
-                    if (!res.ok) throw new Error('Network error');
-                    return res.json();
-                })
-                .then(data => {
-                    mobileInput.value = data.mobile || '';
-                    gstinInput.value = data.gstin || '';
-                    addressInput.value = data.address || '';
-                })
-                .catch(err => {
-                    console.error('Error fetching party details:', err);
-                });
-        });
+        fetch(`{{ url('/bilty/party-details') }}/${partyId}`)
+            .then(res => {
+                if (!res.ok) throw new Error('Network error');
+                return res.json();
+            })
+            .then(data => {
+                if (mobileInput) mobileInput.value = data.mobile || '';
+                if (gstinInput) gstinInput.value = data.gstin || '';
+                if (addressInput) addressInput.value = data.address || '';
+            })
+            .catch(err => {
+                console.error('Error fetching party details:', err);
+            });
     }
 
     function handleWeightTypeChange(selectEl) {
@@ -1275,16 +1337,7 @@
             input.addEventListener('input', calculateAll);
         });
 
-        // Attach party select details autocompleter
-        document.querySelectorAll('.party-select').forEach(attachPartyLookup);
-        
-        // Handle Select2 custom event change integration
-        $('.party-select').on('select2:select select2:clear change', function(e) {
-            // Forward changes to native event handlers so attachPartyLookup runs
-            if (e.originalEvent) return; // Prevent loop if native event triggers jQuery change
-            const event = new Event('change', { bubbles: true });
-            this.dispatchEvent(event);
-        });
+
 
         // Save as Draft function
         window.saveAsDraft = function() {
@@ -1368,28 +1421,28 @@
             const fromLoc = document.getElementById('from_location_id');
             if (!fromLoc || !fromLoc.value) {
                 errors.push("<strong>From Location:</strong> Please select the origin location.");
-                if (!firstInvalidEl) firstInvalidEl = fromLoc;
+                if (!firstInvalidEl) firstInvalidEl = document.getElementById('from_location_text');
             }
 
             // 5. To Location
             const toLoc = document.getElementById('to_location_id');
             if (!toLoc || !toLoc.value) {
                 errors.push("<strong>To Location:</strong> Please select the destination location.");
-                if (!firstInvalidEl) firstInvalidEl = toLoc;
+                if (!firstInvalidEl) firstInvalidEl = document.getElementById('to_location_text');
             }
 
             // 6. Consignor
             const consignor = document.getElementById('consignor_id');
             if (!consignor || !consignor.value) {
                 errors.push("<strong>Consignor:</strong> Please select the Consignor party.");
-                if (!firstInvalidEl) firstInvalidEl = consignor;
+                if (!firstInvalidEl) firstInvalidEl = document.getElementById('consignor_text');
             }
 
             // 7. Consignee
             const consignee = document.getElementById('consignee_id');
             if (!consignee || !consignee.value) {
                 errors.push("<strong>Consignee:</strong> Please select the Consignee party.");
-                if (!firstInvalidEl) firstInvalidEl = consignee;
+                if (!firstInvalidEl) firstInvalidEl = document.getElementById('consignee_text');
             }
 
             // 8. Third Party (if T.B.B.)
@@ -1397,7 +1450,7 @@
                 const billingParty = document.getElementById('billing_party_id');
                 if (!billingParty || !billingParty.value) {
                     errors.push("<strong>Third Party:</strong> Please select a Third Party for T.B.B. billing.");
-                    if (!firstInvalidEl) firstInvalidEl = billingParty;
+                    if (!firstInvalidEl) firstInvalidEl = document.getElementById('billing_party_text');
                 }
             }
 
@@ -1461,12 +1514,8 @@
                     width: '480px'
                 }).then(() => {
                     if (firstInvalidEl) {
-                        if ($(firstInvalidEl).data('select2')) {
-                            $(firstInvalidEl).select2('open');
-                        } else {
-                            firstInvalidEl.focus();
-                            if (typeof firstInvalidEl.select === 'function') firstInvalidEl.select();
-                        }
+                        firstInvalidEl.focus();
+                        if (typeof firstInvalidEl.select === 'function') firstInvalidEl.select();
                     }
                 });
                 return false;
@@ -1515,6 +1564,13 @@
                 if (viewBtn) {
                     viewBtn.remove();
                 }
+                if (window.fromLocAuto) window.fromLocAuto.clear();
+                if (window.toLocAuto) window.toLocAuto.clear();
+                if (window.consignorAuto) window.consignorAuto.clear();
+                if (window.consigneeAuto) window.consigneeAuto.clear();
+                if (window.billingPartyAuto) window.billingPartyAuto.clear();
+                const vehicleInput = document.getElementById('vehicle_no_text');
+                if (vehicleInput) vehicleInput.value = '';
                 return;
             }
 
@@ -1571,81 +1627,73 @@
                         if (data.bilty.invoice_date) {
                             document.getElementById('invoice_date').value = data.bilty.invoice_date.split('T')[0];
                         }
-                        if (data.from_city_id) {
-                            $('#from_location_id').val(data.from_city_id).trigger('change');
+                        const fromCity = locationsList.find(x => x.id == data.from_city_id);
+                        if (fromCity && window.fromLocAuto) {
+                            window.fromLocAuto.setValue(fromCity.id, fromCity.name);
+                        } else if (data.bilty.from_location && window.fromLocAuto) {
+                            window.fromLocAuto.setValue(data.from_city_id || '', data.bilty.from_location.name);
+                        } else if (window.fromLocAuto) {
+                            window.fromLocAuto.clear();
                         }
-                        if (data.to_city_id) {
-                            $('#to_location_id').val(data.to_city_id).trigger('change');
+
+                        const toCity = locationsList.find(x => x.id == data.to_city_id);
+                        if (toCity && window.toLocAuto) {
+                            window.toLocAuto.setValue(toCity.id, toCity.name);
+                        } else if (data.bilty.to_location && window.toLocAuto) {
+                            window.toLocAuto.setValue(data.to_city_id || '', data.bilty.to_location.name);
+                        } else if (window.toLocAuto) {
+                            window.toLocAuto.clear();
                         }
 
                         // Set party elements
-                        if (data.bilty.consignor_id) {
-                            $('#consignor_id').val(data.bilty.consignor_id).trigger('change');
-                            document.getElementById('consignor_id').dispatchEvent(new Event('change'));
-                        } else if (data.bilty.consignor_name) {
-                            // If ledger doesn't exist, create a temporary option in the Select2 dropdown so it shows the name
-                            const tempOpt = new Option(data.bilty.consignor_name, '', true, true);
-                            $('#consignor_id').append(tempOpt).trigger('change');
+                        if (data.bilty.consignor_id && window.consignorAuto) {
+                            const cParty = consignorsList.find(x => x.id == data.bilty.consignor_id);
+                            window.consignorAuto.setValue(data.bilty.consignor_id, cParty ? cParty.name : (data.bilty.consignor ? data.bilty.consignor.name : ''));
+                            fetchPartyDetails('consignor', data.bilty.consignor_id);
+                        } else if (data.bilty.consignor_name && window.consignorAuto) {
+                            window.consignorAuto.setValue('', data.bilty.consignor_name);
                             document.getElementById('consignor_mobile').value = data.bilty.consignor_mobile || '';
                             document.getElementById('consignor_gstin').value = '';
                             document.getElementById('consignor_address').value = 'Imported Consignor (No Master Ledger)';
-                        } else {
-                            $('#consignor_id').val('').trigger('change');
+                        } else if (window.consignorAuto) {
+                            window.consignorAuto.clear();
                         }
 
-                        if (data.bilty.consignee_id) {
-                            $('#consignee_id').val(data.bilty.consignee_id).trigger('change');
-                            document.getElementById('consignee_id').dispatchEvent(new Event('change'));
-                        } else if (data.bilty.consignee_name) {
-                            // If ledger doesn't exist, create a temporary option in the Select2 dropdown so it shows the name
-                            const tempOpt = new Option(data.bilty.consignee_name, '', true, true);
-                            $('#consignee_id').append(tempOpt).trigger('change');
+                        if (data.bilty.consignee_id && window.consigneeAuto) {
+                            const cParty = consigneesList.find(x => x.id == data.bilty.consignee_id);
+                            window.consigneeAuto.setValue(data.bilty.consignee_id, cParty ? cParty.name : (data.bilty.consignee ? data.bilty.consignee.name : ''));
+                            fetchPartyDetails('consignee', data.bilty.consignee_id);
+                        } else if (data.bilty.consignee_name && window.consigneeAuto) {
+                            window.consigneeAuto.setValue('', data.bilty.consignee_name);
                             document.getElementById('consignee_mobile').value = data.bilty.consignee_mobile || '';
                             document.getElementById('consignee_gstin').value = '';
                             document.getElementById('consignee_address').value = 'Imported Consignee (No Master Ledger)';
-                        } else {
-                            $('#consignee_id').val('').trigger('change');
+                        } else if (window.consigneeAuto) {
+                            window.consigneeAuto.clear();
                         }
 
-                        if (data.bilty.billing_party_id) {
-                            $('#billing_party_id').val(data.bilty.billing_party_id).trigger('change');
-                            document.getElementById('billing_party_id').dispatchEvent(new Event('change'));
-                        } else if (data.bilty.billing_party_name) {
-                            const tempOpt = new Option(data.bilty.billing_party_name, '', true, true);
-                            $('#billing_party_id').append(tempOpt).trigger('change');
-                        } else {
-                            $('#billing_party_id').val('').trigger('change');
+                        if (data.bilty.billing_party_id && window.billingPartyAuto) {
+                            const bParty = partiesList.find(x => x.id == data.bilty.billing_party_id);
+                            window.billingPartyAuto.setValue(data.bilty.billing_party_id, bParty ? bParty.name : (data.bilty.billingParty ? data.bilty.billingParty.name : ''));
+                        } else if (data.bilty.billing_party_name && window.billingPartyAuto) {
+                            window.billingPartyAuto.setValue('', data.bilty.billing_party_name);
+                        } else if (window.billingPartyAuto) {
+                            window.billingPartyAuto.clear();
                         }
 
                         // Transport info
                         document.getElementById('cn_no').value = data.bilty.cn_no || '';
-                        
-                        // Check if the loaded vehicle_no belongs to vehicles select2 list
                         const vehicleVal = data.bilty.vehicle_no || '';
-                        const vehicleSelectEl = document.getElementById('vehicle_no_select');
-                        let isDropdownOption = false;
-                        
-                        if (vehicleSelectEl && vehicleVal) {
-                            for (let option of vehicleSelectEl.options) {
-                                if (option.value === vehicleVal) {
-                                    isDropdownOption = true;
-                                    break;
-                                }
-                            }
-                        }
-
+                        const isTransportOption = vehiclesList.includes(vehicleVal);
                         const typeSelector = document.getElementById('vehicle_type');
-                        if (isDropdownOption) {
+
+                        if (isTransportOption) {
                             typeSelector.value = 'Transport Name';
-                            toggleVehicleFields();
-                            $('#vehicle_no_select').val(vehicleVal).trigger('change');
-                            document.getElementById('vehicle_no_text').value = '';
                         } else {
                             typeSelector.value = 'Vehicle Number';
-                            toggleVehicleFields();
-                            document.getElementById('vehicle_no_text').value = vehicleVal;
-                            $('#vehicle_no_select').val('').trigger('change');
                         }
+                        toggleVehicleFields();
+                        document.getElementById('vehicle_no_text').value = vehicleVal;
 
                         document.getElementById('eway_bill_no').value = data.bilty.eway_bill_no || '';
                         if (data.bilty.eway_bill_no) {
@@ -1716,11 +1764,11 @@
                         }
                         viewBtn.href = `{{ url('/bilty/print') }}/${currentBiltyId}`;
 
-                        // Hide loader after short timeout to let Select2 inputs paint properly
+                        // Hide loader after short timeout to let inputs paint properly
                         const loader = document.getElementById('biltyLoaderOverlay');
                         setTimeout(() => {
                             if (loader) loader.style.display = 'none';
-                        }, 400);
+                        }, 200);
                     })
                     .catch(err => {
                         // Reset if lookup fails or record doesn't exist (clean default creation state)
@@ -1744,6 +1792,328 @@
             }, 300);
         }
 
+        // Setup Autocomplete Engine
+        function advanceFocusFrom(currentEl) {
+            setTimeout(() => {
+                const form = document.getElementById('biltyForm');
+                if (!form) return;
+                const focusables = Array.from(form.querySelectorAll('input:not([type="hidden"]):not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), select:not([disabled]):not([readonly]), button:not([disabled])'))
+                    .filter(el => el.offsetParent !== null && el.tabIndex !== -1);
+                const idx = focusables.indexOf(currentEl);
+                if (idx > -1 && idx < focusables.length - 1) {
+                    const next = focusables[idx + 1];
+                    next.focus();
+                    if (typeof next.select === 'function') next.select();
+                }
+            }, 50);
+        }
+
+        function setupAutocomplete({
+            inputEl,
+            hiddenEl,
+            dropdownEl,
+            getItems,
+            onSelect,
+            onClear
+        }) {
+            if (!inputEl || !dropdownEl) return null;
+            let activeIndex = -1;
+            let currentMatches = [];
+
+            function escapeHtml(str) {
+                return String(str).replace(/[&<>"']/g, function(m) {
+                    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m];
+                });
+            }
+
+            function highlightMatch(text, query) {
+                if (!query) return escapeHtml(text);
+                const idx = text.toLowerCase().indexOf(query.toLowerCase());
+                if (idx === -1) return escapeHtml(text);
+                const before = text.substring(0, idx);
+                const match = text.substring(idx, idx + query.length);
+                const after = text.substring(idx + query.length);
+                return `${escapeHtml(before)}<span class="match-text">${escapeHtml(match)}</span>${escapeHtml(after)}`;
+            }
+
+            function renderMatches() {
+                const query = inputEl.value.trim();
+                if (!query) {
+                    dropdownEl.style.display = 'none';
+                    return;
+                }
+
+                const items = getItems();
+                currentMatches = items.filter(item => {
+                    const name = typeof item === 'string' ? item : item.name;
+                    return name.toLowerCase().includes(query.toLowerCase());
+                });
+
+                currentMatches.sort((a, b) => {
+                    const nameA = (typeof a === 'string' ? a : a.name).toLowerCase();
+                    const nameB = (typeof b === 'string' ? b : b.name).toLowerCase();
+                    const q = query.toLowerCase();
+                    const aStarts = nameA.startsWith(q);
+                    const bStarts = nameB.startsWith(q);
+                    if (aStarts && !bStarts) return -1;
+                    if (!aStarts && bStarts) return 1;
+                    return nameA.localeCompare(nameB);
+                });
+
+                if (currentMatches.length === 0) {
+                    dropdownEl.innerHTML = `<div class="autocomplete-no-match">No results matching "${escapeHtml(query)}"</div>`;
+                    dropdownEl.style.display = 'block';
+                    activeIndex = -1;
+                    return;
+                }
+
+                const visibleMatches = currentMatches.slice(0, 25);
+                dropdownEl.innerHTML = visibleMatches.map((item, idx) => {
+                    const name = typeof item === 'string' ? item : item.name;
+                    let metaHtml = '';
+                    if (typeof item === 'object') {
+                        const metas = [];
+                        if (item.mobile) metas.push(`📞 ${item.mobile}`);
+                        if (item.gstin) metas.push(`GST: ${item.gstin}`);
+                        if (metas.length > 0) {
+                            metaHtml = `<span class="item-meta">${escapeHtml(metas.join(' | '))}</span>`;
+                        }
+                    }
+                    return `<div class="autocomplete-item" data-index="${idx}">
+                        <span class="item-name">${highlightMatch(name, query)}</span>
+                        ${metaHtml}
+                    </div>`;
+                }).join('');
+
+                dropdownEl.style.display = 'block';
+                activeIndex = -1;
+            }
+
+            function selectItem(item) {
+                if (!item) return;
+                const name = typeof item === 'string' ? item : item.name;
+                const id = typeof item === 'string' ? item : (item.id ?? item.name);
+                
+                inputEl.value = name;
+                if (hiddenEl) {
+                    hiddenEl.value = id;
+                    hiddenEl.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                dropdownEl.style.display = 'none';
+                activeIndex = -1;
+
+                if (onSelect) {
+                    onSelect(item);
+                }
+
+                advanceFocusFrom(inputEl);
+            }
+
+            inputEl.addEventListener('input', function() {
+                if (hiddenEl) {
+                    const query = inputEl.value.trim().toLowerCase();
+                    const items = getItems();
+                    const exact = items.find(i => (typeof i === 'string' ? i : i.name).toLowerCase() === query);
+                    if (exact) {
+                        hiddenEl.value = typeof exact === 'string' ? exact : exact.id;
+                        if (onSelect) onSelect(exact);
+                    } else {
+                        hiddenEl.value = '';
+                        if (onClear) onClear();
+                    }
+                }
+                renderMatches();
+            });
+
+            inputEl.addEventListener('focus', function() {
+                if (inputEl.value.trim().length > 0) {
+                    renderMatches();
+                }
+            });
+
+            inputEl.addEventListener('keydown', function(e) {
+                if (dropdownEl.style.display === 'none') {
+                    if (e.key === 'ArrowDown' && inputEl.value.trim()) {
+                        renderMatches();
+                        e.preventDefault();
+                    }
+                    return;
+                }
+
+                const itemsEl = dropdownEl.querySelectorAll('.autocomplete-item');
+                if (!itemsEl.length) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    activeIndex = (activeIndex + 1) % itemsEl.length;
+                    updateActiveItem(itemsEl);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    activeIndex = (activeIndex - 1 + itemsEl.length) % itemsEl.length;
+                    updateActiveItem(itemsEl);
+                } else if (e.key === 'Enter') {
+                    if (activeIndex >= 0 && activeIndex < currentMatches.length) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        selectItem(currentMatches[activeIndex]);
+                    } else if (currentMatches.length === 1) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        selectItem(currentMatches[0]);
+                    }
+                } else if (e.key === 'Tab') {
+                    if (activeIndex >= 0 && activeIndex < currentMatches.length) {
+                        selectItem(currentMatches[activeIndex]);
+                    }
+                    dropdownEl.style.display = 'none';
+                } else if (e.key === 'Escape') {
+                    dropdownEl.style.display = 'none';
+                    activeIndex = -1;
+                    e.preventDefault();
+                }
+            });
+
+            function updateActiveItem(itemsEl) {
+                itemsEl.forEach((el, idx) => {
+                    if (idx === activeIndex) {
+                        el.classList.add('active');
+                        el.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        el.classList.remove('active');
+                    }
+                });
+            }
+
+            dropdownEl.addEventListener('mousedown', function(e) {
+                const itemEl = e.target.closest('.autocomplete-item');
+                if (itemEl) {
+                    const idx = parseInt(itemEl.getAttribute('data-index'), 10);
+                    if (!isNaN(idx) && currentMatches[idx]) {
+                        e.preventDefault();
+                        selectItem(currentMatches[idx]);
+                    }
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!inputEl.contains(e.target) && !dropdownEl.contains(e.target)) {
+                    dropdownEl.style.display = 'none';
+                    activeIndex = -1;
+                }
+            });
+
+            return {
+                setValue: function(id, name, extra) {
+                    if (inputEl) inputEl.value = name || '';
+                    if (hiddenEl) hiddenEl.value = id || '';
+                    if (extra && onSelect) onSelect(extra);
+                },
+                clear: function() {
+                    if (inputEl) inputEl.value = '';
+                    if (hiddenEl) hiddenEl.value = '';
+                    dropdownEl.style.display = 'none';
+                    if (onClear) onClear();
+                }
+            };
+        }
+
+        // Initialize autocompletes
+        window.fromLocAuto = setupAutocomplete({
+            inputEl: document.getElementById('from_location_text'),
+            hiddenEl: document.getElementById('from_location_id'),
+            dropdownEl: document.getElementById('from_location_dropdown'),
+            getItems: () => locationsList
+        });
+
+        window.toLocAuto = setupAutocomplete({
+            inputEl: document.getElementById('to_location_text'),
+            hiddenEl: document.getElementById('to_location_id'),
+            dropdownEl: document.getElementById('to_location_dropdown'),
+            getItems: () => locationsList
+        });
+
+        window.consignorAuto = setupAutocomplete({
+            inputEl: document.getElementById('consignor_text'),
+            hiddenEl: document.getElementById('consignor_id'),
+            dropdownEl: document.getElementById('consignor_dropdown'),
+            getItems: () => consignorsList,
+            onSelect: (item) => {
+                document.getElementById('consignor_mobile').value = item.mobile || '';
+                document.getElementById('consignor_gstin').value = item.gstin || '';
+                document.getElementById('consignor_address').value = item.address || '';
+                if (item.id) fetchPartyDetails('consignor', item.id);
+            },
+            onClear: () => {
+                document.getElementById('consignor_mobile').value = '';
+                document.getElementById('consignor_gstin').value = '';
+                document.getElementById('consignor_address').value = '';
+            }
+        });
+
+        window.consigneeAuto = setupAutocomplete({
+            inputEl: document.getElementById('consignee_text'),
+            hiddenEl: document.getElementById('consignee_id'),
+            dropdownEl: document.getElementById('consignee_dropdown'),
+            getItems: () => consigneesList,
+            onSelect: (item) => {
+                document.getElementById('consignee_mobile').value = item.mobile || '';
+                document.getElementById('consignee_gstin').value = item.gstin || '';
+                document.getElementById('consignee_address').value = item.address || '';
+                if (item.id) fetchPartyDetails('consignee', item.id);
+            },
+            onClear: () => {
+                document.getElementById('consignee_mobile').value = '';
+                document.getElementById('consignee_gstin').value = '';
+                document.getElementById('consignee_address').value = '';
+            }
+        });
+
+        window.billingPartyAuto = setupAutocomplete({
+            inputEl: document.getElementById('billing_party_text'),
+            hiddenEl: document.getElementById('billing_party_id'),
+            dropdownEl: document.getElementById('billing_party_dropdown'),
+            getItems: () => partiesList
+        });
+
+        window.vehicleNoAuto = setupAutocomplete({
+            inputEl: document.getElementById('vehicle_no_text'),
+            dropdownEl: document.getElementById('vehicle_no_dropdown'),
+            getItems: () => {
+                const type = document.getElementById('vehicle_type').value;
+                return (type === 'Transport Name') ? vehiclesList : [];
+            }
+        });
+
+        // Restore any old submitted values if validation redirected back
+        @if(old('from_location_id'))
+            const oldFrom = locationsList.find(x => x.id == {{ old('from_location_id') }});
+            if (oldFrom && window.fromLocAuto) window.fromLocAuto.setValue(oldFrom.id, oldFrom.name);
+        @endif
+        @if(old('to_location_id'))
+            const oldTo = locationsList.find(x => x.id == {{ old('to_location_id') }});
+            if (oldTo && window.toLocAuto) window.toLocAuto.setValue(oldTo.id, oldTo.name);
+        @endif
+        @if(old('consignor_id'))
+            const oldConsignor = consignorsList.find(x => x.id == {{ old('consignor_id') }});
+            if (oldConsignor && window.consignorAuto) {
+                window.consignorAuto.setValue(oldConsignor.id, oldConsignor.name, oldConsignor);
+            }
+        @endif
+        @if(old('consignee_id'))
+            const oldConsignee = consigneesList.find(x => x.id == {{ old('consignee_id') }});
+            if (oldConsignee && window.consigneeAuto) {
+                window.consigneeAuto.setValue(oldConsignee.id, oldConsignee.name, oldConsignee);
+            }
+        @endif
+        @if(old('billing_party_id'))
+            const oldParty = partiesList.find(x => x.id == {{ old('billing_party_id') }});
+            if (oldParty && window.billingPartyAuto) {
+                window.billingPartyAuto.setValue(oldParty.id, oldParty.name);
+            }
+        @endif
+
         // Enter key to move to next field script
         biltyForm.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' || e.keyCode === 13) {
@@ -1752,60 +2122,26 @@
                 if (tag === 'TEXTAREA' || type === 'submit') {
                     return;
                 }
+                
+                // If an autocomplete dropdown is open with an active item, autocomplete handles Enter
+                const openDropdown = document.querySelector('.autocomplete-dropdown[style*="display: block"]');
+                if (openDropdown && openDropdown.querySelector('.autocomplete-item.active')) {
+                    return;
+                }
+
                 e.preventDefault();
 
                 // Find all focusable fields that are visible and active
-                const focusables = Array.from(biltyForm.querySelectorAll('input:not([type="hidden"]):not([disabled]):not([readonly]), textarea:not([disabled]), button:not([disabled]), .select2-selection:not([tabindex="-1"])'));
+                const focusables = Array.from(biltyForm.querySelectorAll('input:not([type="hidden"]):not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), select:not([disabled]):not([readonly]), button:not([disabled])'))
+                    .filter(el => el.offsetParent !== null && el.tabIndex !== -1);
                 
-                let currentTarget = e.target;
-                let nativeSelect = null;
-
-                if (e.target.classList.contains('select2-selection')) {
-                    const selectEl = $(e.target).closest('.select2-container').prev('select');
-                    if (selectEl.length) {
-                        nativeSelect = selectEl[0];
-                    }
-                } else if (e.target.tagName === 'SELECT') {
-                    nativeSelect = e.target;
-                }
-
-                // If this is a Select2 dropdown, decide whether to open or move next
-                if (nativeSelect) {
-                    const hasValue = nativeSelect.value !== '';
-                    
-                    if (!hasValue) {
-                        // Open the dropdown if empty
-                        $(nativeSelect).select2('open');
-                        return;
-                    }
-                    
-                    // If it has value, align currentTarget to its visible container to index correctly
-                    const select2Wrapper = $(nativeSelect).next('.select2-container').find('.select2-selection')[0];
-                    if (select2Wrapper) {
-                        currentTarget = select2Wrapper;
-                    }
-                }
-
-                let index = focusables.indexOf(currentTarget);
+                const index = focusables.indexOf(e.target);
 
                 if (index > -1 && index < focusables.length - 1) {
                     const nextField = focusables[index + 1];
-                    
-                    if (nextField.classList.contains('select2-selection')) {
-                        const associatedSelect = $(nextField).closest('.select2-container').prev('select');
-                        if (associatedSelect.length) {
-                            const nextHasValue = associatedSelect.val() !== '';
-                            if (!nextHasValue) {
-                                associatedSelect.select2('open');
-                            } else {
-                                nextField.focus();
-                            }
-                        }
-                    } else {
-                        nextField.focus();
-                        if (typeof nextField.select === 'function') {
-                            nextField.select();
-                        }
+                    nextField.focus();
+                    if (typeof nextField.select === 'function') {
+                        nextField.select();
                     }
                 }
             }
@@ -1813,7 +2149,6 @@
 
         // Search check for CN No lookup trigger
         biltyNoInput.addEventListener('keydown', function(e) {
-            // Check if key is Enter
             if (e.key === 'Enter' || e.keyCode === 13) {
                 e.preventDefault();
                 performBiltyLookup(this.value);
@@ -1830,166 +2165,27 @@
             biltyNoInput.value = urlBiltyNo;
             performBiltyLookup(urlBiltyNo);
         }
-    });
-</script>
-<script>
-    $(document).ready(function() {
-        $('#from_location_id').select2({
-            placeholder: 'Select From Location',
-            allowClear: true,
-            width: '100%',
-            minimumInputLength: 1
-        });
-        $('#to_location_id').select2({
-            placeholder: 'Select To Location',
-            allowClear: true,
-            width: '100%',
-            minimumInputLength: 1
-        });
-        $('#consignor_id').select2({
-            placeholder: 'Select Consignor',
-            allowClear: true,
-            width: '100%',
-            minimumInputLength: 1
-        });
-        $('#consignee_id').select2({
-            placeholder: 'Select Consignee',
-            allowClear: true,
-            width: '100%',
-            minimumInputLength: 1
-        });
-        $('#billing_party_id').select2({
-            placeholder: 'Select Third Party',
-            allowClear: true,
-            width: '100%',
-            minimumInputLength: 1
-        });
-        $('#vehicle_no_select').select2({
-            placeholder: 'Select Transport',
-            allowClear: true,
-            width: '100%',
-            minimumInputLength: 1
-        });
-
-        // Auto focus search field when Select2 dropdown is opened
-        $(document).on('select2:open', function() {
-            setTimeout(() => {
-                const searchField = document.querySelector('.select2-search__field');
-                if (searchField) {
-                    searchField.focus();
-
-                    // Lock Enter key inside the search field to stop event bubbling
-                    $(searchField).off('keydown').on('keydown', function(e) {
-                        if (e.key === 'Enter' || e.keyCode === 13) {
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                        }
-                    });
-                }
-            }, 100);
-        });
-
-        // When a value is selected, automatically trigger focus advance to the next element
-        let select2ClosingPreventReopen = false;
-        
-        // Track when a select2 dropdown is actively closing
-        $(document).on('select2:closing', function(e) {
-            select2ClosingPreventReopen = true;
-        });
-
-        $(document).on('select2:close', function(e) {
-            // Keep blocking reopen for a brief window to let focus move away
-            setTimeout(() => {
-                select2ClosingPreventReopen = false;
-            }, 300);
-        });
-
-        $(document).on('select2:select', function(e) {
-            const selectEl = e.target;
-            select2ClosingPreventReopen = true;
-            
-            // Close the dropdown immediately
-            $(selectEl).select2('close');
-
-            setTimeout(() => {
-                // Find all focusable fields that are visible and active
-                const form = document.getElementById('biltyForm');
-                const focusables = Array.from(form.querySelectorAll('input:not([type="hidden"]):not([disabled]):not([readonly]), textarea:not([disabled]), button:not([disabled]), .select2-selection:not([tabindex="-1"])'));
-                
-                // Get the select2 selection element for the current select
-                const currentSelection = $(selectEl).next('.select2-container').find('.select2-selection')[0];
-                
-                if (currentSelection) {
-                    // Blur the current select2 element so it cannot receive keydown bubble
-                    currentSelection.blur();
-                }
-
-                const index = focusables.indexOf(currentSelection);
-
-                if (index > -1 && index < focusables.length - 1) {
-                    const nextField = focusables[index + 1];
-                    
-                    if (nextField.classList.contains('select2-selection')) {
-                        const nextSelect = $(nextField).closest('.select2-container').prev('select');
-                        if (nextSelect.length) {
-                            nextSelect.select2('open');
-                        }
-                    } else {
-                        nextField.focus();
-                        if (typeof nextField.select === 'function') {
-                            nextField.select();
-                        }
-                    }
-                }
-            }, 100);
-        });
-
-        // Block reopening during selection/Enter transition
-        $(document).on('select2:opening', function(e) {
-            if (select2ClosingPreventReopen) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-            }
-        });
 
         // Initialize e-way tags from existing values if any
         renderEwayTags();
+        toggleVehicleFields();
     });
 
     function toggleVehicleFields() {
         const type = document.getElementById('vehicle_type').value;
-        const textWrapper = document.getElementById('vehicle_input_wrapper');
-        const selectWrapper = document.getElementById('vehicle_select_wrapper');
-        const textInput = document.getElementById('vehicle_no_text');
-        const selectEl = document.getElementById('vehicle_no_select');
+        const label = document.getElementById('vehicle_no_label');
+        const input = document.getElementById('vehicle_no_text');
+        const dropdown = document.getElementById('vehicle_no_dropdown');
 
-        if (type === 'Vehicle Number') {
-            textWrapper.style.display = 'flex';
-            selectWrapper.style.display = 'none';
-            textInput.setAttribute('name', 'vehicle_no');
-            // Remove name attribute from dropdown so it does not submit duplicate key data
-            selectEl.removeAttribute('name');
-            // Clear opposite field
-            $(selectEl).val('').trigger('change');
+        if (dropdown) dropdown.style.display = 'none';
+        if (type === 'Transport Name') {
+            if (label) label.textContent = 'Transport Name';
+            if (input) input.placeholder = 'Type transport name...';
         } else {
-            textWrapper.style.display = 'none';
-            selectWrapper.style.display = 'flex';
-            textInput.removeAttribute('name');
-            selectEl.setAttribute('name', 'vehicle_no');
-            // Clear opposite field
-            textInput.value = '';
+            if (label) label.textContent = 'Vehicle No.';
+            if (input) input.placeholder = 'e.g. AS-01-XX-1234';
         }
     }
-
-    // Bind change listener on select2 select
-    $(document).ready(function() {
-        $('#vehicle_no_select').on('select2:select', function(e) {
-            // No custom action needed, just ensures selection is registered
-        });
-        // Initial call
-        toggleVehicleFields();
-    });
 
     let ewayBills = [];
     const existingVal = document.getElementById('eway_bill_no').value.trim();
