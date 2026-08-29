@@ -1227,6 +1227,9 @@
             history.scrollRestoration = 'manual';
         }
 
+        // Configure overlay visibility and form locking state based on initial input values
+        toggleBillingParty();
+
         // Attach calculators to initial row
         document.querySelectorAll('.grid-row').forEach(attachListenersToRow);
         
@@ -1245,16 +1248,6 @@
             const event = new Event('change', { bubbles: true });
             this.dispatchEvent(event);
         });
-
-        // Initialize default weight type selectors state with a small delay to prevent browser state overrides
-        setTimeout(() => {
-            document.querySelectorAll('.input-weight_type').forEach(select => {
-                handleWeightTypeChange(select);
-            });
-        }, 100);
-
-        // Configure overlay visibility and form locking state based on initial input values
-        toggleBillingParty();
 
         // Intercept form submit to prompt SweetAlert choices
         const biltyForm = document.getElementById('biltyForm');
