@@ -2,101 +2,77 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
+use App\Models\FinancialYear;
+use App\Models\Location;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Seed the application's database with clean master data for production/new setup.
+     * No test bills or dummy parties are seeded.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // 1. Wipe out any old bills, bill items, and sample parties
+        Schema::disableForeignKeyConstraints();
+        if (Schema::hasTable('bilty_items')) {
+            DB::table('bilty_items')->truncate();
+        }
+        if (Schema::hasTable('bilties')) {
+            DB::table('bilties')->truncate();
+        }
+        if (Schema::hasTable('parties')) {
+            DB::table('parties')->truncate();
+        }
+        Schema::enableForeignKeyConstraints();
 
-        // Seed default company
-        \App\Models\Company::create([
-            'name' => 'OMKAAR LOGISTICS',
-            'logo_path' => 'assets/logo.jpg'
-        ]);
+        // 2. Seed company profile
+        Company::firstOrCreate(
+            ['name' => 'OMKAAR LOGISTICS'],
+            ['logo_path' => 'assets/logo.jpg']
+        );
 
-        // Seed financial years
-        \App\Models\FinancialYear::create([
-            'year_string' => '2026-2027',
-            'is_active' => true
-        ]);
-        \App\Models\FinancialYear::create([
-            'year_string' => '2025-2026',
-            'is_active' => false
-        ]);
+        // 3. Seed active financial year
+        FinancialYear::firstOrCreate(
+            ['year_string' => '2026-2027'],
+            ['is_active' => true]
+        );
+        FinancialYear::firstOrCreate(
+            ['year_string' => '2025-2026'],
+            ['is_active' => false]
+        );
 
-        // Seed admin user
-        \App\Models\User::create([
-            'username' => 'admin',
-            'name' => 'Administrator',
-            'email' => 'admin@omkaarlogistics.com',
-            'password' => bcrypt('admin')
-        ]);
+        // 4. Seed default admin user
+        User::firstOrCreate(
+            ['username' => 'admin'],
+            [
+                'name' => 'Administrator',
+                'email' => 'admin@omkaarlogistics.com',
+                'password' => bcrypt('admin')
+            ]
+        );
 
-        // Seed locations
+        // 5. Seed default transport hub locations
         $locations = [
             'Mumbai', 'Delhi', 'Kolkata', 'Chennai', 'Bangalore', 
             'Pune', 'Ahmedabad', 'Howrah', 'Guwahati', 'Patna'
         ];
         foreach ($locations as $loc) {
-            \App\Models\Location::create(['name' => $loc]);
+            Location::firstOrCreate(['name' => $loc]);
         }
 
-        // Seed sample parties (consignors, consignees, billing parties)
-        \App\Models\Party::create([
-            'name' => 'Tata Motors Ltd',
-            'mobile' => '9876543210',
-            'address' => 'Sector 4, MIDC Industrial Area, Pune, MH',
-            'gstin' => '27AAAAA1111A1Z1',
-            'type' => 'consignor'
-        ]);
+        // 6. Seed Group Ledgers (Debtors, Creditors, Bank Accounts, Expenses)
+        $this->call(GroupLedgerSeeder::class);
 
-        \App\Models\Party::create([
-            'name' => 'Reliance Industries Ltd',
-            'mobile' => '9988776655',
-            'address' => 'Reliance Corporate Park, Ghansoli, Navi Mumbai, MH',
-            'gstin' => '27BBBBB2222B2Z2',
-            'type' => 'consignor'
-        ]);
-
-        \App\Models\Party::create([
-            'name' => 'Kishore Goods Carrier',
-            'mobile' => '8877665544',
-            'address' => 'Phase 2, Transport Nagar, New Delhi, DL',
-            'gstin' => '07DDDDD4444D4Z4',
-            'type' => 'consignee'
-        ]);
-
-        \App\Models\Party::create([
-            'name' => 'Mahesh Logistics Service',
-            'mobile' => '7766554433',
-            'address' => 'Block C, Okhla Phase 3, New Delhi, DL',
-            'gstin' => '07EEEEE5555E5Z5',
-            'type' => 'consignee'
-        ]);
-
-        \App\Models\Party::create([
-            'name' => 'Shree Transport Corp',
-            'mobile' => '9123456789',
-            'address' => '45, Strand Road, Transport Plaza, Kolkata, WB',
-            'gstin' => '19CCCCC3333C3Z3',
-            'type' => 'billing_party'
-        ]);
-
-        \App\Models\Party::create([
-            'name' => 'General Transport Co (Walk-in)',
-            'mobile' => '9000000000',
-            'address' => 'Walk-in Party Address',
-            'gstin' => 'URP-GST-NOT-REQ',
-            'type' => 'both'
-        ]);
+        // 7. Seed General Masters (Countries, States, Cities)
+        $this->call(MasterSeeder::class);
     }
 }
