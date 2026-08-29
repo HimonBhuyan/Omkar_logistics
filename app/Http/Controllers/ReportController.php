@@ -181,7 +181,7 @@ class ReportController extends Controller
             'Consignee',
             'Mob.',
             'Party',
-            'C.N.',
+            'Third Party C.N.',
             'E-WayBill No',
             'Vehicle No',
             'Packages',
@@ -268,14 +268,16 @@ class ReportController extends Controller
                 $rowTotal = floatval($b->net_amount);
             }
 
-            $weightType = ($b->type === 'Transport Name') ? 'Fixed' : 'KG';
+            $weightType = $b->items->first()?->weight_type ?? (($b->type === 'Transport Name') ? 'Fixed' : 'KG');
             $dateFormatted = $b->invoice_date ? $b->invoice_date->format('d-m-Y') : '';
             $timeFormatted = $b->created_at ? $b->created_at->format('h:i A') : '';
-            $consignorName = $b->consignor ? $b->consignor->name : ($b->consignor_name ?? '');
-            $consignorMobile = $b->consignor ? $b->consignor->mobile : ($b->consignor_mobile ?? '');
-            $consigneeName = $b->consignee ? $b->consignee->name : ($b->consignee_name ?? '');
-            $consigneeMobile = $b->consignee ? $b->consignee->mobile : ($b->consignee_mobile ?? '');
-            $billingPartyName = $b->billingParty ? $b->billingParty->name : ($b->billing_party_name ?? '');
+            $fromLocName = $b->fromLocation ? $b->fromLocation->name : ($b->from_location_name ?? '');
+            $toLocName = $b->toLocation ? $b->toLocation->name : ($b->to_location_name ?? '');
+            $consignorName = $b->consignor ? ($b->consignor->ledger_name ?? $b->consignor->name) : ($b->consignor_name ?? '');
+            $consignorMobile = $b->consignor ? ($b->consignor->mobile ?: ($b->consignor->phone_o ?: '')) : ($b->consignor_mobile ?? '');
+            $consigneeName = $b->consignee ? ($b->consignee->ledger_name ?? $b->consignee->name) : ($b->consignee_name ?? '');
+            $consigneeMobile = $b->consignee ? ($b->consignee->mobile ?: ($b->consignee->phone_o ?: '')) : ($b->consignee_mobile ?? '');
+            $billingPartyName = $b->billingParty ? ($b->billingParty->ledger_name ?? $b->billingParty->name) : ($b->billing_party_name ?? '');
             $userName = $b->user ? ($b->user->username ?? $b->user->name) : ($b->user_id ? 'User #'.$b->user_id : 'admin');
 
             $sheet->setCellValue('A' . $rowNum, $index + 1);
@@ -283,8 +285,8 @@ class ReportController extends Controller
             $sheet->setCellValue('C' . $rowNum, $b->bilty_no);
             $sheet->setCellValue('D' . $rowNum, $dateFormatted);
             $sheet->setCellValue('E' . $rowNum, $timeFormatted);
-            $sheet->setCellValue('F' . $rowNum, $b->fromLocation ? $b->fromLocation->name : '');
-            $sheet->setCellValue('G' . $rowNum, $b->toLocation ? $b->toLocation->name : '');
+            $sheet->setCellValue('F' . $rowNum, $fromLocName);
+            $sheet->setCellValue('G' . $rowNum, $toLocName);
             $sheet->setCellValue('H' . $rowNum, $consignorName);
             $sheet->setCellValueExplicit('I' . $rowNum, (string) $consignorMobile, DataType::TYPE_STRING);
             $sheet->setCellValue('J' . $rowNum, $consigneeName);
@@ -330,8 +332,10 @@ class ReportController extends Controller
             // Row Borders
             $sheet->getStyle('A' . $rowNum . ':AE' . $rowNum)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->getColor()->setRGB('E2E8F0');
 
-            // Zebra striping
-            if ($index % 2 === 1) {
+            // Row background: Yellow for Draft, alternating zebra striping for Final
+            if (($b->status ?? 'final') === 'draft') {
+                $sheet->getStyle('A' . $rowNum . ':AE' . $rowNum)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FEF08A');
+            } elseif ($index % 2 === 1) {
                 $sheet->getStyle('A' . $rowNum . ':AE' . $rowNum)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('F8FAFC');
             }
 

@@ -675,7 +675,7 @@
             <div class="section-box" style="margin-bottom: 20px;">
                 <div class="section-title">Transport Details</div>
                 <div class="grid-fields-2" style="grid-template-columns: repeat(5, 1fr); gap: 10px;">
-                    <div class="form-group-custom" id="billing_party_wrapper" style="display: {{ in_array(old('billing_type'), ['Paid', 'T.B.B.']) ? 'flex' : 'none' }};">
+                    <div class="form-group-custom" id="billing_party_wrapper" style="display: {{ in_array(old('billing_type'), ['Paid', 'To Pay', 'T.B.B.']) ? 'flex' : 'none' }};">
                         <label for="billing_party_text">Third Party</label>
                         <div class="autocomplete-wrapper">
                             <input type="text" id="billing_party_text" class="autocomplete-input" placeholder="Type third party..." autocomplete="off" value="{{ old('billing_party_text') }}">
@@ -685,8 +685,8 @@
                     </div>
 
                     <div class="form-group-custom">
-                        <label for="cn_no">C/N No.</label>
-                        <input type="text" name="cn_no" id="cn_no" value="{{ old('cn_no') }}" placeholder="Consignment Note No.">
+                        <label for="cn_no">Third Party C/N No.</label>
+                        <input type="text" name="cn_no" id="cn_no" value="{{ old('cn_no') }}" placeholder="Third Party C/N No.">
                     </div>
 
                     <div class="form-group-custom">
@@ -1017,7 +1017,7 @@
                 input.readOnly = true;
                 input.style.backgroundColor = '#eaeaea';
             });
-        } else if (billingType === 'Paid') {
+        } else if (billingType === 'Paid' || billingType === 'To Pay') {
             billingWrapper.style.display = 'flex';
             
             // Explicitly enable and unlock all rate input fields

@@ -115,6 +115,15 @@
     .report-table tr:hover {
         background-color: #ecf3f9;
     }
+    .report-table tr.draft-row,
+    .report-table tr.draft-row:nth-child(even),
+    .report-table tr.draft-row td {
+        background-color: #fef08a !important; /* Distinct yellow for draft */
+    }
+    .report-table tr.draft-row:hover,
+    .report-table tr.draft-row:hover td {
+        background-color: #fde047 !important; /* Richer yellow on hover */
+    }
     .report-footer {
         background: #d4d0c8;
         padding: 10px;
@@ -320,7 +329,7 @@
                     <th>Consignee</th>
                     <th>Mob.</th>
                     <th>Party</th>
-                    <th>C.N.</th>
+                    <th>Third Party C.N.</th>
                     <th>E-WayBill No</th>
                     <th>Vehicle No</th>
                     <th>Packages</th>
@@ -362,11 +371,14 @@
                             $rowTotal = floatval($b->net_amount);
                         }
                     @endphp
-                    <tr onclick="window.location='{{ route('bilty.create') }}?bilty_no={{ $b->bilty_no }}'" style="cursor: pointer;">
+                    @php
+                        $isDraft = (($b->status ?? 'final') === 'draft');
+                    @endphp
+                    <tr onclick="window.location='{{ route('bilty.create') }}?bilty_no={{ $b->bilty_no }}'" class="{{ $isDraft ? 'draft-row' : '' }}" style="cursor: pointer; {{ $isDraft ? 'background-color: #fef08a;' : '' }}">
                         <td>{{ $index + 1 }}</td>
                         <td>
-                            @if(($b->status ?? 'final') === 'draft')
-                                <span style="background:#fef3c7; color:#b45309; border:1px solid #fcd34d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; display:inline-block; white-space:nowrap;">Draft</span>
+                            @if($isDraft)
+                                <span style="background:#fffbeb; color:#92400e; border:1px solid #d97706; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:800; display:inline-block; white-space:nowrap;">Draft</span>
                             @else
                                 <span style="background:#dcfce7; color:#15803d; border:1px solid #86efac; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; display:inline-block; white-space:nowrap;">Final</span>
                             @endif
@@ -374,13 +386,13 @@
                         <td>{{ $b->bilty_no }}</td>
                         <td>{{ $b->invoice_date ? $b->invoice_date->format('d-m-Y') : '' }}</td>
                         <td>{{ $b->created_at ? $b->created_at->format('h:i A') : '' }}</td>
-                        <td>{{ $b->fromLocation ? $b->fromLocation->name : '' }}</td>
-                        <td>{{ $b->toLocation ? $b->toLocation->name : '' }}</td>
-                        <td>{{ $b->consignor ? $b->consignor->name : $b->consignor_name }}</td>
-                        <td>{{ $b->consignor ? $b->consignor->mobile : $b->consignor_mobile }}</td>
-                        <td>{{ $b->consignee ? $b->consignee->name : $b->consignee_name }}</td>
-                        <td>{{ $b->consignee ? $b->consignee->mobile : $b->consignee_mobile }}</td>
-                        <td>{{ $b->billingParty ? $b->billingParty->name : $b->billing_party_name }}</td>
+                        <td>{{ $b->fromLocation ? $b->fromLocation->name : ($b->from_location_name ?? '') }}</td>
+                        <td>{{ $b->toLocation ? $b->toLocation->name : ($b->to_location_name ?? '') }}</td>
+                        <td>{{ $b->consignor ? ($b->consignor->ledger_name ?? $b->consignor->name) : ($b->consignor_name ?? '') }}</td>
+                        <td>{{ $b->consignor ? ($b->consignor->mobile ?: ($b->consignor->phone_o ?: '')) : ($b->consignor_mobile ?? '') }}</td>
+                        <td>{{ $b->consignee ? ($b->consignee->ledger_name ?? $b->consignee->name) : ($b->consignee_name ?? '') }}</td>
+                        <td>{{ $b->consignee ? ($b->consignee->mobile ?: ($b->consignee->phone_o ?: '')) : ($b->consignee_mobile ?? '') }}</td>
+                        <td>{{ $b->billingParty ? ($b->billingParty->ledger_name ?? $b->billingParty->name) : ($b->billing_party_name ?? '') }}</td>
                         <td>{{ $b->cn_no }}</td>
                         <td>{{ $b->eway_bill_no }}</td>
                         <td>{{ $b->vehicle_no }}</td>
@@ -389,7 +401,7 @@
                         <td>{{ $description }}</td>
                         <td>{{ $invoiceNo }}</td>
                         <td>{{ $invoiceVal > 0 ? number_format($invoiceVal, 2) : '0.00' }}</td>
-                        <td>{{ $b->type === 'Transport Name' ? 'Fixed' : 'KG' }}</td>
+                        <td>{{ $b->items->first()?->weight_type ?? (($b->type === 'Transport Name') ? 'Fixed' : 'KG') }}</td>
                         <td>{{ $b->total_qty }}</td>
                         <td>{{ number_format($rate, 2) }}</td>
                         <td>{{ number_format($st, 2) }}</td>

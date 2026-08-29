@@ -191,9 +191,15 @@ class BiltyController extends Controller
                 'from_location_id' => $fromLoc ? $fromLoc->id : null,
                 'to_location_id' => $toLoc ? $toLoc->id : null,
                 'consignor_id' => $consignorLedger ? $consignorLedger->id : null,
+                'consignor_name' => $consignorLedger ? $consignorLedger->ledger_name : null,
+                'consignor_mobile' => $consignorLedger ? ($consignorLedger->mobile ?: $consignorLedger->phone_o) : null,
                 'consignee_id' => $consigneeLedger ? $consigneeLedger->id : null,
+                'consignee_name' => $consigneeLedger ? $consigneeLedger->ledger_name : null,
+                'consignee_mobile' => $consigneeLedger ? ($consigneeLedger->mobile ?: $consigneeLedger->phone_o) : null,
                 'billing_type' => $request->billing_type ?: 'Paid',
-                'billing_party_id' => $request->billing_party_id,
+                'type' => $request->vehicle_type ?? 'Vehicle Number',
+                'billing_party_id' => $billingLedger ? $billingLedger->id : null,
+                'billing_party_name' => $billingLedger ? $billingLedger->ledger_name : null,
                 'cn_no' => $request->cn_no,
                 'vehicle_no' => $request->vehicle_no,
                 'eway_bill_no' => $request->eway_bill_no,
@@ -281,7 +287,7 @@ class BiltyController extends Controller
     public function lookup($bilty_no)
     {
         // Try to find the bilty with the current series or fall back to any series
-        $bilty = Bilty::with(['items', 'user'])->where('bilty_no', $bilty_no)->first();
+        $bilty = Bilty::with(['items', 'user', 'consignor', 'consignee', 'billingParty', 'fromLocation', 'toLocation'])->where('bilty_no', $bilty_no)->first();
         if (!$bilty) {
             return response()->json(['error' => 'Bilty consignment not found'], 404);
         }
@@ -439,9 +445,15 @@ class BiltyController extends Controller
                 'from_location_id' => $fromLoc ? $fromLoc->id : $bilty->from_location_id,
                 'to_location_id' => $toLoc ? $toLoc->id : $bilty->to_location_id,
                 'consignor_id' => $consignorLedger ? $consignorLedger->id : $bilty->consignor_id,
+                'consignor_name' => $consignorLedger ? $consignorLedger->ledger_name : $bilty->consignor_name,
+                'consignor_mobile' => $consignorLedger ? ($consignorLedger->mobile ?: $consignorLedger->phone_o) : $bilty->consignor_mobile,
                 'consignee_id' => $consigneeLedger ? $consigneeLedger->id : $bilty->consignee_id,
+                'consignee_name' => $consigneeLedger ? $consigneeLedger->ledger_name : $bilty->consignee_name,
+                'consignee_mobile' => $consigneeLedger ? ($consigneeLedger->mobile ?: $consigneeLedger->phone_o) : $bilty->consignee_mobile,
                 'billing_type' => $request->billing_type ?: $bilty->billing_type,
-                'billing_party_id' => $request->billing_party_id,
+                'type' => $request->vehicle_type ?? ($bilty->type ?? 'Vehicle Number'),
+                'billing_party_id' => $billingLedger ? $billingLedger->id : $request->billing_party_id,
+                'billing_party_name' => $billingLedger ? $billingLedger->ledger_name : $bilty->billing_party_name,
                 'cn_no' => $request->cn_no,
                 'vehicle_no' => $request->vehicle_no,
                 'eway_bill_no' => $request->eway_bill_no,

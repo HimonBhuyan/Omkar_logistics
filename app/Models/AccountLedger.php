@@ -23,4 +23,8 @@ class AccountLedger extends Model
         'dob' => 'date',
     ];
 
+    public function getNameAttribute()
+    {
+        return $this->attributes['ledger_name'] ?? null;
+    }
 }

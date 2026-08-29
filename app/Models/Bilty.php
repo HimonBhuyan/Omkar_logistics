@@ -15,9 +15,15 @@ class Bilty extends Model
         'from_location_id',
         'to_location_id',
         'consignor_id',
+        'consignor_name',
+        'consignor_mobile',
         'consignee_id',
+        'consignee_name',
+        'consignee_mobile',
         'billing_type',
+        'type',
         'billing_party_id',
+        'billing_party_name',
         'cn_no',
         'vehicle_no',
         'eway_bill_no',
@@ -71,6 +77,38 @@ class Bilty extends Model
         return $this->belongsTo(Location::class, 'to_location_id');
     }
 
+    public function fromCity(): BelongsTo
+    {
+        return $this->belongsTo(CityModel::class, 'from_location_id');
+    }
+
+    public function toCity(): BelongsTo
+    {
+        return $this->belongsTo(CityModel::class, 'to_location_id');
+    }
+
+    public function getFromLocationNameAttribute()
+    {
+        if ($this->fromLocation) {
+            return $this->fromLocation->name;
+        }
+        if ($this->fromCity) {
+            return $this->fromCity->name;
+        }
+        return '';
+    }
+
+    public function getToLocationNameAttribute()
+    {
+        if ($this->toLocation) {
+            return $this->toLocation->name;
+        }
+        if ($this->toCity) {
+            return $this->toCity->name;
+        }
+        return '';
+    }
+
     public function consignor(): BelongsTo
     {
         return $this->belongsTo(AccountLedger::class, 'consignor_id');
@@ -84,6 +122,61 @@ class Bilty extends Model
     public function billingParty(): BelongsTo
     {
         return $this->belongsTo(AccountLedger::class, 'billing_party_id');
+    }
+
+    public function getConsignorNameAttribute()
+    {
+        if (!empty($this->attributes['consignor_name'])) {
+            return $this->attributes['consignor_name'];
+        }
+        if ($this->consignor) {
+            return $this->consignor->ledger_name ?? $this->consignor->name;
+        }
+        return '';
+    }
+
+    public function getConsigneeNameAttribute()
+    {
+        if (!empty($this->attributes['consignee_name'])) {
+            return $this->attributes['consignee_name'];
+        }
+        if ($this->consignee) {
+            return $this->consignee->ledger_name ?? $this->consignee->name;
+        }
+        return '';
+    }
+
+    public function getBillingPartyNameAttribute()
+    {
+        if (!empty($this->attributes['billing_party_name'])) {
+            return $this->attributes['billing_party_name'];
+        }
+        if ($this->billingParty) {
+            return $this->billingParty->ledger_name ?? $this->billingParty->name;
+        }
+        return '';
+    }
+
+    public function getConsignorMobileAttribute()
+    {
+        if (!empty($this->attributes['consignor_mobile'])) {
+            return $this->attributes['consignor_mobile'];
+        }
+        if ($this->consignor) {
+            return $this->consignor->mobile ?: ($this->consignor->phone_o ?: $this->consignor->phone_r);
+        }
+        return '';
+    }
+
+    public function getConsigneeMobileAttribute()
+    {
+        if (!empty($this->attributes['consignee_mobile'])) {
+            return $this->attributes['consignee_mobile'];
+        }
+        if ($this->consignee) {
+            return $this->consignee->mobile ?: ($this->consignee->phone_o ?: $this->consignee->phone_r);
+        }
+        return '';
     }
 
     public function items(): HasMany
