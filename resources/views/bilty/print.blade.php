@@ -52,7 +52,7 @@
         /* Branding and Header */
         .company-header {
             display: grid;
-            grid-template-columns: 140px 1fr 140px;
+            grid-template-columns: 155px 1fr 155px;
             align-items: center;
             padding-bottom: 2px;
         }
@@ -67,7 +67,7 @@
         }
 
         .logo-box img {
-            width: 135px;
+            width: 148px;
             height: auto;
             display: block;
         }
@@ -78,21 +78,22 @@
         }
 
         .logo-text-middle .sub-header {
-            font-size: 9px;
-            letter-spacing: 0.5px;
-            font-weight: bold;
+            font-size: 10px;
+            letter-spacing: 0.8px;
+            font-weight: 800;
         }
 
         .logo-text-middle h1 {
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 22px;
+            font-weight: 900;
             letter-spacing: 0.5px;
-            margin: 0px 0 1px 0;
+            line-height: 1.1;
+            margin: 1px 0 2px 0;
         }
 
         .logo-text-middle .address-details {
-            font-size: 9px;
-            font-weight: normal;
+            font-size: 9.5px;
+            font-weight: 600;
             line-height: 1.2;
         }
 
@@ -203,7 +204,7 @@
             width: 100%;
             border-collapse: collapse;
             border: 1.5px solid #000;
-            border-bottom: none;
+            border-bottom: 1.5px solid #000;
             margin-bottom: 0;
         }
 
@@ -453,7 +454,7 @@
                 <!-- Meta rows: E-Way/C.N.No on left, C.N. pill/Date on right -->
                 <div class="meta-row">
                     <div class="meta-left">
-                        <div style="margin-top: 15px;">C.N.No: {{ $bilty->cn_no ?? '' }}</div>
+                        <div>C.N.No: {{ $bilty->cn_no ?? '' }}</div>
                         <div>E-WayBill No: {{ $bilty->eway_bill_no ?? '' }}</div>
                     </div>
                     <div class="meta-right">
