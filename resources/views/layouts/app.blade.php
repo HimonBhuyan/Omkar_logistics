@@ -341,6 +341,26 @@
             white-space: nowrap;
         }
 
+        /* Top Loading Progress Bar */
+        #top-loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b, #2ebf91, #8360c3, var(--secondary-color));
+            background-size: 400% 400%;
+            z-index: 9999999;
+            width: 0%;
+            transition: width 0.4s ease-out, opacity 0.3s ease;
+            opacity: 0;
+            animation: gradient-animation 2s ease infinite;
+        }
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -355,8 +375,78 @@
         }
     </style>
     @yield('styles')
+    <script>
+        // Start loading bar execution
+        function startLoadingBar() {
+            const bar = document.getElementById('top-loading-bar');
+            if (bar) {
+                bar.style.opacity = '1';
+                bar.style.width = '30%';
+                
+                // Slowly progress the bar to simulate activity
+                let progress = 30;
+                const interval = setInterval(() => {
+                    if (progress < 90) {
+                        progress += Math.random() * 5;
+                        bar.style.width = progress + '%';
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 150);
+                
+                // Store interval key to clear on complete
+                window.loadingBarInterval = interval;
+            }
+        }
+
+        // Finish loading bar execution
+        function finishLoadingBar() {
+            const bar = document.getElementById('top-loading-bar');
+            if (bar) {
+                if (window.loadingBarInterval) {
+                    clearInterval(window.loadingBarInterval);
+                }
+                bar.style.width = '100%';
+                setTimeout(() => {
+                    bar.style.opacity = '0';
+                    setTimeout(() => {
+                        bar.style.width = '0%';
+                    }, 300);
+                }, 200);
+            }
+        }
+
+        // Trigger on load
+        document.addEventListener('DOMContentLoaded', () => {
+            finishLoadingBar();
+
+            // Intercept form submissions and link clicks to show loading bar
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', () => {
+                    startLoadingBar();
+                });
+            });
+
+            document.querySelectorAll('a').forEach(link => {
+                // Ignore target="_blank", javascript voids, or hash anchors
+                const href = link.getAttribute('href');
+                const target = link.getAttribute('target');
+                if (href && !href.startsWith('#') && !href.startsWith('javascript:') && target !== '_blank') {
+                    link.addEventListener('click', () => {
+                        startLoadingBar();
+                    });
+                }
+            });
+        });
+
+        // Trigger when window starts unloading/refreshing
+        window.addEventListener('beforeunload', () => {
+            startLoadingBar();
+        });
+    </script>
 </head>
 <body>
+    <div id="top-loading-bar"></div>
 
     <div class="fixed-top-nav">
         <header>
