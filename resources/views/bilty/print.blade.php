@@ -52,13 +52,22 @@
         /* Branding and Header */
         .company-header {
             display: grid;
-            grid-template-columns: 100px 1fr 100px;
+            grid-template-columns: 140px 1fr 140px;
             align-items: center;
             padding-bottom: 2px;
         }
 
+        .logo-box {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-box:last-child {
+            justify-content: flex-end;
+        }
+
         .logo-box img {
-            width: 90px;
+            width: 135px;
             height: auto;
             display: block;
         }
