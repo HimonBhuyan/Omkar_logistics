@@ -467,7 +467,7 @@
 @endif
 
 <div class="bilty-card">
-    <form action="{{ route('bilty.store') }}" method="POST" id="biltyForm">
+    <form action="{{ route('bilty.store') }}" method="POST" id="biltyForm" novalidate>
         @csrf
         
         <!-- Billing Options at the top -->
@@ -489,10 +489,14 @@
 
          <!-- Red Title Bar -->
         <div class="bilty-header-bar">
-            <span>C.N Book</span>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span>C.N Book</span>
+                <span id="draftIndicator" style="display:none; background:#fef3c7; color:#b45309; border:1px solid #f59e0b; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">DRAFT CONSIGNMENT</span>
+            </div>
             
             <div class="bilty-header-inputs">
                 <input type="hidden" name="series" value="26-27">
+                <input type="hidden" name="status" id="bilty_status" value="{{ old('status', 'final') }}">
                 <div>
                     <label for="bilty_no">C.N No.</label>
                     <input type="number" name="bilty_no" id="bilty_no" value="{{ old('bilty_no', $nextBiltyNo) }}" required min="1">
@@ -501,6 +505,11 @@
                 <div>
                     <label for="invoice_date">C.N Date</label>
                     <input type="date" name="invoice_date" id="invoice_date" value="{{ old('invoice_date', date('Y-m-d')) }}" required>
+                </div>
+
+                <div>
+                    <label for="bilty_user_display">User</label>
+                    <input type="text" id="bilty_user_display" value="{{ auth()->user()->username ?? 'admin' }}" readonly style="height:30px; font-weight:600; color:#475569; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; padding:2px 8px; cursor:not-allowed; pointer-events:none;" tabindex="-1">
                 </div>
             </div>
         </div>
@@ -619,7 +628,7 @@
             <div class="section-box" style="margin-bottom: 20px;">
                 <div class="section-title">Transport Details</div>
                 <div class="grid-fields-2" style="grid-template-columns: repeat(5, 1fr); gap: 10px;">
-                    <div class="form-group-custom" id="billing_party_wrapper" style="display: none;">
+                    <div class="form-group-custom" id="billing_party_wrapper" style="display: {{ in_array(old('billing_type'), ['Paid', 'T.B.B.']) ? 'flex' : 'none' }};">
                         <label for="billing_party_id">Third Party</label>
                         <select name="billing_party_id" id="billing_party_id">
                             <option value="">Select Third Party</option>
@@ -635,7 +644,7 @@
                     </div>
 
                     <div class="form-group-custom">
-                        <label for="vehicle_type">Type</label>
+                        <label for="vehicle_type">Vehicle Type</label>
                         <select name="vehicle_type" id="vehicle_type" onchange="toggleVehicleFields()" style="height:32px;">
                             <option value="Vehicle Number">Vehicle Number</option>
                             <option value="Transport Name">Transport Name</option>
@@ -866,7 +875,11 @@
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 Clear Fields
             </button>
-            <button type="submit" class="btn-footer btn-save">
+            <button type="button" class="btn-footer btn-draft" id="btnSaveDraft" onclick="saveAsDraft()" style="background:#f59e0b; color:#fff; border:none; padding:10px 22px; border-radius:6px; font-weight:700; font-size:13px; display:inline-flex; align-items:center; gap:8px; cursor:pointer; box-shadow:0 2px 5px rgba(245,158,11,0.3); transition:all 0.2s ease;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Save as Draft
+            </button>
+            <button type="submit" class="btn-footer btn-save" onclick="document.getElementById('bilty_status').value = 'final';">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 Save Receipt
             </button>
@@ -882,7 +895,7 @@
 <script>
     let rowIndex = 1;
 
-    // Toggle showing Billing Party dropdown when T.B.B. is selected
+    // Toggle showing Billing Party dropdown when T.B.B. or Paid is selected
     function toggleBillingParty() {
         const checkedEl = document.querySelector('input[name="billing_type"]:checked');
         const overlay = document.getElementById('formBlockedOverlay');
@@ -922,7 +935,7 @@
             }
         });
 
-        const billingType = checkedEl.value;
+        const billingType = checkedEl ? checkedEl.value : null;
         if (billingType === 'T.B.B.') {
             billingWrapper.style.display = 'flex';
             billingSelect.setAttribute('required', 'required');
@@ -932,10 +945,34 @@
                 input.readOnly = true;
                 input.style.backgroundColor = '#eaeaea';
             });
+        } else if (billingType === 'Paid') {
+            billingWrapper.style.display = 'flex';
+            billingSelect.removeAttribute('required');
+            
+            // Explicitly enable and unlock all rate input fields
+            document.querySelectorAll('.input-rate').forEach(input => {
+                input.readOnly = false;
+                input.disabled = false;
+                input.removeAttribute('readonly');
+                input.removeAttribute('disabled');
+                input.style.backgroundColor = '#ffffff';
+                input.style.color = '#333';
+            });
+
+            // Restore editable rate/weight fields based on each row's weight type setting
+            document.querySelectorAll('.grid-row').forEach(row => {
+                const wSelect = row.querySelector('.input-weight_type');
+                if (wSelect) {
+                    handleWeightTypeChange(wSelect);
+                }
+            });
         } else {
             billingWrapper.style.display = 'none';
             billingSelect.removeAttribute('required');
             billingSelect.value = '';
+            if ($(billingSelect).data('select2')) {
+                $(billingSelect).val('').trigger('change');
+            }
             
             // Explicitly enable and unlock all rate input fields
             document.querySelectorAll('.input-rate').forEach(input => {
@@ -1249,8 +1286,204 @@
             this.dispatchEvent(event);
         });
 
-        // Intercept form submit to prompt SweetAlert choices
+        // Save as Draft function
+        window.saveAsDraft = function() {
+            const biltyNo = document.getElementById('bilty_no');
+            if (!biltyNo || !biltyNo.value.trim() || parseInt(biltyNo.value, 10) < 1) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'C.N. Number Required',
+                    text: 'Please enter a Consignment Note (C.N. No) before saving as draft.',
+                    confirmButtonColor: '#0f3460'
+                }).then(() => {
+                    if (biltyNo) biltyNo.focus();
+                });
+                return false;
+            }
+
+            // Set form status to draft
+            document.getElementById('bilty_status').value = 'draft';
+
+            // Ensure fallback values so empty calculation inputs don't fail
+            if (!document.getElementById('invoice_date').value) {
+                document.getElementById('invoice_date').value = new Date().toISOString().split('T')[0];
+            }
+            
+            // Ensure numeric inputs are at least 0.00
+            ['total_packages', 'total_qty', 'gross_amount', 'st_charge', 'rc_charge', 'sc_charge', 'dd_charge', 'round_off', 'net_amount', 'balance_amount', 'cash_amount', 'card_amount', 'upi_chq_amount'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el && (!el.value || isNaN(parseFloat(el.value)))) {
+                    el.value = '0.00';
+                }
+            });
+
+            const draftBtn = document.getElementById('btnSaveDraft');
+            if (draftBtn) {
+                draftBtn.disabled = true;
+                draftBtn.style.opacity = '0.7';
+                draftBtn.innerHTML = `
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" style="animation: spin 1s linear infinite; margin-right: 6px;"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" style="opacity:0.25;"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" style="opacity:0.75;"></path></svg>
+                    Saving Draft...
+                `;
+            }
+
+            // Submit form directly
+            document.getElementById('biltyForm').submit();
+        };
+
+        // Intercept form submit to validate fields and alert the user with SweetAlert2
         const biltyForm = document.getElementById('biltyForm');
+        biltyForm.addEventListener('submit', function(e) {
+            // If saving as draft, bypass strict client-side validation
+            if (document.getElementById('bilty_status').value === 'draft') {
+                return true;
+            }
+
+            document.getElementById('bilty_status').value = 'final';
+            const errors = [];
+            let firstInvalidEl = null;
+
+            // 1. Billing Type
+            const billingTypeEl = document.querySelector('input[name="billing_type"]:checked');
+            if (!billingTypeEl) {
+                errors.push("<strong>Billing Type:</strong> Please select a Billing Type (Paid, To Pay, or T.B.B.) at the top.");
+                if (!firstInvalidEl) firstInvalidEl = document.querySelector('input[name="billing_type"]');
+            }
+
+            // 2. C.N. No
+            const biltyNo = document.getElementById('bilty_no');
+            if (!biltyNo || !biltyNo.value.trim() || parseInt(biltyNo.value, 10) < 1) {
+                errors.push("<strong>C.N. No:</strong> Please enter a valid Consignment Note number.");
+                if (!firstInvalidEl) firstInvalidEl = biltyNo;
+            }
+
+            // 3. C.N. Date
+            const invoiceDate = document.getElementById('invoice_date');
+            if (!invoiceDate || !invoiceDate.value.trim()) {
+                errors.push("<strong>C.N. Date:</strong> Please enter the consignment note date.");
+                if (!firstInvalidEl) firstInvalidEl = invoiceDate;
+            }
+
+            // 4. From Location
+            const fromLoc = document.getElementById('from_location_id');
+            if (!fromLoc || !fromLoc.value) {
+                errors.push("<strong>From Location:</strong> Please select the origin location.");
+                if (!firstInvalidEl) firstInvalidEl = fromLoc;
+            }
+
+            // 5. To Location
+            const toLoc = document.getElementById('to_location_id');
+            if (!toLoc || !toLoc.value) {
+                errors.push("<strong>To Location:</strong> Please select the destination location.");
+                if (!firstInvalidEl) firstInvalidEl = toLoc;
+            }
+
+            // 6. Consignor
+            const consignor = document.getElementById('consignor_id');
+            if (!consignor || !consignor.value) {
+                errors.push("<strong>Consignor:</strong> Please select the Consignor party.");
+                if (!firstInvalidEl) firstInvalidEl = consignor;
+            }
+
+            // 7. Consignee
+            const consignee = document.getElementById('consignee_id');
+            if (!consignee || !consignee.value) {
+                errors.push("<strong>Consignee:</strong> Please select the Consignee party.");
+                if (!firstInvalidEl) firstInvalidEl = consignee;
+            }
+
+            // 8. Third Party (if T.B.B.)
+            if (billingTypeEl && billingTypeEl.value === 'T.B.B.') {
+                const billingParty = document.getElementById('billing_party_id');
+                if (!billingParty || !billingParty.value) {
+                    errors.push("<strong>Third Party:</strong> Please select a Third Party for T.B.B. billing.");
+                    if (!firstInvalidEl) firstInvalidEl = billingParty;
+                }
+            }
+
+            // 9. Items Grid
+            const itemRows = document.querySelectorAll('#gridBody tr.grid-row');
+            if (itemRows.length === 0) {
+                errors.push("<strong>Consignment Items:</strong> Please add at least one item row in the items table.");
+            } else {
+                itemRows.forEach((row, idx) => {
+                    const rowNum = idx + 1;
+                    const pkgs = row.querySelector('.input-no_of_pkgs');
+                    const pkgsVal = pkgs ? parseInt(pkgs.value, 10) : 0;
+                    if (!pkgs || isNaN(pkgsVal) || pkgsVal < 1) {
+                        errors.push(`<strong>Item Row #${rowNum}:</strong> No. of packages must be at least 1.`);
+                        if (!firstInvalidEl) firstInvalidEl = pkgs;
+                    }
+
+                    const weightType = row.querySelector('.input-weight_type')?.value;
+                    const weightVal = parseFloat(row.querySelector('.input-weight_val')?.value) || 0;
+                    const qtyVal = parseFloat(row.querySelector('.input-qty')?.value) || 0;
+
+                    if (weightType === 'KG') {
+                        if (weightVal <= 0 && qtyVal <= 0) {
+                            errors.push(`<strong>Item Row #${rowNum}:</strong> Please enter the weight (KG).`);
+                            if (!firstInvalidEl) firstInvalidEl = row.querySelector('.input-weight_val');
+                        }
+                    } else if (weightType === 'Fixed') {
+                        if (qtyVal <= 0) {
+                            errors.push(`<strong>Item Row #${rowNum}:</strong> Quantity must be greater than 0.`);
+                            if (!firstInvalidEl) firstInvalidEl = row.querySelector('.input-qty');
+                        }
+                    }
+
+                    if (billingTypeEl && billingTypeEl.value !== 'T.B.B.') {
+                        const rateInput = row.querySelector('.input-rate');
+                        const rateVal = rateInput ? parseFloat(rateInput.value) : NaN;
+                        if (!rateInput || isNaN(rateVal) || rateVal < 0) {
+                            errors.push(`<strong>Item Row #${rowNum}:</strong> Please enter a valid rate.`);
+                            if (!firstInvalidEl) firstInvalidEl = rateInput;
+                        }
+                    }
+                });
+            }
+
+            if (errors.length > 0) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const listHtml = '<div style="text-align: left; max-height: 260px; overflow-y: auto; padding-right: 5px;">' +
+                    '<p style="margin-top: 0; margin-bottom: 8px; font-weight: 600; color: #b91c1c;">Please resolve the following before saving:</p>' +
+                    '<ul style="margin: 0; padding-left: 18px; color: #374151; font-size: 13px; line-height: 1.6;">' +
+                    errors.map(err => `<li style="margin-bottom: 4px;">${err}</li>`).join('') +
+                    '</ul></div>';
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Cannot Save Receipt',
+                    html: listHtml,
+                    confirmButtonText: 'Review Form',
+                    confirmButtonColor: '#0f3460',
+                    width: '480px'
+                }).then(() => {
+                    if (firstInvalidEl) {
+                        if ($(firstInvalidEl).data('select2')) {
+                            $(firstInvalidEl).select2('open');
+                        } else {
+                            firstInvalidEl.focus();
+                            if (typeof firstInvalidEl.select === 'function') firstInvalidEl.select();
+                        }
+                    }
+                });
+                return false;
+            }
+
+            // Show loading state on save button upon successful submission
+            const saveBtn = biltyForm.querySelector('.btn-save');
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.style.opacity = '0.7';
+                saveBtn.innerHTML = `
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" style="animation: spin 1s linear infinite; margin-right: 6px;"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" style="opacity:0.25;"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" style="opacity:0.75;"></path></svg>
+                    Saving...
+                `;
+            }
+        });
+
         // Lookup Bilty details when typing C.N No.
         const biltyNoInput = document.getElementById('bilty_no');
         let currentBiltyId = null;
@@ -1266,6 +1499,11 @@
                 // If input is cleared, reset button values and remove View link
                 currentBiltyId = null;
                 biltyForm.setAttribute('action', `{{ route('bilty.store') }}`);
+                document.getElementById('bilty_status').value = 'final';
+                const draftIndicator = document.getElementById('draftIndicator');
+                if (draftIndicator) draftIndicator.style.display = 'none';
+                const userDisplay = document.getElementById('bilty_user_display');
+                if (userDisplay) userDisplay.value = "{{ auth()->user()->username ?? 'admin' }}";
                 const saveBtn = document.querySelector('.btn-save');
                 if (saveBtn) {
                     saveBtn.innerHTML = `
@@ -1301,13 +1539,25 @@
                         currentBiltyId = data.bilty.id;
                         biltyForm.setAttribute('action', `{{ url('/bilty/update') }}/${currentBiltyId}`);
                         
+                        const isDraft = (data.bilty.status === 'draft');
+                        const draftIndicator = document.getElementById('draftIndicator');
+                        if (draftIndicator) {
+                            draftIndicator.style.display = isDraft ? 'inline-block' : 'none';
+                        }
+                        document.getElementById('bilty_status').value = isDraft ? 'draft' : 'final';
+
                         // Update Action buttons text
                         const saveBtn = document.querySelector('.btn-save');
                         if (saveBtn) {
                             saveBtn.innerHTML = `
                                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                                Update Receipt
+                                ${isDraft ? 'Finalize & Save' : 'Update Receipt'}
                             `;
+                        }
+
+                        const userDisplay = document.getElementById('bilty_user_display');
+                        if (userDisplay) {
+                            userDisplay.value = data.bilty.user ? (data.bilty.user.username || data.bilty.user.name) : 'admin';
                         }
 
                         // Format and map radio buttons selection
@@ -1609,7 +1859,7 @@
             minimumInputLength: 1
         });
         $('#billing_party_id').select2({
-            placeholder: 'Select Billing Party',
+            placeholder: 'Select Third Party',
             allowClear: true,
             width: '100%',
             minimumInputLength: 1

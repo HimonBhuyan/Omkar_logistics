@@ -321,11 +321,31 @@
             z-index: 1000;
         }
 
+        .print-wrapper {
+            position: relative;
+            max-width: 100%;
+            margin: 45px 15px 15px 15px;
+        }
+
         @media print {
-            body {
-                padding: 0 !important;
+            @page {
+                size: A5 landscape !important;
                 margin: 0 !important;
-                background-color: transparent;
+            }
+
+            html,
+            body {
+                width: 210mm !important;
+                height: 148mm !important;
+                max-width: 210mm !important;
+                max-height: 148mm !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+                background: #ffffff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .btn-print,
@@ -333,11 +353,58 @@
                 display: none !important;
             }
 
+            .print-wrapper {
+                position: static !important;
+                margin: 0 !important;
+                padding: 3mm 4mm !important;
+                width: 210mm !important;
+                height: 148mm !important;
+                max-width: 210mm !important;
+                max-height: 148mm !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+                page-break-before: avoid !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+                break-before: avoid !important;
+                break-after: avoid !important;
+                break-inside: avoid !important;
+            }
+
             .receipt-outer {
-                border: none !important;
+                border: 1px solid #000000 !important;
+                padding: 2px !important;
                 margin: 0 !important;
                 width: 100% !important;
                 height: 100% !important;
+                max-height: 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+                page-break-before: avoid !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+                break-before: avoid !important;
+                break-after: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            .receipt-container {
+                width: 100% !important;
+                height: 100% !important;
+                max-height: 100% !important;
+                border: 1.5px solid #000000 !important;
+                padding: 5px 8px !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+                page-break-before: avoid !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+                break-before: avoid !important;
+                break-after: avoid !important;
+                break-inside: avoid !important;
             }
         }
     </style>
@@ -345,7 +412,7 @@
 
 <body>
 
-    <div style="position: relative; max-width: 100%; margin: 45px 15px 15px 15px;">
+    <div class="print-wrapper">
         <a href="{{ route('bilty.create') }}" class="btn-back-link">⬅ Back to Entry Form</a>
         <button class="btn-print" onclick="window.print()">🖨 Print Bill (A5)</button>
 

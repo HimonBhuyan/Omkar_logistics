@@ -977,7 +977,16 @@
                 });
                 if (hasErrors) {
                     e.preventDefault();
-                    alert('Please correct the validation errors (marked in red) before saving.');
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Validation Errors',
+                            text: 'Please correct the validation errors (marked in red) before saving.',
+                            confirmButtonColor: '#0f3460'
+                        });
+                    } else {
+                        alert('Please correct the validation errors (marked in red) before saving.');
+                    }
                 }
             });
         }

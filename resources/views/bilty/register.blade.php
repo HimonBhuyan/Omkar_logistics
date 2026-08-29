@@ -204,7 +204,7 @@
 <div class="report-card">
     <div class="report-header-bar">Bilty Register</div>
     
-    <form method="GET" action="{{ route('report.bilty_register') }}">
+    <form method="GET" action="{{ route('report.bilty_register') }}" id="biltyFilterForm">
         <div class="filter-section">
             <div class="filter-grid">
                 
@@ -309,9 +309,10 @@
             <thead>
                 <tr>
                     <th>Srno.</th>
-                    <th>Series</th>
+                    <th>Status</th>
                     <th>BiltyNo</th>
                     <th>Date</th>
+                    <th>Time</th>
                     <th>From Loc.</th>
                     <th>To Loc.</th>
                     <th>Consignor</th>
@@ -323,20 +324,56 @@
                     <th>E-WayBill No</th>
                     <th>Vehicle No</th>
                     <th>Packages</th>
+                    <th>Packing</th>
+                    <th>Description</th>
+                    <th>Invoice No.</th>
+                    <th>Invoice Value</th>
                     <th>Weight Type</th>
                     <th>QTY</th>
                     <th>Rate</th>
+                    <th>ST</th>
+                    <th>RC</th>
+                    <th>SC</th>
+                    <th>DD</th>
+                    <th>Total</th>
                     <th>Net Amt.</th>
+                    <th>M.O.P</th>
+                    <th>User Name</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($bilties as $index => $b)
+                    @php
+                        $packing = $b->items->pluck('packing')->filter(fn($v) => filled($v))->unique()->implode(', ');
+                        $description = $b->items->pluck('description')->filter(fn($v) => filled($v))->unique()->implode(', ');
+                        $invoiceNo = $b->items->pluck('invoice_no')->filter(fn($v) => filled($v))->unique()->implode(', ');
+                        $invoiceVal = floatval($b->items->sum('invoice_value'));
+
+                        $st = $b->st_charge > 0 ? floatval($b->st_charge) : floatval($b->items->sum('st'));
+                        $rc = $b->rc_charge > 0 ? floatval($b->rc_charge) : floatval($b->items->sum('rc'));
+                        $sc = $b->sc_charge > 0 ? floatval($b->sc_charge) : floatval($b->items->sum('sc'));
+                        $dd = $b->dd_charge > 0 ? floatval($b->dd_charge) : floatval($b->items->sum('dd'));
+
+                        $rate = ($b->gross_amount > 0 && $b->total_qty > 0) ? ($b->gross_amount / $b->total_qty) : ($b->items->first()?->rate ?? 0);
+                        $gross = ($b->gross_amount > 0) ? floatval($b->gross_amount) : (floatval($b->total_qty) * floatval($rate));
+                        $rowTotal = $gross + $st + $rc + $sc + $dd;
+                        if ($rowTotal == 0 && floatval($b->net_amount) > 0) {
+                            $rowTotal = floatval($b->net_amount);
+                        }
+                    @endphp
                     <tr onclick="window.location='{{ route('bilty.create') }}?bilty_no={{ $b->bilty_no }}'" style="cursor: pointer;">
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ $b->series }}</td>
+                        <td>
+                            @if(($b->status ?? 'final') === 'draft')
+                                <span style="background:#fef3c7; color:#b45309; border:1px solid #fcd34d; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; display:inline-block; white-space:nowrap;">Draft</span>
+                            @else
+                                <span style="background:#dcfce7; color:#15803d; border:1px solid #86efac; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; display:inline-block; white-space:nowrap;">Final</span>
+                            @endif
+                        </td>
                         <td>{{ $b->bilty_no }}</td>
                         <td>{{ $b->invoice_date ? $b->invoice_date->format('d-m-Y') : '' }}</td>
+                        <td>{{ $b->created_at ? $b->created_at->format('h:i A') : '' }}</td>
                         <td>{{ $b->fromLocation ? $b->fromLocation->name : '' }}</td>
                         <td>{{ $b->toLocation ? $b->toLocation->name : '' }}</td>
                         <td>{{ $b->consignor ? $b->consignor->name : $b->consignor_name }}</td>
@@ -348,17 +385,28 @@
                         <td>{{ $b->eway_bill_no }}</td>
                         <td>{{ $b->vehicle_no }}</td>
                         <td>{{ $b->total_packages }}</td>
+                        <td>{{ $packing }}</td>
+                        <td>{{ $description }}</td>
+                        <td>{{ $invoiceNo }}</td>
+                        <td>{{ $invoiceVal > 0 ? number_format($invoiceVal, 2) : '0.00' }}</td>
                         <td>{{ $b->type === 'Transport Name' ? 'Fixed' : 'KG' }}</td>
                         <td>{{ $b->total_qty }}</td>
-                        <td>{{ $b->gross_amount > 0 && $b->total_qty > 0 ? number_format($b->gross_amount / $b->total_qty, 2) : '0.00' }}</td>
+                        <td>{{ number_format($rate, 2) }}</td>
+                        <td>{{ number_format($st, 2) }}</td>
+                        <td>{{ number_format($rc, 2) }}</td>
+                        <td>{{ number_format($sc, 2) }}</td>
+                        <td>{{ number_format($dd, 2) }}</td>
+                        <td>{{ number_format($rowTotal, 2) }}</td>
                         <td>{{ number_format($b->net_amount, 2) }}</td>
+                        <td><span style="font-weight:600; color:#0f3460;">{{ $b->billing_type ?? '-' }}</span></td>
+                        <td>{{ $b->user ? ($b->user->username ?? $b->user->name) : ($b->user_id ? 'User #'.$b->user_id : 'admin') }}</td>
                         <td>
                             <a href="{{ route('bilty.print', $b->id) }}" target="_blank" onclick="event.stopPropagation();" style="color: #003087; font-weight:600; text-decoration:underline;">Print</a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="19" style="text-align: center; color: #666; padding: 20px;">No Bilty records found for the selected criteria.</td>
+                        <td colspan="32" style="text-align: center; color: #666; padding: 20px;">No Bilty records found for the selected criteria.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -390,8 +438,57 @@
         </div>
 
         <div class="action-buttons">
-            <button type="button" class="btn-action" onclick="window.print()">🖨 Print List</button>
+            <button type="button" class="btn-action" id="btnPrintList" onclick="downloadExcel(event)" title="Download Excel Sheet of C.N Bills">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#107c41;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Print List
+            </button>
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    function downloadExcel(e) {
+        if (e) e.preventDefault();
+        const btn = document.getElementById('btnPrintList');
+        const originalHtml = btn ? btn.innerHTML : 'Print List';
+        if (btn) {
+            btn.style.opacity = '0.7';
+            btn.innerHTML = `
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" style="opacity:0.25;"></circle>
+                    <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" style="opacity:0.75;"></path>
+                </svg>
+                Downloading...
+            `;
+            setTimeout(() => {
+                btn.style.opacity = '1';
+                btn.innerHTML = originalHtml;
+            }, 2500);
+        }
+
+        const form = document.getElementById('biltyFilterForm');
+        let baseUrl = "{{ route('report.bilty_register.export') }}";
+        if (form) {
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            for (const [key, value] of formData.entries()) {
+                if (value !== '') {
+                    params.append(key, value);
+                }
+            }
+            const qs = params.toString();
+            window.location.href = baseUrl + (qs ? '?' + qs : '');
+        } else {
+            window.location.href = baseUrl;
+        }
+    }
+</script>
 @endsection

@@ -62,116 +62,152 @@ class BiltyController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'series' => 'nullable|string|max:5',
-            'bilty_no' => 'required|integer',
-            'invoice_date' => 'required|date',
-            'from_location_id' => 'required|exists:cities,id',
-            'to_location_id' => 'required|exists:cities,id',
-            'consignor_id' => 'required|exists:account_ledgers,id',
-            'consignee_id' => 'required|exists:account_ledgers,id',
-            'billing_type' => 'required|string|in:Paid,To Pay,T.B.B.',
-            'billing_party_id' => 'nullable|exists:account_ledgers,id',
-            'vehicle_no' => 'nullable|string|max:50',
-            'eway_bill_no' => 'nullable|string|max:50',
-            'cn_no' => 'nullable|string|max:50',
-            
-            // Grid items
-            'items' => 'required|array|min:1',
-            'items.*.no_of_pkgs' => 'required|integer|min:1',
-            'items.*.packing' => 'nullable|string|max:100',
-            'items.*.description' => 'nullable|string|max:255',
-            'items.*.invoice_no' => 'nullable|string|max:50',
-            'items.*.invoice_value' => 'nullable|numeric|min:0',
-            'items.*.weight_type' => 'required|string|in:KG,Fixed',
-            'items.*.weight_val' => 'nullable|numeric|min:0',
-            'items.*.qty' => 'required|numeric|min:0',
-            'items.*.rate' => 'required|numeric|min:0',
-            'items.*.st' => 'nullable|numeric|min:0',
-            'items.*.rc' => 'nullable|numeric|min:0',
-            'items.*.sc' => 'nullable|numeric|min:0',
-            'items.*.dd' => 'nullable|numeric|min:0',
+        $isDraft = ($request->input('status') === 'draft');
 
-            // Summary Totals
-            'total_packages' => 'required|integer',
-            'total_qty' => 'required|numeric',
-            'gross_amount' => 'required|numeric',
-            'st_charge' => 'nullable|numeric',
-            'rc_charge' => 'nullable|numeric',
-            'sc_charge' => 'nullable|numeric',
-            'dd_charge' => 'nullable|numeric',
-            'round_off' => 'nullable|numeric',
-            'net_amount' => 'required|numeric',
+        if ($isDraft) {
+            $request->validate([
+                'series' => 'nullable|string|max:5',
+                'bilty_no' => 'required|integer',
+                'invoice_date' => 'nullable|date',
+                'from_location_id' => 'nullable',
+                'to_location_id' => 'nullable',
+                'consignor_id' => 'nullable',
+                'consignee_id' => 'nullable',
+                'billing_type' => 'nullable|string|max:50',
+                'billing_party_id' => 'nullable',
+                'items' => 'nullable|array',
+            ]);
+        } else {
+            $request->validate([
+                'series' => 'nullable|string|max:5',
+                'bilty_no' => 'required|integer',
+                'invoice_date' => 'required|date',
+                'from_location_id' => 'required|exists:cities,id',
+                'to_location_id' => 'required|exists:cities,id',
+                'consignor_id' => 'required|exists:account_ledgers,id',
+                'consignee_id' => 'required|exists:account_ledgers,id',
+                'billing_type' => 'required|string|in:Paid,To Pay,T.B.B.',
+                'billing_party_id' => 'nullable|exists:account_ledgers,id',
+                'vehicle_no' => 'nullable|string|max:50',
+                'eway_bill_no' => 'nullable|string|max:50',
+                'cn_no' => 'nullable|string|max:50',
+                
+                // Grid items
+                'items' => 'required|array|min:1',
+                'items.*.no_of_pkgs' => 'required|integer|min:1',
+                'items.*.packing' => 'nullable|string|max:100',
+                'items.*.description' => 'nullable|string|max:255',
+                'items.*.invoice_no' => 'nullable|string|max:50',
+                'items.*.invoice_value' => 'nullable|numeric|min:0',
+                'items.*.weight_type' => 'required|string|in:KG,Fixed',
+                'items.*.weight_val' => 'nullable|numeric|min:0',
+                'items.*.qty' => 'required|numeric|min:0',
+                'items.*.rate' => 'required|numeric|min:0',
+                'items.*.st' => 'nullable|numeric|min:0',
+                'items.*.rc' => 'nullable|numeric|min:0',
+                'items.*.sc' => 'nullable|numeric|min:0',
+                'items.*.dd' => 'nullable|numeric|min:0',
 
-            // Payments
-            'cash_amount' => 'nullable|numeric',
-            'card_amount' => 'nullable|numeric',
-            'upi_chq_amount' => 'nullable|numeric',
-            'ref_no' => 'nullable|string|max:50',
-            'payment_date' => 'nullable|date',
-            'bank_account' => 'nullable|string|max:100',
-            'balance_amount' => 'required|numeric',
-            'remark' => 'nullable|string',
-            'voucher_no' => 'nullable|integer',
-        ]);
+                // Summary Totals
+                'total_packages' => 'required|integer',
+                'total_qty' => 'required|numeric',
+                'gross_amount' => 'required|numeric',
+                'st_charge' => 'nullable|numeric',
+                'rc_charge' => 'nullable|numeric',
+                'sc_charge' => 'nullable|numeric',
+                'dd_charge' => 'nullable|numeric',
+                'round_off' => 'nullable|numeric',
+                'net_amount' => 'required|numeric',
+
+                // Payments
+                'cash_amount' => 'nullable|numeric',
+                'card_amount' => 'nullable|numeric',
+                'upi_chq_amount' => 'nullable|numeric',
+                'ref_no' => 'nullable|string|max:50',
+                'payment_date' => 'nullable|date',
+                'bank_account' => 'nullable|string|max:100',
+                'balance_amount' => 'required|numeric',
+                'remark' => 'nullable|string',
+                'voucher_no' => 'nullable|integer',
+            ]);
+        }
 
         try {
             DB::beginTransaction();
 
-            // Locate or seed the target location inside the 'locations' table to satisfy constraints
-            $fromCity = CityModel::findOrFail($request->from_location_id);
-            $toCity = CityModel::findOrFail($request->to_location_id);
+            $fromLoc = null;
+            if ($request->filled('from_location_id')) {
+                $fromCity = CityModel::find($request->from_location_id);
+                if ($fromCity) {
+                    $fromLoc = Location::firstOrCreate(['name' => $fromCity->name]);
+                }
+            }
 
-            $fromLoc = Location::firstOrCreate(['name' => $fromCity->name]);
-            $toLoc = Location::firstOrCreate(['name' => $toCity->name]);
+            $toLoc = null;
+            if ($request->filled('to_location_id')) {
+                $toCity = CityModel::find($request->to_location_id);
+                if ($toCity) {
+                    $toLoc = Location::firstOrCreate(['name' => $toCity->name]);
+                }
+            }
 
-            // Map consignor/consignee ledger records to seed parties table to satisfy constraints
-            $consignorLedger = AccountLedger::findOrFail($request->consignor_id);
-            $consigneeLedger = AccountLedger::findOrFail($request->consignee_id);
+            $consignorLedger = null;
+            if ($request->filled('consignor_id')) {
+                $consignorLedger = AccountLedger::find($request->consignor_id);
+                if ($consignorLedger) {
+                    DB::table('parties')->updateOrInsert(
+                        ['id' => $consignorLedger->id],
+                        ['name' => $consignorLedger->ledger_name, 'created_at' => now(), 'updated_at' => now()]
+                    );
+                }
+            }
 
-            // Fetch or seed parties
-            $dbConsignor = DB::table('parties')->updateOrInsert(
-                ['id' => $consignorLedger->id],
-                ['name' => $consignorLedger->ledger_name, 'created_at' => now(), 'updated_at' => now()]
-            );
-            $dbConsignee = DB::table('parties')->updateOrInsert(
-                ['id' => $consigneeLedger->id],
-                ['name' => $consigneeLedger->ledger_name, 'created_at' => now(), 'updated_at' => now()]
-            );
+            $consigneeLedger = null;
+            if ($request->filled('consignee_id')) {
+                $consigneeLedger = AccountLedger::find($request->consignee_id);
+                if ($consigneeLedger) {
+                    DB::table('parties')->updateOrInsert(
+                        ['id' => $consigneeLedger->id],
+                        ['name' => $consigneeLedger->ledger_name, 'created_at' => now(), 'updated_at' => now()]
+                    );
+                }
+            }
 
-            if ($request->billing_party_id) {
-                $billingLedger = AccountLedger::findOrFail($request->billing_party_id);
-                DB::table('parties')->updateOrInsert(
-                    ['id' => $billingLedger->id],
-                    ['name' => $billingLedger->ledger_name, 'created_at' => now(), 'updated_at' => now()]
-                );
+            if ($request->filled('billing_party_id')) {
+                $billingLedger = AccountLedger::find($request->billing_party_id);
+                if ($billingLedger) {
+                    DB::table('parties')->updateOrInsert(
+                        ['id' => $billingLedger->id],
+                        ['name' => $billingLedger->ledger_name, 'created_at' => now(), 'updated_at' => now()]
+                    );
+                }
             }
 
             // Create Bilty Header
             $bilty = Bilty::create([
                 'series' => $request->series ?? '26-27',
                 'bilty_no' => $request->bilty_no,
-                'invoice_date' => $request->invoice_date,
-                'from_location_id' => $fromLoc->id,
-                'to_location_id' => $toLoc->id,
-                'consignor_id' => $consignorLedger->id,
-                'consignee_id' => $consigneeLedger->id,
-                'billing_type' => $request->billing_type,
+                'invoice_date' => $request->invoice_date ?: now()->toDateString(),
+                'from_location_id' => $fromLoc ? $fromLoc->id : null,
+                'to_location_id' => $toLoc ? $toLoc->id : null,
+                'consignor_id' => $consignorLedger ? $consignorLedger->id : null,
+                'consignee_id' => $consigneeLedger ? $consigneeLedger->id : null,
+                'billing_type' => $request->billing_type ?: 'Paid',
                 'billing_party_id' => $request->billing_party_id,
                 'cn_no' => $request->cn_no,
                 'vehicle_no' => $request->vehicle_no,
                 'eway_bill_no' => $request->eway_bill_no,
                 
-                'total_packages' => $request->total_packages,
-                'total_qty' => $request->total_qty,
-                'gross_amount' => $request->gross_amount,
+                'total_packages' => $request->total_packages ?? 0,
+                'total_qty' => $request->total_qty ?? 0.000,
+                'gross_amount' => $request->gross_amount ?? 0.00,
                 
                 'st_charge' => $request->st_charge ?? 0.00,
                 'rc_charge' => $request->rc_charge ?? 0.00,
                 'sc_charge' => $request->sc_charge ?? 0.00,
                 'dd_charge' => $request->dd_charge ?? 0.00,
                 'round_off' => $request->round_off ?? 0.00,
-                'net_amount' => $request->net_amount,
+                'net_amount' => $request->net_amount ?? 0.00,
                 
                 'cash_amount' => $request->cash_amount ?? 0.00,
                 'card_amount' => $request->card_amount ?? 0.00,
@@ -179,39 +215,47 @@ class BiltyController extends Controller
                 'ref_no' => $request->ref_no,
                 'payment_date' => $request->payment_date,
                 'bank_account' => $request->bank_account,
-                'balance_amount' => $request->balance_amount,
+                'balance_amount' => $request->balance_amount ?? 0.00,
                 'remark' => $request->remark,
                 'voucher_no' => $request->voucher_no,
+                'status' => $isDraft ? 'draft' : 'final',
+                'user_id' => auth()->id(),
             ]);
 
             // Save Bilty Items
-            foreach ($request->items as $itemData) {
-                BiltyItem::create([
-                    'bilty_id' => $bilty->id,
-                    'no_of_pkgs' => $itemData['no_of_pkgs'],
-                    'packing' => $itemData['packing'] ?? '',
-                    'description' => $itemData['description'] ?? '',
-                    'invoice_no' => $itemData['invoice_no'] ?? '',
-                    'invoice_value' => $itemData['invoice_value'] ?? 0.00,
-                    'weight_type' => $itemData['weight_type'],
-                    'weight_val' => $itemData['weight_val'] ?? 0.000,
-                    'qty' => $itemData['qty'],
-                    'rate' => $itemData['rate'],
-                    'st' => $itemData['st'] ?? 0.00,
-                    'rc' => $itemData['rc'] ?? 0.00,
-                    'sc' => $itemData['sc'] ?? 0.00,
-                    'dd' => $itemData['dd'] ?? 0.00,
-                ]);
+            if ($request->has('items') && is_array($request->items)) {
+                foreach ($request->items as $itemData) {
+                    BiltyItem::create([
+                        'bilty_id' => $bilty->id,
+                        'no_of_pkgs' => $itemData['no_of_pkgs'] ?? 0,
+                        'packing' => $itemData['packing'] ?? '',
+                        'description' => $itemData['description'] ?? '',
+                        'invoice_no' => $itemData['invoice_no'] ?? '',
+                        'invoice_value' => $itemData['invoice_value'] ?? 0.00,
+                        'weight_type' => $itemData['weight_type'] ?? 'KG',
+                        'weight_val' => $itemData['weight_val'] ?? 0.000,
+                        'qty' => $itemData['qty'] ?? 0.000,
+                        'rate' => $itemData['rate'] ?? 0.00,
+                        'st' => $itemData['st'] ?? 0.00,
+                        'rc' => $itemData['rc'] ?? 0.00,
+                        'sc' => $itemData['sc'] ?? 0.00,
+                        'dd' => $itemData['dd'] ?? 0.00,
+                    ]);
+                }
             }
 
             DB::commit();
 
-            if ($request->has('print_after_save')) {
+            if ($request->has('print_after_save') && !$isDraft) {
                 return redirect()->route('bilty.print', $bilty->id);
             }
 
+            $successMsg = $isDraft 
+                ? ('Bilty #' . $bilty->bilty_no . ' saved as draft successfully!')
+                : ('Bilty #' . $bilty->bilty_no . ' saved successfully!');
+
             return redirect()->route('bilty.create')
-                ->with('success', 'Bilty #' . $bilty->bilty_no . ' saved successfully!')
+                ->with('success', $successMsg)
                 ->with('print_id', $bilty->id);
 
         } catch (\Illuminate\Database\QueryException $e) {
@@ -237,7 +281,7 @@ class BiltyController extends Controller
     public function lookup($bilty_no)
     {
         // Try to find the bilty with the current series or fall back to any series
-        $bilty = Bilty::with(['items'])->where('bilty_no', $bilty_no)->first();
+        $bilty = Bilty::with(['items', 'user'])->where('bilty_no', $bilty_no)->first();
         if (!$bilty) {
             return response()->json(['error' => 'Bilty consignment not found'], 404);
         }
@@ -266,114 +310,152 @@ class BiltyController extends Controller
     public function update(Request $request, $id)
     {
         $bilty = Bilty::findOrFail($id);
+        $isDraft = ($request->input('status') === 'draft');
 
-        $request->validate([
-            'series' => 'nullable|string|max:5',
-            'bilty_no' => 'required|integer',
-            'invoice_date' => 'required|date',
-            'from_location_id' => 'required|exists:cities,id',
-            'to_location_id' => 'required|exists:cities,id',
-            'consignor_id' => 'required|exists:account_ledgers,id',
-            'consignee_id' => 'required|exists:account_ledgers,id',
-            'billing_type' => 'required|string|in:Paid,To Pay,T.B.B.',
-            'billing_party_id' => 'nullable|exists:account_ledgers,id',
-            'vehicle_no' => 'nullable|string|max:50',
-            'eway_bill_no' => 'nullable|string|max:50',
-            'cn_no' => 'nullable|string|max:50',
-            
-            // Grid items
-            'items' => 'required|array|min:1',
-            'items.*.no_of_pkgs' => 'required|integer|min:1',
-            'items.*.packing' => 'nullable|string|max:100',
-            'items.*.description' => 'nullable|string|max:255',
-            'items.*.invoice_no' => 'nullable|string|max:50',
-            'items.*.invoice_value' => 'nullable|numeric|min:0',
-            'items.*.weight_type' => 'required|string|in:KG,Fixed',
-            'items.*.weight_val' => 'nullable|numeric|min:0',
-            'items.*.qty' => 'required|numeric|min:0',
-            'items.*.rate' => 'required|numeric|min:0',
-            'items.*.st' => 'nullable|numeric|min:0',
-            'items.*.rc' => 'nullable|numeric|min:0',
-            'items.*.sc' => 'nullable|numeric|min:0',
-            'items.*.dd' => 'nullable|numeric|min:0',
+        if ($isDraft) {
+            $request->validate([
+                'series' => 'nullable|string|max:5',
+                'bilty_no' => 'required|integer',
+                'invoice_date' => 'nullable|date',
+                'from_location_id' => 'nullable',
+                'to_location_id' => 'nullable',
+                'consignor_id' => 'nullable',
+                'consignee_id' => 'nullable',
+                'billing_type' => 'nullable|string|max:50',
+                'billing_party_id' => 'nullable',
+                'items' => 'nullable|array',
+            ]);
+        } else {
+            $request->validate([
+                'series' => 'nullable|string|max:5',
+                'bilty_no' => 'required|integer',
+                'invoice_date' => 'required|date',
+                'from_location_id' => 'required|exists:cities,id',
+                'to_location_id' => 'required|exists:cities,id',
+                'consignor_id' => 'required|exists:account_ledgers,id',
+                'consignee_id' => 'required|exists:account_ledgers,id',
+                'billing_type' => 'required|string|in:Paid,To Pay,T.B.B.',
+                'billing_party_id' => 'nullable|exists:account_ledgers,id',
+                'vehicle_no' => 'nullable|string|max:50',
+                'eway_bill_no' => 'nullable|string|max:50',
+                'cn_no' => 'nullable|string|max:50',
+                
+                // Grid items
+                'items' => 'required|array|min:1',
+                'items.*.no_of_pkgs' => 'required|integer|min:1',
+                'items.*.packing' => 'nullable|string|max:100',
+                'items.*.description' => 'nullable|string|max:255',
+                'items.*.invoice_no' => 'nullable|string|max:50',
+                'items.*.invoice_value' => 'nullable|numeric|min:0',
+                'items.*.weight_type' => 'required|string|in:KG,Fixed',
+                'items.*.weight_val' => 'nullable|numeric|min:0',
+                'items.*.qty' => 'required|numeric|min:0',
+                'items.*.rate' => 'required|numeric|min:0',
+                'items.*.st' => 'nullable|numeric|min:0',
+                'items.*.rc' => 'nullable|numeric|min:0',
+                'items.*.sc' => 'nullable|numeric|min:0',
+                'items.*.dd' => 'nullable|numeric|min:0',
 
-            // Summary Totals
-            'total_packages' => 'required|integer',
-            'total_qty' => 'required|numeric',
-            'gross_amount' => 'required|numeric',
-            'st_charge' => 'nullable|numeric',
-            'rc_charge' => 'nullable|numeric',
-            'sc_charge' => 'nullable|numeric',
-            'dd_charge' => 'nullable|numeric',
-            'round_off' => 'nullable|numeric',
-            'net_amount' => 'required|numeric',
+                // Summary Totals
+                'total_packages' => 'required|integer',
+                'total_qty' => 'required|numeric',
+                'gross_amount' => 'required|numeric',
+                'st_charge' => 'nullable|numeric',
+                'rc_charge' => 'nullable|numeric',
+                'sc_charge' => 'nullable|numeric',
+                'dd_charge' => 'nullable|numeric',
+                'round_off' => 'nullable|numeric',
+                'net_amount' => 'required|numeric',
 
-            // Payments
-            'cash_amount' => 'nullable|numeric',
-            'card_amount' => 'nullable|numeric',
-            'upi_chq_amount' => 'nullable|numeric',
-            'ref_no' => 'nullable|string|max:50',
-            'payment_date' => 'nullable|date',
-            'bank_account' => 'nullable|string|max:100',
-            'balance_amount' => 'required|numeric',
-            'remark' => 'nullable|string',
-            'voucher_no' => 'nullable|integer',
-        ]);
+                // Payments
+                'cash_amount' => 'nullable|numeric',
+                'card_amount' => 'nullable|numeric',
+                'upi_chq_amount' => 'nullable|numeric',
+                'ref_no' => 'nullable|string|max:50',
+                'payment_date' => 'nullable|date',
+                'bank_account' => 'nullable|string|max:100',
+                'balance_amount' => 'required|numeric',
+                'remark' => 'nullable|string',
+                'voucher_no' => 'nullable|integer',
+            ]);
+        }
 
         try {
             DB::beginTransaction();
 
-            $fromCity = CityModel::findOrFail($request->from_location_id);
-            $toCity = CityModel::findOrFail($request->to_location_id);
+            $fromLoc = null;
+            if ($request->filled('from_location_id')) {
+                $fromCity = CityModel::find($request->from_location_id);
+                if ($fromCity) {
+                    $fromLoc = Location::firstOrCreate(['name' => $fromCity->name]);
+                }
+            }
 
-            $fromLoc = Location::firstOrCreate(['name' => $fromCity->name]);
-            $toLoc = Location::firstOrCreate(['name' => $toCity->name]);
+            $toLoc = null;
+            if ($request->filled('to_location_id')) {
+                $toCity = CityModel::find($request->to_location_id);
+                if ($toCity) {
+                    $toLoc = Location::firstOrCreate(['name' => $toCity->name]);
+                }
+            }
 
-            $consignorLedger = AccountLedger::findOrFail($request->consignor_id);
-            $consigneeLedger = AccountLedger::findOrFail($request->consignee_id);
+            $consignorLedger = null;
+            if ($request->filled('consignor_id')) {
+                $consignorLedger = AccountLedger::find($request->consignor_id);
+                if ($consignorLedger) {
+                    DB::table('parties')->updateOrInsert(
+                        ['id' => $consignorLedger->id],
+                        ['name' => $consignorLedger->ledger_name, 'created_at' => now(), 'updated_at' => now()]
+                    );
+                }
+            }
 
-            DB::table('parties')->updateOrInsert(
-                ['id' => $consignorLedger->id],
-                ['name' => $consignorLedger->ledger_name, 'created_at' => now(), 'updated_at' => now()]
-            );
-            DB::table('parties')->updateOrInsert(
-                ['id' => $consigneeLedger->id],
-                ['name' => $consigneeLedger->ledger_name, 'created_at' => now(), 'updated_at' => now()]
-            );
+            $consigneeLedger = null;
+            if ($request->filled('consignee_id')) {
+                $consigneeLedger = AccountLedger::find($request->consignee_id);
+                if ($consigneeLedger) {
+                    DB::table('parties')->updateOrInsert(
+                        ['id' => $consigneeLedger->id],
+                        ['name' => $consigneeLedger->ledger_name, 'created_at' => now(), 'updated_at' => now()]
+                    );
+                }
+            }
 
-            if ($request->billing_party_id) {
-                $billingLedger = AccountLedger::findOrFail($request->billing_party_id);
-                DB::table('parties')->updateOrInsert(
-                    ['id' => $billingLedger->id],
-                    ['name' => $billingLedger->ledger_name, 'created_at' => now(), 'updated_at' => now()]
-                );
+            if ($request->filled('billing_party_id')) {
+                $billingLedger = AccountLedger::find($request->billing_party_id);
+                if ($billingLedger) {
+                    DB::table('parties')->updateOrInsert(
+                        ['id' => $billingLedger->id],
+                        ['name' => $billingLedger->ledger_name, 'created_at' => now(), 'updated_at' => now()]
+                    );
+                }
             }
 
             // Update Header
             $bilty->update([
-                'series' => $request->series ?? '26-27',
+                'series' => $request->series ?? $bilty->series,
                 'bilty_no' => $request->bilty_no,
-                'invoice_date' => $request->invoice_date,
-                'from_location_id' => $fromLoc->id,
-                'to_location_id' => $toLoc->id,
-                'consignor_id' => $consignorLedger->id,
-                'consignee_id' => $consigneeLedger->id,
-                'billing_type' => $request->billing_type,
+                'invoice_date' => $request->invoice_date ?: ($bilty->invoice_date ?: now()->toDateString()),
+                'from_location_id' => $fromLoc ? $fromLoc->id : $bilty->from_location_id,
+                'to_location_id' => $toLoc ? $toLoc->id : $bilty->to_location_id,
+                'consignor_id' => $consignorLedger ? $consignorLedger->id : $bilty->consignor_id,
+                'consignee_id' => $consigneeLedger ? $consigneeLedger->id : $bilty->consignee_id,
+                'billing_type' => $request->billing_type ?: $bilty->billing_type,
                 'billing_party_id' => $request->billing_party_id,
                 'cn_no' => $request->cn_no,
                 'vehicle_no' => $request->vehicle_no,
                 'eway_bill_no' => $request->eway_bill_no,
                 
-                'total_packages' => $request->total_packages,
-                'total_qty' => $request->total_qty,
-                'gross_amount' => $request->gross_amount,
+                'total_packages' => $request->total_packages ?? $bilty->total_packages,
+                'total_qty' => $request->total_qty ?? $bilty->total_qty,
+                'gross_amount' => $request->gross_amount ?? $bilty->gross_amount,
                 
                 'st_charge' => $request->st_charge ?? 0.00,
                 'rc_charge' => $request->rc_charge ?? 0.00,
                 'sc_charge' => $request->sc_charge ?? 0.00,
                 'dd_charge' => $request->dd_charge ?? 0.00,
                 'round_off' => $request->round_off ?? 0.00,
-                'net_amount' => $request->net_amount,
+                'net_amount' => $request->net_amount ?? $bilty->net_amount,
                 
                 'cash_amount' => $request->cash_amount ?? 0.00,
                 'card_amount' => $request->card_amount ?? 0.00,
@@ -381,41 +463,49 @@ class BiltyController extends Controller
                 'ref_no' => $request->ref_no,
                 'payment_date' => $request->payment_date,
                 'bank_account' => $request->bank_account,
-                'balance_amount' => $request->balance_amount,
+                'balance_amount' => $request->balance_amount ?? $bilty->balance_amount,
                 'remark' => $request->remark,
                 'voucher_no' => $request->voucher_no,
+                'status' => $isDraft ? 'draft' : 'final',
+                'user_id' => $bilty->user_id ?: auth()->id(),
             ]);
 
             // Clear old items and write new ones
-            BiltyItem::where('bilty_id', $bilty->id)->delete();
+            if ($request->has('items') && is_array($request->items)) {
+                BiltyItem::where('bilty_id', $bilty->id)->delete();
 
-            foreach ($request->items as $itemData) {
-                BiltyItem::create([
-                    'bilty_id' => $bilty->id,
-                    'no_of_pkgs' => $itemData['no_of_pkgs'],
-                    'packing' => $itemData['packing'] ?? '',
-                    'description' => $itemData['description'] ?? '',
-                    'invoice_no' => $itemData['invoice_no'] ?? '',
-                    'invoice_value' => $itemData['invoice_value'] ?? 0.00,
-                    'weight_type' => $itemData['weight_type'],
-                    'weight_val' => $itemData['weight_val'] ?? 0.000,
-                    'qty' => $itemData['qty'],
-                    'rate' => $itemData['rate'],
-                    'st' => $itemData['st'] ?? 0.00,
-                    'rc' => $itemData['rc'] ?? 0.00,
-                    'sc' => $itemData['sc'] ?? 0.00,
-                    'dd' => $itemData['dd'] ?? 0.00,
-                ]);
+                foreach ($request->items as $itemData) {
+                    BiltyItem::create([
+                        'bilty_id' => $bilty->id,
+                        'no_of_pkgs' => $itemData['no_of_pkgs'] ?? 0,
+                        'packing' => $itemData['packing'] ?? '',
+                        'description' => $itemData['description'] ?? '',
+                        'invoice_no' => $itemData['invoice_no'] ?? '',
+                        'invoice_value' => $itemData['invoice_value'] ?? 0.00,
+                        'weight_type' => $itemData['weight_type'] ?? 'KG',
+                        'weight_val' => $itemData['weight_val'] ?? 0.000,
+                        'qty' => $itemData['qty'] ?? 0.000,
+                        'rate' => $itemData['rate'] ?? 0.00,
+                        'st' => $itemData['st'] ?? 0.00,
+                        'rc' => $itemData['rc'] ?? 0.00,
+                        'sc' => $itemData['sc'] ?? 0.00,
+                        'dd' => $itemData['dd'] ?? 0.00,
+                    ]);
+                }
             }
 
             DB::commit();
 
-            if ($request->has('print_after_save')) {
+            if ($request->has('print_after_save') && !$isDraft) {
                 return redirect()->route('bilty.print', $bilty->id);
             }
 
+            $successMsg = $isDraft 
+                ? ('Bilty #' . $bilty->bilty_no . ' updated as draft!')
+                : ('Bilty #' . $bilty->bilty_no . ' updated successfully!');
+
             return redirect()->route('bilty.create')
-                ->with('success', 'Bilty #' . $bilty->bilty_no . ' updated successfully!')
+                ->with('success', $successMsg)
                 ->with('print_id', $bilty->id);
 
         } catch (\Exception $e) {

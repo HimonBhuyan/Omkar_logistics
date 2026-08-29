@@ -38,7 +38,9 @@ class Bilty extends Model
         'bank_account',
         'balance_amount',
         'remark',
-        'voucher_no'
+        'voucher_no',
+        'status',
+        'user_id'
     ];
 
     protected $casts = [
@@ -87,5 +89,10 @@ class Bilty extends Model
     public function items(): HasMany
     {
         return $this->hasMany(BiltyItem::class, 'bilty_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

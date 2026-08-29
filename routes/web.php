@@ -25,6 +25,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Bilty Register Report
     Route::get('/report/bilty-register', [ReportController::class, 'biltyRegister'])->name('report.bilty_register');
+    Route::get('/report/bilty-register/export', [ReportController::class, 'exportExcel'])->name('report.bilty_register.export');
 
     // Account Ledger
     Route::get('/account/ledger', [AccountLedgerController::class, 'index'])->name('account.ledger');

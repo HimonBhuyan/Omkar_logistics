@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Omkaar Logistics - ERP')</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #0f3460;   /* Deep Navy */
@@ -591,6 +592,35 @@
         OMKAAR LOGISTICS ERP System &copy; 2026. Version 10.10.1005 (Web Version)
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error Occurred',
+                    text: {!! json_encode(session('error')) !!},
+                    confirmButtonColor: '#0f3460'
+                });
+            @endif
+
+            @if ($errors->any())
+                const serverErrors = {!! json_encode($errors->all()) !!};
+                let errHtml = '<div style="text-align:left; font-size:13px; max-height:240px; overflow-y:auto; padding-right:5px;">' +
+                    '<p style="margin-top:0; margin-bottom:8px; font-weight:600; color:#b91c1c;">Please correct the following errors:</p>' +
+                    '<ul style="margin:0; padding-left:18px; color:#374151; line-height:1.6;">' +
+                    serverErrors.map(function(e) { return '<li style="margin-bottom:4px;">' + e + '</li>'; }).join('') +
+                    '</ul></div>';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Errors',
+                    html: errHtml,
+                    confirmButtonColor: '#0f3460',
+                    confirmButtonText: 'Fix Errors'
+                });
+            @endif
+        });
+    </script>
     @yield('scripts')
 </body>
 </html>
