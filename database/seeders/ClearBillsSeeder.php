@@ -2,42 +2,104 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
+use App\Models\FinancialYear;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 class ClearBillsSeeder extends Seeder
 {
     /**
-     * Run the database seeds to clear all bilties/bills and reset transaction numbers.
+     * Run the database seeds to clear all data except:
+     * - companies
+     * - financial_years
+     * - migrations
+     * - users (admin only)
+     *
+     * Truncates all transactional, ledger, locations, master data, and temporary tables.
      */
     public function run(): void
     {
         Schema::disableForeignKeyConstraints();
 
-        // 1. Truncate bilty items (individual rows in each bill)
-        if (Schema::hasTable('bilty_items')) {
-            DB::table('bilty_items')->truncate();
-            $this->command->info('✓ Truncated table: bilty_items (all bill items removed)');
+        // Tables to truncate (all tables except companies, financial_years, migrations, users)
+        $tablesToTruncate = [
+            'bilty_items',
+            'bilties',
+            'parties',
+            'account_ledgers',
+            'group_ledgers',
+            'locations',
+            'cities',
+            'states',
+            'countries',
+            'sessions',
+            'cache',
+            'cache_locks',
+            'jobs',
+            'job_batches',
+            'failed_jobs',
+            'password_reset_tokens',
+        ];
+
+        foreach ($tablesToTruncate as $table) {
+            if (Schema::hasTable($table)) {
+                DB::table($table)->truncate();
+                $this->command->info("✓ Truncated table: {$table}");
+            }
         }
 
-        // 2. Truncate bilties (all bills / consignment notes)
-        if (Schema::hasTable('bilties')) {
-            DB::table('bilties')->truncate();
-            $this->command->info('✓ Truncated table: bilties (all bills removed)');
+        // 1. Maintain & seed Company profile
+        if (Schema::hasTable('companies')) {
+            Company::firstOrCreate(
+                ['name' => 'OMKAAR LOGISTICS'],
+                ['logo_path' => 'assets/logo.jpg']
+            );
+            $this->command->info('✓ Seeded/Retained company: OMKAAR LOGISTICS');
         }
 
-        // 3. Truncate sample parties table
-        if (Schema::hasTable('parties')) {
-            DB::table('parties')->truncate();
-            $this->command->info('✓ Truncated table: parties (sample party records removed)');
+        // 2. Maintain & seed Financial Years
+        if (Schema::hasTable('financial_years')) {
+            FinancialYear::firstOrCreate(
+                ['year_string' => '2026-2027'],
+                ['is_active' => true]
+            );
+            FinancialYear::firstOrCreate(
+                ['year_string' => '2025-2026'],
+                ['is_active' => false]
+            );
+            $this->command->info('✓ Seeded/Retained financial years (2026-2027 active)');
+        }
+
+        // 3. Maintain & seed Users (Admin only)
+        if (Schema::hasTable('users')) {
+            DB::table('users')->where('username', '!=', 'admin')->delete();
+
+            $admin = DB::table('users')->where('username', 'admin')->first();
+            if (!$admin) {
+                DB::table('users')->insert([
+                    'name'       => 'Administrator',
+                    'username'   => 'admin',
+                    'email'      => 'admin@omkaarlogistics.com',
+                    'password'   => Hash::make('admin'),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $this->command->info('✓ Seeded default admin user (username: admin / password: admin)');
+            } else {
+                $this->command->info('✓ Retained existing admin user');
+            }
         }
 
         Schema::enableForeignKeyConstraints();
 
-        $this->command->info('------------------------------------------------------------');
-        $this->command->info('SUCCESS: All seeded bills and test data have been wiped clean!');
-        $this->command->info('Next bilty will start cleanly at C.N. 4306 and Voucher 1795.');
-        $this->command->info('------------------------------------------------------------');
+        $this->command->info('----------------------------------------------------------------------');
+        $this->command->info('SUCCESS: All tables have been truncated clean!');
+        $this->command->info('Only "companies", "financial_years", "migrations", and "users" retained.');
+        $this->command->info('----------------------------------------------------------------------');
     }
 }
+
