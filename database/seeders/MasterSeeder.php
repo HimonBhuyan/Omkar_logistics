@@ -4,11 +4,13 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class MasterSeeder extends Seeder
 {
     public function run(): void
     {
+        Schema::disableForeignKeyConstraints();
         // 1. Seed Countries
         if (DB::table('countries')->count() === 0) {
             DB::table('countries')->insert([
@@ -60,7 +62,7 @@ class MasterSeeder extends Seeder
                 ['country_id' => $indiaId, 'name' => 'LADAKH', 'code' => '38', 'short_name' => 'LA'],
                 ['country_id' => $indiaId, 'name' => 'OTHER TERRITORY', 'code' => '97', 'short_name' => 'OT'],
             ];
-            foreach($states as $s) {
+            foreach ($states as $s) {
                 DB::table('states')->insert(array_merge($s, ['created_at' => now(), 'updated_at' => now()]));
             }
         } else if ($indiaId) {
@@ -836,7 +838,7 @@ class MasterSeeder extends Seeder
 
         // Truncate and insert all cities with foreign key mapping
         DB::table('cities')->truncate();
-        
+
         $insertedCount = 0;
         foreach ($allCities as $c) {
             $stateId = $stateMap[$c['state']] ?? null;
@@ -849,5 +851,7 @@ class MasterSeeder extends Seeder
             ]);
             $insertedCount++;
         }
+
+        Schema::enableForeignKeyConstraints();
     }
 }
