@@ -533,4 +533,36 @@ class BiltyController extends Controller
         $bilty = Bilty::with(['fromLocation', 'toLocation', 'consignor', 'consignee', 'billingParty', 'items'])->findOrFail($id);
         return view('bilty.print', compact('bilty'));
     }
+
+    public function downloadPdf($id)
+    {
+        $bilty = Bilty::with(['fromLocation', 'toLocation', 'consignor', 'consignee', 'billingParty', 'items'])->findOrFail($id);
+        $isPdf = true;
+        $html = view('bilty.print', compact('bilty', 'isPdf'))->render();
+
+        $logoPath = public_path('assets/logo.jpg');
+        if (file_exists($logoPath)) {
+            $logoData = file_get_contents($logoPath);
+            $logoBase64 = 'data:image/jpeg;base64,' . base64_encode($logoData);
+            $html = preg_replace('/src="[^"]*assets\/logo\.jpg"/', 'src="' . $logoBase64 . '"', $html);
+        }
+
+        $options = new \Dompdf\Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+        $options->set('defaultMediaType', 'print');
+        $options->set('defaultFont', 'Helvetica');
+        $options->set('dpi', 96);
+
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->setPaper('a5', 'landscape');
+        $dompdf->loadHtml($html);
+        $dompdf->render();
+
+        $filename = 'bilty_' . ($bilty->series ? $bilty->series . '_' : '') . $bilty->bilty_no . '.pdf';
+        return response($dompdf->output(), 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"',
+        ]);
+    }
 }

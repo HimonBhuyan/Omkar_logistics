@@ -397,9 +397,24 @@
         <div class="ledger-title-bar">Account Ledger</div>
 
         <div class="ledger-info-bar">
-            <div>
-                <label id="code_label">State Code</label>
-                <input type="text" id="preview_code" value="{{ $selected->code }}" size="12" readonly style="background:#ffffcc; font-weight:bold; color:#003087;">
+            <div style="position:relative; display:flex; align-items:center; gap:6px;">
+                <label id="code_label" style="font-weight:600;">State Code</label>
+                @php
+                    $initialStateCode = old('state_code', $selected->state_code ?? '');
+                @endphp
+                <div style="position:relative;">
+                    <input type="text" name="state_code" id="top_state_code" form="ledgerForm" value="{{ $initialStateCode }}" placeholder="Code" maxlength="10" autocomplete="off" onfocus="openStateCodeDropdown()" oninput="filterStateCodeDropdown(this.value)" onblur="handleStateCodeBlur(this.value)" style="background:#ffffcc; font-weight:bold; color:#003087; border:1px solid #aaa; padding:2px 6px; font-size:12px; height:22px; width:70px; text-transform:uppercase; text-align:center; cursor:pointer;">
+                    <div id="state_code_dropdown" style="display:none; position:absolute; top:25px; left:0; width:220px; max-height:240px; overflow-y:auto; background:#ffffff; border:1px solid #0f3460; box-shadow:0 4px 12px rgba(0,0,0,0.18); z-index:9999; border-radius:2px; font-size:11px; text-align:left;">
+                        @if(isset($states) && count($states) > 0)
+                            @foreach($states as $s)
+                                @php $pCode = str_pad($s->code, 2, '0', STR_PAD_LEFT); @endphp
+                                <div class="state-code-item" data-code="{{ $pCode }}" data-name="{{ $s->name }}" onmousedown="selectStateCode('{{ $pCode }}')" style="padding:4px 8px; cursor:pointer; border-bottom:1px solid #f0f0f0; color:#333;">
+                                    <strong>({{ $pCode }})</strong> - {{ $s->name }}
+                                </div>
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
             </div>
             <div class="datetime">{{ now()->format('d/m/Y h:i A') }}</div>
             <div style="margin-left:auto;">
@@ -452,22 +467,45 @@
                         <textarea name="address" id="address" class="form-field">{{ old('address', $selected->address) }}</textarea>
                     </div>
                     <div class="f-row">
-                        <label>City</label>
-                        <input type="text" name="city" id="city" class="form-field" value="{{ old('city', $selected->city) }}">
-                    </div>
-                    <div class="f-row">
-                        <label>State</label>
-                        <select name="state" id="state" class="form-field">
-                            @foreach(['Assam','West Bengal','Bihar','Delhi','Maharashtra','Uttar Pradesh','Gujarat','Rajasthan','Karnataka','Tamil Nadu','Other'] as $s)
-                                <option value="{{ $s }}" {{ old('state', $selected->state) == $s ? 'selected' : '' }}>{{ $s }}</option>
-                            @endforeach
+                        <label>Country</label>
+                        <select name="country_id" id="country_id" class="form-field" onchange="filterStatesByCountry()">
+                            <option value="">-- Select Country --</option>
+                            @if(isset($countries) && count($countries) > 0)
+                                @foreach($countries as $c)
+                                    <option value="{{ $c->id }}" {{ (old('country_id', $selected->country_id) == $c->id || (empty(old('country_id', $selected->country_id)) && $c->name === 'INDIA')) ? 'selected' : '' }}>{{ $c->name }}</option>
+                                @endforeach
+                            @else
+                                <option value="1" selected>INDIA</option>
+                            @endif
                         </select>
                     </div>
                     <div class="f-row">
-                        <label>Country</label>
-                        <select name="country" id="country" class="form-field">
-                            <option value="INDIA" {{ old('country', $selected->country) == 'INDIA' ? 'selected' : '' }}>INDIA</option>
-                            <option value="OTHER" {{ old('country', $selected->country) == 'OTHER' ? 'selected' : '' }}>OTHER</option>
+                        <label>State</label>
+                        <select name="state_id" id="state_id" class="form-field" onchange="filterCitiesByState()">
+                            <option value="">-- Select State --</option>
+                            @if(isset($states) && count($states) > 0)
+                                @foreach($states as $s)
+                                    @php
+                                        $paddedCode = str_pad($s->code, 2, '0', STR_PAD_LEFT);
+                                    @endphp
+                                    <option value="{{ $s->id }}" data-country-id="{{ $s->country_id }}" data-code="{{ $paddedCode }}" {{ old('state_id', $selected->state_id) == $s->id ? 'selected' : '' }}>
+                                        {{ $s->name }}
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+                    <div class="f-row">
+                        <label>City</label>
+                        <select name="city_id" id="city_id" class="form-field" onchange="syncStateFromCity()">
+                            <option value="">-- Select City --</option>
+                            @if(isset($cities) && count($cities) > 0)
+                                @foreach($cities as $ct)
+                                    <option value="{{ $ct->id }}" data-state-id="{{ $ct->state_id }}" data-country-id="{{ $ct->stateRelation->country_id ?? '' }}" {{ old('city_id', $selected->city_id) == $ct->id ? 'selected' : '' }}>
+                                        {{ $ct->name }}
+                                    </option>
+                                @endforeach
+                            @endif
                         </select>
                     </div>
                     <div class="f-row">
@@ -724,18 +762,61 @@
 
         const statusEl = document.getElementById('gst_status');
 
+        function selectStateByCode(code, targetCityName = null) {
+            const countrySelect = document.getElementById('country_id');
+            const stateSelect = document.getElementById('state_id');
+            const citySelect = document.getElementById('city_id');
+            const topInput = document.getElementById('top_state_code');
+            const targetCode = String(code).padStart(2, '0');
+
+            if (topInput) {
+                topInput.value = targetCode;
+            }
+
+            if (countrySelect) {
+                for (let i = 0; i < countrySelect.options.length; i++) {
+                    if (countrySelect.options[i].text.toUpperCase() === 'INDIA') {
+                        countrySelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+            filterStatesByCountry();
+
+            if (stateSelect) {
+                for (let i = 0; i < stateSelect.options.length; i++) {
+                    const opt = stateSelect.options[i];
+                    if (opt.getAttribute('data-code') === targetCode) {
+                        stateSelect.selectedIndex = i;
+                        filterCitiesByState();
+                        break;
+                    }
+                }
+            }
+
+            if (targetCityName && citySelect) {
+                for (let i = 0; i < citySelect.options.length; i++) {
+                    const opt = citySelect.options[i];
+                    if (opt.text.trim().toUpperCase() === targetCityName.trim().toUpperCase()) {
+                        citySelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+
         if (gstVal.length === 15) {
             statusEl.textContent = 'Searching...';
             statusEl.style.color = '#ff9900';
 
             // Simulate GST API lookup. Specifically handles the sample client GST code.
             setTimeout(() => {
+                const stateCode = gstVal.substring(0, 2);
                 if (gstVal === '18BHEPB5443C1ZT') {
                     document.getElementById('ledger_name').value = 'ARYAHI TECH';
                     document.getElementById('contact_person').value = 'RITA BORUAH';
                     document.getElementById('address').value = '4th Floor, Madhab Tower, G S Road, Rukminigaon, Guwahati, Kamrup Metropolitan, Assam';
-                    document.getElementById('city').value = 'Guwahati';
-                    document.getElementById('state').value = 'Assam';
+                    selectStateByCode('18', 'GUWAHATI');
                     document.getElementById('pin_code').value = '781022';
                     statusEl.textContent = '✔ Verified';
                     statusEl.style.color = 'green';
@@ -743,8 +824,7 @@
                     document.getElementById('ledger_name').value = 'ZIAGO TECHNOLOGIES PRIVATE LIMITED';
                     document.getElementById('contact_person').value = 'ZIAGO TECHNOLOGIES PRIVATE LIMITED';
                     document.getElementById('address').value = '4th Floor, Madhab Tower, Rukminigaon, Khanapara, G.S Road, Guwahati';
-                    document.getElementById('city').value = 'Guwahati';
-                    document.getElementById('state').value = 'Assam';
+                    selectStateByCode('18', 'GUWAHATI');
                     document.getElementById('pin_code').value = '781022';
                     statusEl.textContent = '✔ Verified';
                     statusEl.style.color = 'green';
@@ -752,8 +832,7 @@
                     document.getElementById('ledger_name').value = 'DHARAMPAL SATYAPAL FOODS LIMITED';
                     document.getElementById('contact_person').value = 'DHARAMPAL SATYAPAL FOODS LIMITED';
                     document.getElementById('address').value = 'Godown No. 2, Amit Choudhury, National Highway No. 37, Guwahati, Kamrup';
-                    document.getElementById('city').value = 'Guwahati';
-                    document.getElementById('state').value = 'Assam';
+                    selectStateByCode('18', 'GUWAHATI');
                     document.getElementById('pin_code').value = '781034';
                     statusEl.textContent = '✔ Verified';
                     statusEl.style.color = 'green';
@@ -761,8 +840,7 @@
                     document.getElementById('ledger_name').value = 'B.K. ENTERPRISE';
                     document.getElementById('contact_person').value = 'BIJIT KALITA';
                     document.getElementById('address').value = 'BISHNU GHOSH, B.K. ENTERPRISE, J.N. ROAD, Moon Light High School, Tezpur Doloni, Tezpur, Sonitpur, Assam';
-                    document.getElementById('city').value = 'Tezpur';
-                    document.getElementById('state').value = 'Assam';
+                    selectStateByCode('18', 'TEZPUR');
                     document.getElementById('pin_code').value = '784001';
                     statusEl.textContent = '✔ Verified';
                     statusEl.style.color = 'green';
@@ -770,22 +848,15 @@
                     document.getElementById('ledger_name').value = 'SHREE RAM PAREEK';
                     document.getElementById('contact_person').value = 'SHREE RAM PAREEK';
                     document.getElementById('address').value = '-, BISHNUPUR, GOPINATH NAGAR, Kamrup, Assam';
-                    document.getElementById('city').value = 'Guwahati';
-                    document.getElementById('state').value = 'Assam';
+                    selectStateByCode('18', 'GUWAHATI');
                     document.getElementById('pin_code').value = '781016';
                     statusEl.textContent = '✔ Verified';
                     statusEl.style.color = 'green';
                 } else {
                     // General simulated template for other valid GST format inputs
-                    const stateCode = gstVal.substring(0, 2);
-                    let stateName = 'Assam';
-                    if (stateCode === '19') stateName = 'West Bengal';
-                    else if (stateCode === '10') stateName = 'Bihar';
- 
                     document.getElementById('ledger_name').value = 'AUTO PULL BUSINESS - ' + gstVal;
                     document.getElementById('address').value = 'Principal Place of Business Office, State Code: ' + stateCode;
-                    document.getElementById('city').value = 'Guwahati';
-                    document.getElementById('state').value = stateName;
+                    selectStateByCode(stateCode, 'GUWAHATI');
                     document.getElementById('pin_code').value = '781001';
                     statusEl.textContent = '✔ Auto-filled';
                     statusEl.style.color = 'green';
@@ -868,26 +939,11 @@
                 field.value = '';
             }
         });
+        const topSelect = document.getElementById('top_state_code');
+        if (topSelect) topSelect.selectedIndex = 0;
         document.getElementById('gst_status').textContent = '';
         toggleFormFields();
-    }
-
-    // Automatically update the Code label and formatted value depending on Under Group selection
-    function updateCodeFormat() {
-        const selectEl = document.getElementById('under_group');
-        const codeLabel = document.getElementById('code_label');
-        const codeInput = document.getElementById('preview_code');
-        const rawCode = "{{ $selected->code ?? $nextCode }}";
-
-        if (selectEl.value === 'Staff Salary') {
-            codeLabel.textContent = 'Emp Code';
-            // Format number to double digits (e.g. OML01, OML02, etc.)
-            const formattedNum = String(rawCode).padStart(2, '0');
-            codeInput.value = 'OML' + formattedNum;
-        } else {
-            codeLabel.textContent = 'State Code';
-            codeInput.value = rawCode;
-        }
+        filterStatesByCountry();
     }
 
     // Calculate net salary dynamically
@@ -897,66 +953,28 @@
         document.getElementById('net_salary').value = (gross - deduction).toFixed(2);
     }
 
-    // Real-time validations with red label warnings
+    // Real-time client side validations for required formats
     function setupRealTimeValidations() {
         const rules = [
-            {
-                id: 'voter_card',
-                errorId: 'err_voter_card',
-                validate: (val) => val === '' || /^[A-Z]{3}\d{7}$/.test(val)
-            },
-            {
-                id: 'adhar_card',
-                errorId: 'err_adhar_card',
-                validate: (val) => val === '' || /^\d{12}$/.test(val)
-            },
-            {
-                id: 'pan_card',
-                errorId: 'err_pan_card',
-                validate: (val) => val === '' || /^[A-Z]{5}\d{4}[A-Z]{1}$/.test(val)
-            },
-            {
-                id: 'driving_license',
-                errorId: 'err_driving_license',
-                validate: (val) => val === '' || (val.length >= 13 && val.length <= 16)
-            },
-            {
-                id: 'account_no',
-                errorId: 'err_account_no',
-                validate: (val) => val === '' || /^\d{18}$/.test(val)
-            },
-            {
-                id: 'staff_account_no',
-                errorId: 'err_staff_account_no',
-                validate: (val) => val === '' || /^\d{18}$/.test(val)
-            },
-            {
-                id: 'ifsc',
-                errorId: 'err_ifsc',
-                validate: (val) => val === '' || /^[A-Z]{4}0[A-Z0-9]{6}$/.test(val)
-            },
-            {
-                id: 'staff_ifsc',
-                errorId: 'err_staff_ifsc',
-                validate: (val) => val === '' || /^[A-Z]{4}0[A-Z0-9]{6}$/.test(val)
-            }
+            { id: 'pan_no', regex: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, msg: 'PAN format: 5 letters, 4 digits, 1 letter (e.g. ABCDE1234F)' },
+            { id: 'gst_no', regex: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, msg: 'GST format: 15 chars (e.g. 18AABCT1234F1Z5)' },
+            { id: 'pin_code', regex: /^[1-9][0-9]{5}$/, msg: 'PIN must be 6 digits' },
+            { id: 'ifsc_code', regex: /^[A-Z]{4}0[A-Z0-9]{6}$/, msg: 'IFSC format: 4 letters, 0, 6 alpha-numeric chars' },
+            { id: 'account_no', regex: /^[0-9]{9,18}$/, msg: 'Account No must be 9-18 digits' },
         ];
 
         rules.forEach(rule => {
             const input = document.getElementById(rule.id);
-            const errMsg = document.getElementById(rule.errorId);
-            if (!input || !errMsg) return;
+            if (!input) return;
 
             const check = () => {
-                const val = input.value.toUpperCase().trim();
-                input.value = val; // Force uppercase formatting
-                const isValid = rule.validate(val);
-                if (!isValid) {
+                const val = input.value.trim().toUpperCase();
+                if (val && !rule.regex.test(val)) {
                     input.classList.add('input-error');
-                    errMsg.style.display = 'block';
+                    input.title = rule.msg;
                 } else {
                     input.classList.remove('input-error');
-                    errMsg.style.display = 'none';
+                    input.removeAttribute('title');
                 }
             };
 
@@ -992,12 +1010,206 @@
         }
     }
 
-    // Bind event check to the drop-down onchange handler
-    document.getElementById('under_group').addEventListener('change', updateCodeFormat);
+    function openStateCodeDropdown() {
+        const dd = document.getElementById('state_code_dropdown');
+        if (dd) {
+            dd.style.display = 'block';
+            const items = dd.querySelectorAll('.state-code-item');
+            items.forEach(it => it.style.display = '');
+        }
+    }
+
+    function filterStateCodeDropdown(query) {
+        const dd = document.getElementById('state_code_dropdown');
+        if (!dd) return;
+        dd.style.display = 'block';
+        const q = (query || '').trim().toUpperCase();
+        const items = dd.querySelectorAll('.state-code-item');
+        items.forEach(it => {
+            const code = (it.getAttribute('data-code') || '').toUpperCase();
+            const name = (it.getAttribute('data-name') || '').toUpperCase();
+            if (!q || code.includes(q) || name.includes(q)) {
+                it.style.display = '';
+            } else {
+                it.style.display = 'none';
+            }
+        });
+    }
+
+    function selectStateCode(code) {
+        const topInput = document.getElementById('top_state_code');
+        if (topInput) {
+            topInput.value = code;
+        }
+        const dd = document.getElementById('state_code_dropdown');
+        if (dd) {
+            dd.style.display = 'none';
+        }
+    }
+
+    function handleStateCodeBlur(val) {
+        setTimeout(() => {
+            const dd = document.getElementById('state_code_dropdown');
+            if (dd) dd.style.display = 'none';
+
+            const cleanVal = (val || '').trim().toUpperCase();
+            if (!cleanVal) return;
+
+            const stateSelect = document.getElementById('state_id');
+            let match = false;
+            if (stateSelect) {
+                const paddedVal = cleanVal.padStart(2, '0');
+                for (let i = 0; i < stateSelect.options.length; i++) {
+                    const opt = stateSelect.options[i];
+                    if (!opt.value) continue;
+                    const code = opt.getAttribute('data-code');
+                    if (code === paddedVal || code === cleanVal || opt.text.trim().toUpperCase() === cleanVal) {
+                        match = true;
+                        document.getElementById('top_state_code').value = code;
+                        break;
+                    }
+                }
+            }
+
+            if (!match) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'State Not Found',
+                        text: `No state found with code "${cleanVal}". Would you like to create this state now?`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#0f3460',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, Create State',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "{{ route('master.state') }}?code=" + encodeURIComponent(cleanVal);
+                        } else {
+                            document.getElementById('top_state_code').value = '';
+                        }
+                    });
+                } else {
+                    if (confirm(`No state found with code "${cleanVal}". Would you like to create this state now?`)) {
+                        window.location.href = "{{ route('master.state') }}?code=" + encodeURIComponent(cleanVal);
+                    } else {
+                        document.getElementById('top_state_code').value = '';
+                    }
+                }
+            }
+        }, 200);
+    }
+
+    // Close dropdown on click outside
+    document.addEventListener('click', function(e) {
+        const topInput = document.getElementById('top_state_code');
+        const dd = document.getElementById('state_code_dropdown');
+        if (dd && topInput && !topInput.contains(e.target) && !dd.contains(e.target)) {
+            dd.style.display = 'none';
+        }
+    });
+
+    function filterStatesByCountry(targetStateId = null) {
+        const countrySelect = document.getElementById('country_id');
+        const stateSelect = document.getElementById('state_id');
+        if (!countrySelect || !stateSelect) return;
+
+        const countryId = countrySelect.value;
+        const currentStateId = targetStateId || stateSelect.value;
+
+        let isCurrentStateVisible = false;
+
+        for (let i = 0; i < stateSelect.options.length; i++) {
+            const opt = stateSelect.options[i];
+            if (!opt.value) continue; // Skip header option
+
+            const optCountryId = opt.getAttribute('data-country-id');
+            if (!countryId || !optCountryId || optCountryId === String(countryId)) {
+                opt.style.display = '';
+                opt.disabled = false;
+                if (currentStateId && opt.value === String(currentStateId)) {
+                    isCurrentStateVisible = true;
+                    stateSelect.selectedIndex = i;
+                }
+            } else {
+                opt.style.display = 'none';
+                opt.disabled = true;
+            }
+        }
+
+        if (!isCurrentStateVisible && countryId) {
+            stateSelect.value = '';
+        }
+
+        filterCitiesByState();
+    }
+
+    function filterCitiesByState(targetCityId = null) {
+        const countrySelect = document.getElementById('country_id');
+        const stateSelect = document.getElementById('state_id');
+        const citySelect = document.getElementById('city_id');
+        if (!citySelect) return;
+
+        const countryId = countrySelect ? countrySelect.value : null;
+        const stateId = stateSelect ? stateSelect.value : null;
+        const currentCityId = targetCityId || citySelect.value;
+
+        let isCurrentCityVisible = false;
+
+        for (let i = 0; i < citySelect.options.length; i++) {
+            const opt = citySelect.options[i];
+            if (!opt.value) continue; // Skip header "-- Select City --"
+
+            const optStateId = opt.getAttribute('data-state-id');
+            const optCountryId = opt.getAttribute('data-country-id');
+
+            let isAllowed = false;
+            if (stateId) {
+                isAllowed = (optStateId === String(stateId));
+            } else if (countryId) {
+                isAllowed = (optCountryId === String(countryId) || !optCountryId);
+            } else {
+                isAllowed = true;
+            }
+
+            if (isAllowed) {
+                opt.style.display = '';
+                opt.disabled = false;
+                if (currentCityId && opt.value === String(currentCityId)) {
+                    isCurrentCityVisible = true;
+                    citySelect.selectedIndex = i;
+                }
+            } else {
+                opt.style.display = 'none';
+                opt.disabled = true;
+            }
+        }
+
+        if (!isCurrentCityVisible && (stateId || countryId)) {
+            citySelect.value = '';
+        }
+    }
+
+    // Auto-sync parent State when a City is selected directly
+    function syncStateFromCity() {
+        const citySelect = document.getElementById('city_id');
+        const stateSelect = document.getElementById('state_id');
+        if (!citySelect || !stateSelect) return;
+
+        const selectedCityOpt = citySelect.options[citySelect.selectedIndex];
+        if (!selectedCityOpt || !selectedCityOpt.value) return;
+
+        const cityStateId = selectedCityOpt.getAttribute('data-state-id');
+        if (cityStateId && stateSelect.value !== String(cityStateId)) {
+            stateSelect.value = cityStateId;
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-        updateCodeFormat();
         toggleFormFields();
         setupRealTimeValidations();
+        filterStatesByCountry("{{ old('state_id', $selected->state_id ?? '') }}");
+        filterCitiesByState("{{ old('city_id', $selected->city_id ?? '') }}");
 
         // Sync Ledger Name with Staff Name display
         const ledgerNameInput = document.getElementById('ledger_name');

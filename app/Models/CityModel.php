@@ -7,5 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class CityModel extends Model
 {
     protected $table = 'cities';
-    protected $fillable = ['name', 'short_name', 'state'];
+    protected $fillable = ['state_id', 'name', 'short_name'];
+
+    public function stateRelation()
+    {
+        return $this->belongsTo(StateModel::class, 'state_id');
+    }
 }

@@ -10,193 +10,191 @@
             box-sizing: border-box !important;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             color: #000;
         }
 
         body {
             background-color: #ffffff !important;
-            font-size: 11px;
+            font-size: 10px;
             padding: 0 !important;
             margin: 0 !important;
-            min-height: 100vh;
         }
 
         @page {
-            size: A5 landscape !important;
-            margin: 0 !important;
-        }
-
-        .receipt-outer {
-            width: 100% !important;
-            height: calc(100vh - 50px) !important;
-            border: 1px solid #000000;
-            padding: 2px;
-            position: relative;
-            background: #fff;
-            overflow: hidden;
+            size: A5 landscape;
+            margin: 2mm 3mm;
         }
 
         .receipt-container {
             width: 100%;
-            height: 100%;
+            height: 134mm;
+            max-height: 134mm;
             border: 1.5px solid #000000;
-            padding: 6px 8px;
-            position: relative;
+            border-radius: 6px;
+            padding: 4px 6px;
             background: #fff;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            box-sizing: border-box;
+            position: relative;
         }
 
-        /* Branding and Header */
-        .company-header {
-            display: grid;
-            grid-template-columns: 155px 1fr 155px;
-            align-items: center;
-            padding-bottom: 2px;
+        /* Header Table */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+            margin-bottom: 3px;
         }
 
-        .logo-box {
-            display: flex;
-            align-items: center;
+        .header-table td {
+            vertical-align: middle;
+            border: none;
+            padding: 0;
         }
 
-        .logo-box:last-child {
-            justify-content: flex-end;
+        .header-table .logo-col {
+            width: 135px;
         }
 
-        .logo-box img {
-            width: 148px;
+        .header-table .logo-col img {
+            width: 132px;
             height: auto;
             display: block;
         }
 
-        .logo-text-middle {
+        .header-table .logo-text-middle {
             text-align: center;
-            line-height: 1.2;
+            line-height: 1.15;
         }
 
         .logo-text-middle .sub-header {
             font-size: 10px;
             letter-spacing: 0.8px;
-            font-weight: 800;
+            font-weight: bold;
         }
 
         .logo-text-middle h1 {
-            font-size: 22px;
+            font-size: 21px;
             font-weight: 900;
             letter-spacing: 0.5px;
-            line-height: 1.1;
-            margin: 1px 0 2px 0;
+            line-height: 1.05;
+            margin: 1px 0;
         }
 
         .logo-text-middle .address-details {
-            font-size: 9.5px;
+            font-size: 8.5px;
             font-weight: 600;
             line-height: 1.2;
         }
 
-        .logo-text-middle .address-details .contact-line {
-            display: block;
+        /* Meta Table */
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+            margin-bottom: 3px;
+            font-size: 10px;
         }
 
-        /* Meta Rows */
-        .meta-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-top: 1px;
-            font-size: 10.5px;
+        .meta-table td {
+            border: none;
+            padding: 0;
+            vertical-align: bottom;
         }
 
-        .meta-left {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
+        .meta-left div {
+            margin-bottom: 1.5px;
+            font-size: 10px;
         }
 
-        .meta-right {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 1px;
+        .meta-left strong {
+            font-weight: bold;
         }
 
         .cn-pill-box {
             border: 1.5px solid #000;
-            border-radius: 0px;
-            padding: 1px 8px;
+            border-radius: 4px;
+            padding: 2px 10px;
             font-size: 11px;
             font-weight: bold;
-            min-width: 140px;
+            display: inline-block;
             text-align: center;
+            min-width: 140px;
         }
 
         .meta-date {
+            margin-top: 3px;
+            font-size: 10px;
             font-weight: bold;
-            font-size: 10.5px;
         }
 
-        .party-name-row {
-            font-weight: bold;
-            font-size: 10.5px;
-            margin-top: 1px;
+        /* Locations Table */
+        .locations-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+            margin-bottom: 3px;
         }
 
-        /* Locations Box */
-        .locations-box {
-            display: grid;
-            grid-template-columns: 2.2fr 1.6fr 2.2fr;
-            align-items: center;
-            margin-top: 2px;
-            margin-bottom: 2px;
+        .locations-table td {
+            border: none;
+            padding: 0;
+            vertical-align: middle;
         }
 
         .loc-pill {
             border: 1.5px solid #000;
-            border-radius: 0px;
-            padding: 2px 6px;
+            border-radius: 4px;
+            padding: 2px 8px;
             font-weight: bold;
-            font-size: 11.5px;
-            display: flex;
-            gap: 10px;
+            font-size: 10.5px;
+            display: inline-block;
+            box-sizing: border-box;
         }
 
-        .loc-pill label {
+        .freight-mode-text {
+            font-size: 12px;
             font-weight: bold;
-            font-size: 11.5px;
+            text-align: center;
         }
 
-        /* Parties Grid */
-        .parties-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            margin-bottom: 2px;
+        /* Parties Table */
+        .parties-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+            margin-bottom: 3px;
         }
 
-        .party-column {
+        .parties-table td {
+            border: none;
+            padding: 0;
+            vertical-align: top;
+        }
+
+        .party-box {
             border: 1.5px solid #000;
-            border-radius: 0px;
-            padding: 2px 4px;
-            font-size: 9.5px;
+            border-radius: 6px;
+            padding: 3px 6px;
+            font-size: 9px;
             line-height: 1.3;
-            min-height: 60px;
+            box-sizing: border-box;
         }
 
-        .party-row {
-            display: flex;
-            margin-bottom: 1px;
+        .party-line {
+            margin-bottom: 1.5px;
         }
 
-        .party-row label {
-            width: 70px;
+        .party-line strong {
+            display: inline-block;
+            width: 65px;
             font-weight: bold;
         }
 
-        .party-row span {
-            flex: 1;
+        /* Table & Charges Section */
+        .table-section {
+            width: 100%;
+            margin-top: 2px;
         }
 
         /* Consignment Items Table */
@@ -204,89 +202,103 @@
             width: 100%;
             border-collapse: collapse;
             border: 1.5px solid #000;
-            border-bottom: none; /* Join seamlessly with bottom-block */
             margin-bottom: 0;
-            flex-grow: 1; /* Space out inside flexbox to fill vertical area */
         }
 
         .items-table th {
             border: 1px solid #000;
             border-bottom: 1.5px solid #000;
-            padding: 4px 3px;
-            font-size: 10px;
+            padding: 3px 2px;
+            font-size: 9px;
             font-weight: bold;
             text-align: center;
+            background-color: #fff;
         }
 
         .items-table td {
             border: 1px solid #000;
-            padding: 5px 4px; /* Reduced vertical padding by 10px for a clean, proportional look */
-            font-size: 10.5px;
+            padding: 3.5px 4px;
+            font-size: 9.5px;
             text-align: center;
             vertical-align: middle;
         }
 
-        /* Bottom block (shares the same outer border as items table) */
-        .bottom-block {
-            border-left: 1.5px solid #000;
-            border-right: 1.5px solid #000;
-            border-bottom: 1.5px solid #000;
-            border-top: 1.5px solid #000; /* Seamless junction line at top */
-            display: flex;
-            justify-content: space-between;
-            align-items: stretch;
+        /* Bottom Sticky Footer Block */
+        .bottom-sticky-block {
+            position: absolute;
+            bottom: 5px;
+            left: 7px;
+            right: 7px;
+        }
+
+        .bottom-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1.5px solid #000;
             margin-top: 0;
         }
 
-        .bottom-left {
-            flex: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
+        .bottom-table td {
+            padding: 0;
+            vertical-align: top;
+        }
+
+        .signature-cell {
             padding: 4px 6px;
+            vertical-align: bottom !important;
+            border-right: 1.5px solid #000;
         }
 
-        .signature-col {
-            font-size: 10px;
-            line-height: 1.4;
+        .signature-inner-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
         }
 
-        .signature-col.left-col {
-            text-align: left;
+        .signature-inner-table td {
+            border: none;
+            padding: 0;
+            font-size: 9.5px;
+            line-height: 1.35;
         }
 
-        .signature-col.right-col {
-            text-align: right;
-        }
-
-        .signature-col .seal-sign {
+        .signature-inner-table .seal-sign {
             font-weight: normal;
+            font-size: 10px;
         }
 
-        .signature-col .receipt-ack {
+        .signature-inner-table .receipt-ack {
             font-weight: bold;
+            font-size: 10.5px;
         }
 
-        .signature-col .booking-incharge {
+        .signature-inner-table .booking-incharge {
             font-weight: bold;
+            font-size: 10.5px;
         }
 
-        .signature-col .terms-footer {
-            font-size: 8.5px;
+        .signature-inner-table .terms-footer {
+            font-size: 8px;
             font-weight: bold;
             font-style: italic;
+            margin-top: 2px;
         }
 
-        /* Charges table - full outer box, single internal vertical divider, no row lines */
+        /* Charges Table */
         .charges-table {
-            border-collapse: collapse;
             width: 140px;
-            border: 1.5px solid #000;
+            border-collapse: collapse;
+            border: none;
         }
 
         .charges-table td {
-            padding: 2px 4px;
-            font-size: 10px;
+            padding: 1.5px 6px;
+            font-size: 9.5px;
+            border-bottom: 1px solid #000;
+        }
+
+        .charges-table tr:last-child td {
+            border-bottom: none;
         }
 
         .charges-table td:first-child {
@@ -307,12 +319,10 @@
             padding: 6px 12px;
             font-size: 12px;
             font-weight: bold;
-            border-radius: 0px;
             cursor: pointer;
             position: absolute;
             top: -40px;
             right: 0;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
             display: block;
             z-index: 1000;
         }
@@ -323,37 +333,45 @@
             padding: 6px 12px;
             font-size: 12px;
             font-weight: bold;
-            border-radius: 0px;
             text-decoration: none;
             position: absolute;
             top: -40px;
             left: 0;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
             z-index: 1000;
         }
 
         .print-wrapper {
             position: relative;
-            max-width: 100%;
-            margin: 45px 15px 15px 15px;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        @media screen {
+            body {
+                padding: 45px 15px 15px 15px !important;
+                background-color: #eef2f6 !important;
+            }
+
+            .receipt-container {
+                max-width: 204mm;
+                margin: 0 auto;
+                background: #fff;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
         }
 
         @media print {
             @page {
-                size: A5 landscape !important;
-                margin: 0 !important;
+                size: A5 landscape;
+                margin: 2mm 3mm;
             }
 
-            html,
-            body {
-                width: 210mm !important;
-                height: 148mm !important;
-                max-width: 210mm !important;
-                max-height: 148mm !important;
-                min-height: 0 !important;
+            html, body {
+                width: 100%;
+                height: 100%;
                 margin: 0 !important;
                 padding: 0 !important;
-                overflow: hidden !important;
                 background: #ffffff !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -367,55 +385,9 @@
             .print-wrapper {
                 position: static !important;
                 margin: 0 !important;
-                padding: 3mm 4mm !important;
-                width: 210mm !important;
-                height: 148mm !important;
-                max-width: 210mm !important;
-                max-height: 148mm !important;
-                box-sizing: border-box !important;
-                overflow: hidden !important;
-                page-break-before: avoid !important;
-                page-break-after: avoid !important;
-                page-break-inside: avoid !important;
-                break-before: avoid !important;
-                break-after: avoid !important;
-                break-inside: avoid !important;
-            }
-
-            .receipt-outer {
-                border: 1px solid #000000 !important;
-                padding: 2px !important;
-                margin: 0 !important;
+                padding: 0 !important;
                 width: 100% !important;
-                height: 100% !important;
-                max-height: 100% !important;
                 box-sizing: border-box !important;
-                overflow: hidden !important;
-                page-break-before: avoid !important;
-                page-break-after: avoid !important;
-                page-break-inside: avoid !important;
-                break-before: avoid !important;
-                break-after: avoid !important;
-                break-inside: avoid !important;
-            }
-
-            .receipt-container {
-                width: 100% !important;
-                height: 100% !important;
-                max-height: 100% !important;
-                border: 1.5px solid #000000 !important;
-                padding: 5px 8px !important;
-                box-sizing: border-box !important;
-                overflow: hidden !important;
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: space-between !important;
-                page-break-before: avoid !important;
-                page-break-after: avoid !important;
-                page-break-inside: avoid !important;
-                break-before: avoid !important;
-                break-after: avoid !important;
-                break-inside: avoid !important;
             }
         }
     </style>
@@ -424,109 +396,100 @@
 <body>
 
     <div class="print-wrapper">
-        <a href="{{ route('bilty.create') }}" class="btn-back-link">⬅ Back to Entry Form</a>
-        <button class="btn-print" onclick="window.print()">🖨 Print Bill (A5)</button>
+        @if(!isset($isPdf))
+            <a href="{{ route('bilty.create') }}" class="btn-back-link">⬅ Back to Entry Form</a>
+            <div style="position: absolute; top: -40px; right: 0; display: flex; gap: 8px;">
+                <a href="{{ route('bilty.pdf', $bilty->id) }}" class="btn-print" style="position: static; background: #c0392b; text-decoration: none; display: inline-block;">📥 Download PDF</a>
+                <button class="btn-print" style="position: static;" onclick="window.print()">🖨 Print Bill (A5)</button>
+            </div>
+        @endif
 
-        <div class="receipt-outer">
-            <div class="receipt-container">
+        <div class="receipt-container">
 
-                <!-- Company Header -->
-                <div class="company-header">
-                    <div class="logo-box">
+            <!-- Company Header -->
+            <table class="header-table">
+                <tr>
+                    <td class="logo-col" style="text-align: left;">
                         <img src="{{ asset('assets/logo.jpg') }}" alt="Omkaar Logistics">
-                    </div>
-                    <div class="logo-text-middle">
+                    </td>
+                    <td class="logo-text-middle">
                         <div class="sub-header">CONSIGNMENT NOTE</div>
                         <h1>OMKAAR LOGISTICS</h1>
                         <div class="address-details">
-                            <span class="contact-line">Head office: Lokhra Lalunggaon Near NPS School, GHY-40</span>
-                            <span class="contact-line">Mangaldoi, Kharupetia, Tangla, Dhekiajuli, Basimari,</span>
-                            <span class="contact-line">Udalguri, Rangia, Nalbari, Patshala</span>
-                            <span class="contact-line">📞 98640-82153, 97335-35513</span>
-                            <span class="contact-line">✉ omkaar.logistics@gmail.com</span>
-                            <span class="contact-line">GSTIN: 18AAHFO6045J1ZY</span>
+                            <div>Head office: Lokhra Lalunggaon Near NPS School, GHY-40</div>
+                            <div>Mangaldoi, Kharupetia, Tangla, Dhekiajuli, Basimari,</div>
+                            <div>Udalguri, Rangia, Nalbari, Patshala</div>
+                            <div>📞 98640-82153, 97335-35513 &nbsp;|&nbsp; ✉ omkaar.logistics@gmail.com</div>
+                            <div>GSTIN: 18AAHFO6045J1ZY</div>
                         </div>
-                    </div>
-                    <div class="logo-box" style="text-align:right;">
-                        <img src="{{ asset('assets/logo.jpg') }}" alt="Omkaar Logistics">
-                    </div>
-                </div>
+                    </td>
+                    <td class="logo-col" style="text-align: right;">
+                        <img src="{{ asset('assets/logo.jpg') }}" alt="Omkaar Logistics" style="margin-left: auto;">
+                    </td>
+                </tr>
+            </table>
 
-                <!-- Meta rows: E-Way/C.N.No on left, C.N. pill/Date on right -->
-                <div class="meta-row">
-                    <div class="meta-left">
-                        <div>C.N.No: {{ $bilty->cn_no ?? '' }}</div>
-                        <div>E-WayBill No: {{ $bilty->eway_bill_no ?? '' }}</div>
-                    </div>
-                    <div class="meta-right">
-                        <div class="meta-date" style="margin-bottom: 3px;">Date:&nbsp; &nbsp;
-                            {{ $bilty->invoice_date->format('d/m/Y') }}</div>
-                        <div class="cn-pill-box">C.N. No.:{{ $bilty->series }}-{{ $bilty->bilty_no }}</div>
-                    </div>
-                </div>
+            <!-- Meta Rows -->
+            <table class="meta-table">
+                <tr>
+                    <td class="meta-left" style="text-align: left;">
+                        <div><strong>E-WayBill No:</strong> {{ $bilty->eway_bill_no ?? '' }}</div>
+                        <div><strong>C.N.No:</strong> {{ $bilty->cn_no ?? '' }}</div>
+                        <div><strong>Party Name:</strong> {{ $bilty->billingParty ? $bilty->billingParty->ledger_name : ($bilty->consignor ? $bilty->consignor->ledger_name : '') }}</div>
+                    </td>
+                    <td style="text-align: right;">
+                        <div class="cn-pill-box"><strong>C.N. No.:</strong> {{ $bilty->series ? $bilty->series . '/' : '' }}{{ $bilty->bilty_no }}</div>
+                        <div class="meta-date"><strong>Date:</strong> &nbsp; &nbsp; {{ $bilty->invoice_date ? $bilty->invoice_date->format('d/m/Y') : '' }}</div>
+                    </td>
+                </tr>
+            </table>
 
-                <div class="party-name-row">
-                    Third Party Name:
-                    {{ $bilty->billingParty ? $bilty->billingParty->ledger_name : $bilty->consignor->ledger_name }}
-                </div>
+            <!-- Locations Table -->
+            <table class="locations-table">
+                <tr>
+                    <td style="width: 35%; text-align: left;">
+                        <div class="loc-pill">
+                            <strong>From:</strong> &nbsp; {{ $bilty->fromLocation ? $bilty->fromLocation->name : ($bilty->fromCity ? $bilty->fromCity->name : '') }}
+                        </div>
+                    </td>
+                    <td style="width: 30%; text-align: center;">
+                        <div class="freight-mode-text">
+                            Freight Mode: {{ $bilty->billing_type }}
+                        </div>
+                    </td>
+                    <td style="width: 35%; text-align: right;">
+                        <div class="loc-pill" style="margin-left: auto; text-align: left;">
+                            <strong>To:</strong> &nbsp; {{ $bilty->toLocation ? $bilty->toLocation->name : ($bilty->toCity ? $bilty->toCity->name : '') }}
+                        </div>
+                    </td>
+                </tr>
+            </table>
 
-                <!-- Locations (From / To) Box -->
-                <div class="locations-box">
-                    <div class="loc-pill">
-                        <label>From:</label>
-                        <span>{{ $bilty->fromLocation->name }}</span>
-                    </div>
+            <!-- Parties Table -->
+            <table class="parties-table">
+                <tr>
+                    <td style="width: 49%;">
+                        <div class="party-box">
+                            <div class="party-line"><strong>Consignor:</strong> {{ $bilty->consignor ? $bilty->consignor->ledger_name : '' }}</div>
+                            <div class="party-line"><strong>Mobile No:</strong> {{ $bilty->consignor ? ($bilty->consignor->mobile ?: ($bilty->consignor->phone_o ?: $bilty->consignor->phone_r)) : '' }}</div>
+                            <div class="party-line"><strong>GSTIN No:</strong> {{ $bilty->consignor ? $bilty->consignor->gst_no : '' }}</div>
+                            <div class="party-line"><strong>Address:</strong> {{ $bilty->consignor ? $bilty->consignor->address : '' }}</div>
+                        </div>
+                    </td>
+                    <td style="width: 2%;"></td>
+                    <td style="width: 49%;">
+                        <div class="party-box">
+                            <div class="party-line"><strong>Consignee:</strong> {{ $bilty->consignee ? $bilty->consignee->ledger_name : '' }}</div>
+                            <div class="party-line"><strong>Mobile No:</strong> {{ $bilty->consignee ? ($bilty->consignee->mobile ?: ($bilty->consignee->phone_o ?: $bilty->consignee->phone_r)) : '' }}</div>
+                            <div class="party-line"><strong>GSTIN No:</strong> {{ $bilty->consignee ? $bilty->consignee->gst_no : '' }}</div>
+                            <div class="party-line"><strong>Address:</strong> {{ $bilty->consignee ? $bilty->consignee->address : '' }}</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
 
-                    <div style="text-align: center; font-weight: bold; font-size: 13px;">
-                        Freight Mode: {{ $bilty->billing_type }}
-                    </div>
-
-                    <div class="loc-pill">
-                        <label>To:</label>
-                        <span>{{ $bilty->toLocation->name }}</span>
-                    </div>
-                </div>
-
-                <!-- Parties Grid -->
-                <div class="parties-grid">
-                    <div class="party-column">
-                        <div class="party-row">
-                            <label>Consignor:</label>
-                            <span>{{ $bilty->consignor->ledger_name }}</span>
-                        </div>
-                        <div class="party-row">
-                            <label>Mobile No:</label>
-                            <span>{{ $bilty->consignor->mobile ?: $bilty->consignor->phone_o ?: $bilty->consignor->phone_r }}</span>
-                        </div>
-                        <div class="party-row">
-                            <label>GSTIN No:</label>
-                            <span>{{ $bilty->consignor->gst_no }}</span>
-                        </div>
-                        <div class="party-row" style="margin-top: 4px;">
-                            <label>Address:</label>
-                            <span>{{ $bilty->consignor->address }}</span>
-                        </div>
-                    </div>
-                    <div class="party-column">
-                        <div class="party-row">
-                            <label>Consignee:</label>
-                            <span>{{ $bilty->consignee->ledger_name }}</span>
-                        </div>
-                        <div class="party-row">
-                            <label>Mobile No:</label>
-                            <span>{{ $bilty->consignee->mobile ?: $bilty->consignee->phone_o ?: $bilty->consignee->phone_r }}</span>
-                        </div>
-                        <div class="party-row">
-                            <label>GSTIN No:</label>
-                            <span>{{ $bilty->consignee->gst_no }}</span>
-                        </div>
-                        <div class="party-row" style="margin-top: 4px;">
-                            <label>Address:</label>
-                            <span>{{ $bilty->consignee->address }}</span>
-                        </div>
-                    </div>
-                </div>
-
+            <!-- Table & Charges Section -->
+            <div class="table-section">
                 <!-- Consignment Items Table -->
                 <table class="items-table">
                     <thead>
@@ -534,11 +497,11 @@
                             <th width="10%">No Of<br>Packages</th>
                             <th width="12%">Packing</th>
                             <th width="33%">Discription</th>
-                            <th width="15%">Invoice No.</th>
-                            <th width="10%">Invoice<br>Value</th>
-                            <th width="10%">Weight</th>
-                            <th width="10%">Qty</th>
-                            <th width="10%">Rate</th>
+                            <th width="14%">Invoice No.</th>
+                            <th width="11%">Invoice<br>Value</th>
+                            <th width="8%">Weight</th>
+                            <th width="8%">Qty</th>
+                            <th width="6%">Rate</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -551,17 +514,13 @@
                                 <td>{{ $item->invoice_value > 0 ? number_format($item->invoice_value, 2) : '' }}</td>
                                 <td>
                                     @if ($item->weight_type === 'KG')
-                                        {{ $item->qty > 0 ? number_format($item->qty, 3) : '' }}
+                                        KG
                                     @else
-                                        {{ $item->weight_val > 0 ? number_format($item->weight_val, 3) : '' }}
+                                        {{ $item->weight_val > 0 ? number_format($item->weight_val, 2) : '' }}
                                     @endif
                                 </td>
                                 <td>
-                                    @if ($item->weight_type === 'KG')
-                                        {{-- KG type has no separate quantity --}}
-                                    @else
-                                        {{ $item->qty > 0 ? number_format($item->qty, 2) : '' }}
-                                    @endif
+                                    {{ $item->qty > 0 ? number_format($item->qty, 2) : '' }}
                                 </td>
                                 <td>{{ number_format($item->rate, 2) }}</td>
                             </tr>
@@ -569,45 +528,58 @@
                     </tbody>
                 </table>
 
-                <!-- Bottom block: signatures + charges, sharing the table's outer border -->
-                <div class="bottom-block">
-                    <div class="bottom-left">
-                        <div class="signature-col left-col">
-                            <div class="seal-sign">Seal &amp; Sign</div>
-                            <div class="receipt-ack">Receipt Acknowledgment</div>
-                        </div>
-                        <div class="signature-col right-col">
-                            <div class="booking-incharge">Sign. Of the Booking Incharge</div>
-                            <div class="terms-footer">* We are not responsible for Brokage /Leakage &amp; Damage of any
-                                goods</div>
-                        </div>
-                    </div>
-
-                    <table class="charges-table">
-                        <tr>
-                            <td>ST</td>
-                            <td>{{ number_format($bilty->st_charge, 2) }}</td>
-                        </tr>
-                        <tr>
-                            <td>RC</td>
-                            <td>{{ number_format($bilty->rc_charge, 2) }}</td>
-                        </tr>
-                        <tr>
-                            <td>SC</td>
-                            <td>{{ number_format($bilty->sc_charge, 2) }}</td>
-                        </tr>
-                        <tr>
-                            <td>DD</td>
-                            <td>{{ number_format($bilty->dd_charge, 2) }}</td>
-                        </tr>
-                        <tr>
-                            <td>Total</td>
-                            <td>{{ number_format($bilty->net_amount, 2) }}</td>
-                        </tr>
-                    </table>
-                </div>
-
             </div>
+
+            <!-- Bottom Sticky Footer Block (Signatures + Charges) -->
+            <div class="bottom-sticky-block">
+                <table class="bottom-table">
+                    <tr>
+                        <td class="signature-cell">
+                            <table class="signature-inner-table">
+                                <tr>
+                                    <td style="text-align: left; width: 50%;">
+                                        <div class="seal-sign">Seal &amp; Sign</div>
+                                        <div class="receipt-ack">Receipt Acknowledgment</div>
+                                    </td>
+                                    <td style="text-align: right; width: 50%;">
+                                        <div class="booking-incharge">Sign. Of the Booking Incharge</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="text-align: right;">
+                                        <div class="terms-footer">* We are not responsible for Brokage /Leakage &amp; Damage of any goods</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td style="width: 140px;">
+                            <table class="charges-table">
+                                <tr>
+                                    <td>ST</td>
+                                    <td>{{ number_format($bilty->st_charge, 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td>RC</td>
+                                    <td>{{ number_format($bilty->rc_charge, 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td>SC</td>
+                                    <td>{{ number_format($bilty->sc_charge, 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td>DD</td>
+                                    <td>{{ number_format($bilty->dd_charge, 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Total</td>
+                                    <td>{{ number_format($bilty->net_amount, 2) }}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
         </div>
     </div>
 

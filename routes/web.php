@@ -19,6 +19,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/bilty/create', [BiltyController::class, 'create'])->name('bilty.create');
     Route::post('/bilty/store', [BiltyController::class, 'store'])->name('bilty.store');
     Route::get('/bilty/print/{id}', [BiltyController::class, 'print'])->name('bilty.print');
+    Route::get('/bilty/pdf/{id}', [BiltyController::class, 'downloadPdf'])->name('bilty.pdf');
     Route::get('/bilty/party-details/{id}', [BiltyController::class, 'getPartyDetails'])->name('bilty.party-details');
     Route::get('/bilty/lookup/{bilty_no}', [BiltyController::class, 'lookup'])->name('bilty.lookup');
     Route::post('/bilty/update/{id}', [BiltyController::class, 'update'])->name('bilty.update');

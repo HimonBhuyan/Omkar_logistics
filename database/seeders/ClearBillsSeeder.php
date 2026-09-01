@@ -25,16 +25,14 @@ class ClearBillsSeeder extends Seeder
     {
         Schema::disableForeignKeyConstraints();
 
-        // Tables to truncate (all tables except companies, financial_years, migrations, users)
+        // Tables to truncate (wiping transactional, ledger, locations, and temporary data)
         $tablesToTruncate = [
             'bilty_items',
             'bilties',
             'parties',
             'account_ledgers',
-            'group_ledgers',
             'locations',
             'cities',
-            'states',
             'countries',
             'sessions',
             'cache',
@@ -94,11 +92,19 @@ class ClearBillsSeeder extends Seeder
             }
         }
 
+        // 4. Maintain & seed Group Ledgers
+        $this->call(GroupLedgerSeeder::class);
+        $this->command->info('✓ Retained/Seeded group_ledgers table');
+
+        // 5. Maintain & seed States and Countries
+        $this->call(MasterSeeder::class);
+        $this->command->info('✓ Retained/Seeded states and countries tables');
+
         Schema::enableForeignKeyConstraints();
 
         $this->command->info('----------------------------------------------------------------------');
-        $this->command->info('SUCCESS: All tables have been truncated clean!');
-        $this->command->info('Only "companies", "financial_years", "migrations", and "users" retained.');
+        $this->command->info('SUCCESS: Clean system initialized!');
+        $this->command->info('Kept tables: companies, financial_years, migrations, users, states, group_ledgers.');
         $this->command->info('----------------------------------------------------------------------');
     }
 }

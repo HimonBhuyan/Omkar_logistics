@@ -3,52 +3,64 @@
 namespace App\Http\Controllers;
 
 use App\Models\AccountLedger;
+use App\Models\CityModel;
+use App\Models\Country;
 use App\Models\GroupLedger;
+use App\Models\StateModel;
 use Illuminate\Http\Request;
 
 class AccountLedgerController extends Controller
 {
     public function index()
     {
-        $ledgers = AccountLedger::orderBy('ledger_name')->get();
-        $groups  = GroupLedger::orderBy('sort_order')->pluck('name');
-        $nextCode = (AccountLedger::max('code') ?? 0) + 1;
+        $ledgers   = AccountLedger::orderBy('ledger_name')->get();
+        $groups    = GroupLedger::orderBy('sort_order')->pluck('name');
+        $countries = Country::orderBy('name')->get();
+        $states    = StateModel::orderBy('code')->get();
+        $cities    = CityModel::with('stateRelation')->orderBy('name')->get();
+        $nextCode  = (AccountLedger::max('code') ?? 0) + 1;
 
-        // Start with an empty (new) ledger form
+        // Start with an empty (new) ledger form with India as default, State and City blank
+        $india = $countries->firstWhere('name', 'INDIA');
         $selected = new AccountLedger([
             'code'          => $nextCode,
-            'state'         => 'Assam',
-            'country'       => 'INDIA',
+            'country_id'    => $india->id ?? null,
+            'state_id'      => null,
+            'city_id'       => null,
             'payment_type'  => 'cash',
             'customer_type' => 'retailer',
             'dom'           => now()->format('Y-m-d'),
             'dob'           => now()->format('Y-m-d'),
         ]);
 
-        return view('account.ledger', compact('ledgers', 'groups', 'selected', 'nextCode'));
+        return view('account.ledger', compact('ledgers', 'groups', 'selected', 'nextCode', 'countries', 'states', 'cities'));
     }
 
     public function load($id)
     {
-        $ledgers  = AccountLedger::orderBy('ledger_name')->get();
-        $groups   = GroupLedger::orderBy('sort_order')->pluck('name');
-        $selected = AccountLedger::findOrFail($id);
-        $nextCode = (AccountLedger::max('code') ?? 0) + 1;
+        $ledgers   = AccountLedger::with(['countryRelation', 'stateRelation', 'cityRelation'])->orderBy('ledger_name')->get();
+        $groups    = GroupLedger::orderBy('sort_order')->pluck('name');
+        $countries = Country::orderBy('name')->get();
+        $states    = StateModel::orderBy('code')->get();
+        $cities    = CityModel::with('stateRelation')->orderBy('name')->get();
+        $selected  = AccountLedger::findOrFail($id);
+        $nextCode  = (AccountLedger::max('code') ?? 0) + 1;
 
-        return view('account.ledger', compact('ledgers', 'groups', 'selected', 'nextCode'));
+        return view('account.ledger', compact('ledgers', 'groups', 'selected', 'nextCode', 'countries', 'states', 'cities'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
             'code'          => 'required|integer|unique:account_ledgers,code',
+            'state_code'    => 'nullable|string|max:10',
             'ledger_name'   => 'nullable|string|max:255',
             'under_group'   => 'nullable|string|max:100',
             'contact_person'=> 'nullable|string|max:255',
             'address'       => 'nullable|string',
-            'city'          => 'nullable|string|max:100',
-            'state'         => 'nullable|string|max:100',
-            'country'       => 'nullable|string|max:100',
+            'country_id'    => 'nullable|exists:countries,id',
+            'state_id'      => 'nullable|exists:states,id',
+            'city_id'       => 'nullable|exists:cities,id',
             'pin_code'      => 'nullable|string|max:10',
             'phone_o'       => 'nullable|string|max:20',
             'phone_r'       => 'nullable|string|max:20',
@@ -117,13 +129,14 @@ class AccountLedgerController extends Controller
 
         $data = $request->validate([
             'code'          => 'required|integer|unique:account_ledgers,code,' . $id,
+            'state_code'    => 'nullable|string|max:10',
             'ledger_name'   => 'nullable|string|max:255',
             'under_group'   => 'nullable|string|max:100',
             'contact_person'=> 'nullable|string|max:255',
             'address'       => 'nullable|string',
-            'city'          => 'nullable|string|max:100',
-            'state'         => 'nullable|string|max:100',
-            'country'       => 'nullable|string|max:100',
+            'country_id'    => 'nullable|exists:countries,id',
+            'state_id'      => 'nullable|exists:states,id',
+            'city_id'       => 'nullable|exists:cities,id',
             'pin_code'      => 'nullable|string|max:10',
             'phone_o'       => 'nullable|string|max:20',
             'phone_r'       => 'nullable|string|max:20',

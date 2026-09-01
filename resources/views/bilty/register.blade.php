@@ -414,6 +414,8 @@
                         <td>{{ $b->user ? ($b->user->username ?? $b->user->name) : ($b->user_id ? 'User #'.$b->user_id : 'admin') }}</td>
                         <td>
                             <a href="{{ route('bilty.print', $b->id) }}" target="_blank" onclick="event.stopPropagation();" style="color: #003087; font-weight:600; text-decoration:underline;">Print</a>
+                            <span style="color:#ccc;">|</span>
+                            <a href="{{ route('bilty.pdf', $b->id) }}" target="_blank" onclick="event.stopPropagation();" style="color: #c0392b; font-weight:600; text-decoration:underline;">PDF</a>
                         </td>
                     </tr>
                 @empty

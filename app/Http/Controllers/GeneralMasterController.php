@@ -46,11 +46,13 @@ class GeneralMasterController extends Controller
         return redirect()->route('master.country')->with('error', 'No countries selected.');
     }
 
-    public function stateIndex($id = null)
+    public function stateIndex(Request $request, $id = null)
     {
-        $states = StateModel::orderBy('name')->get();
+        $states = StateModel::with('countryRelation')->orderBy('name')->get();
         $countries = Country::orderBy('name')->get();
-        $selected = $id ? StateModel::findOrFail($id) : new StateModel();
+        $selected = $id ? StateModel::findOrFail($id) : new StateModel([
+            'code' => $request->query('code', ''),
+        ]);
         return view('master.state', compact('states', 'countries', 'selected'));
     }
 
@@ -58,10 +60,14 @@ class GeneralMasterController extends Controller
     {
         $data = $request->validate([
             'name'       => 'required|string|max:100|unique:states,name,' . $request->id,
-            'code'       => 'nullable|string|max:50',
+            'code'       => 'required|string|max:50|unique:states,code,' . $request->id,
             'short_name' => 'nullable|string|max:50',
-            'country'    => 'nullable|string|max:100',
+            'country_id' => 'required|exists:countries,id',
+        ], [
+            'code.unique' => 'The state code ":input" is already taken by another state.',
+            'name.unique' => 'The state name ":input" already exists.',
         ]);
+
         if ($request->id) {
             StateModel::findOrFail($request->id)->update($data);
             return redirect()->route('master.state.load', $request->id)->with('success', 'State updated successfully.');
@@ -88,7 +94,7 @@ class GeneralMasterController extends Controller
 
     public function cityIndex($id = null)
     {
-        $cities = CityModel::orderBy('name')->get();
+        $cities = CityModel::with('stateRelation')->orderBy('name')->get();
         $states = StateModel::orderBy('name')->get();
         $selected = $id ? CityModel::findOrFail($id) : new CityModel();
         return view('master.city', compact('cities', 'states', 'selected'));
@@ -99,8 +105,9 @@ class GeneralMasterController extends Controller
         $data = $request->validate([
             'name'       => 'required|string|max:100|unique:cities,name,' . $request->id,
             'short_name' => 'nullable|string|max:50',
-            'state'      => 'nullable|string|max:100',
+            'state_id'   => 'required|exists:states,id',
         ]);
+
         if ($request->id) {
             CityModel::findOrFail($request->id)->update($data);
             return redirect()->route('master.city.load', $request->id)->with('success', 'City updated successfully.');

@@ -29,10 +29,8 @@ class DatabaseSeeder extends Seeder
             'bilties',
             'parties',
             'account_ledgers',
-            'group_ledgers',
             'locations',
             'cities',
-            'states',
             'countries',
             'sessions',
             'cache',
@@ -85,6 +83,12 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         }
+
+        // 4. Seed Group Ledgers
+        $this->call(GroupLedgerSeeder::class);
+
+        // 5. Seed States & Countries
+        $this->call(MasterSeeder::class);
 
         Schema::enableForeignKeyConstraints();
     }
