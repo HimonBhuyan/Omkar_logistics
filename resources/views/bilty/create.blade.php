@@ -551,7 +551,7 @@
                 <input type="hidden" name="status" id="bilty_status" value="{{ old('status', 'final') }}">
                 <div>
                     <label for="bilty_no">C.N No.</label>
-                    <input type="number" name="bilty_no" id="bilty_no" value="{{ old('bilty_no', $nextBiltyNo) }}" required min="1">
+                    <input type="number" name="bilty_no" id="bilty_no" value="{{ old('bilty_no', $nextBiltyNo) }}" required min="1" autocomplete="off">
                 </div>
                 
                 <div>
@@ -2164,6 +2164,10 @@
         if (urlBiltyNo) {
             biltyNoInput.value = urlBiltyNo;
             performBiltyLookup(urlBiltyNo);
+        } else {
+            @if(!old('bilty_no'))
+            biltyNoInput.value = "{{ $nextBiltyNo }}";
+            @endif
         }
 
         // Initialize e-way tags from existing values if any

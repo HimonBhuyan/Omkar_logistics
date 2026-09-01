@@ -204,14 +204,15 @@
             width: 100%;
             border-collapse: collapse;
             border: 1.5px solid #000;
-            border-bottom: 1.5px solid #000;
+            border-bottom: none; /* Join seamlessly with bottom-block */
             margin-bottom: 0;
+            flex-grow: 1; /* Space out inside flexbox to fill vertical area */
         }
 
         .items-table th {
             border: 1px solid #000;
             border-bottom: 1.5px solid #000;
-            padding: 3px;
+            padding: 4px 3px;
             font-size: 10px;
             font-weight: bold;
             text-align: center;
@@ -219,10 +220,9 @@
 
         .items-table td {
             border: 1px solid #000;
-            padding: 3px;
-            font-size: 10px;
+            padding: 5px 4px; /* Reduced vertical padding by 10px for a clean, proportional look */
+            font-size: 10.5px;
             text-align: center;
-            height: 22px;
             vertical-align: middle;
         }
 
@@ -231,6 +231,7 @@
             border-left: 1.5px solid #000;
             border-right: 1.5px solid #000;
             border-bottom: 1.5px solid #000;
+            border-top: 1.5px solid #000; /* Seamless junction line at top */
             display: flex;
             justify-content: space-between;
             align-items: stretch;

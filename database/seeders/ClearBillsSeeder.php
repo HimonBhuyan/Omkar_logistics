@@ -37,7 +37,7 @@ class ClearBillsSeeder extends Seeder
 
         $this->command->info('------------------------------------------------------------');
         $this->command->info('SUCCESS: All seeded bills and test data have been wiped clean!');
-        $this->command->info('Next bilty will start cleanly at C.N. 4197 and Voucher 1795.');
+        $this->command->info('Next bilty will start cleanly at C.N. 4306 and Voucher 1795.');
         $this->command->info('------------------------------------------------------------');
     }
 }

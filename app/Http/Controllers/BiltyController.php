@@ -33,9 +33,9 @@ class BiltyController extends Controller
             ->pluck('ledger_name', 'ledger_name')
             ->unique();
 
-        // Calculate next C.N. number for Series '26-27' (starting from 4197)
+        // Calculate next C.N. number for Series '26-27' (starting from 4306)
         $maxBiltyNo = Bilty::where('series', '26-27')->max('bilty_no');
-        $nextBiltyNo = ($maxBiltyNo && $maxBiltyNo >= 4196) ? ($maxBiltyNo + 1) : 4197;
+        $nextBiltyNo = ($maxBiltyNo && $maxBiltyNo >= 4306) ? ($maxBiltyNo + 1) : 4306;
 
         // Calculate next Voucher No
         $lastVoucher = Bilty::orderBy('voucher_no', 'desc')->first();
