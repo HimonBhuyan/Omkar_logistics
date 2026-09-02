@@ -727,7 +727,7 @@
                             <th width="18%">Description</th>
                             <th width="10%">Invoice No</th>
                             <th width="10%">Invoice Value</th>
-                            <th width="10%">Weight Type</th>
+                            <th width="10%">Unit</th>
                             <th width="8%" class="weight-col">Weight</th>
                             <th width="8%">Weight/Fixed</th>
                             <th width="8%">Rate</th>
@@ -757,7 +757,7 @@
                                 <input type="number" name="items[0][invoice_value]" class="input-invoice_value" value="0.00" step="0.01">
                             </td>
                             <td>
-                                <select name="items[0][weight_type]" class="input-weight_type" onchange="handleWeightTypeChange(this)">
+                                <select name="items[0][unit]" class="input-unit" onchange="handleUnitChange(this)">
                                     <option value="KG">KG</option>
                                     <option value="Fixed">Fixed</option>
                                 </select>
@@ -1030,11 +1030,11 @@
                 input.style.color = '#333';
             });
 
-            // Restore editable rate/weight fields based on each row's weight type setting
+            // Restore editable rate/weight fields based on each row's unit setting
             document.querySelectorAll('.grid-row').forEach(row => {
-                const wSelect = row.querySelector('.input-weight_type');
+                const wSelect = row.querySelector('.input-unit');
                 if (wSelect) {
-                    handleWeightTypeChange(wSelect);
+                    handleUnitChange(wSelect);
                 }
             });
         } else {
@@ -1052,11 +1052,11 @@
                 input.style.color = '#333';
             });
 
-            // Restore editable rate/weight fields based on each row's weight type setting
+            // Restore editable rate/weight fields based on each row's unit setting
             document.querySelectorAll('.grid-row').forEach(row => {
-                const wSelect = row.querySelector('.input-weight_type');
+                const wSelect = row.querySelector('.input-unit');
                 if (wSelect) {
-                    handleWeightTypeChange(wSelect);
+                    handleUnitChange(wSelect);
                 }
             });
         }
@@ -1085,7 +1085,7 @@
                 <input type="number" name="items[${rowIndex}][invoice_value]" class="input-invoice_value" value="0.00" step="0.01">
             </td>
             <td>
-                <select name="items[${rowIndex}][weight_type]" class="input-weight_type" onchange="handleWeightTypeChange(this)">
+                <select name="items[${rowIndex}][unit]" class="input-unit" onchange="handleUnitChange(this)">
                     <option value="KG">KG</option>
                     <option value="Fixed">Fixed</option>
                 </select>
@@ -1122,9 +1122,9 @@
         attachListenersToRow(newRow);
         
         // Explicitly set the initial enabled/disabled status of weight inputs
-        const newWeightSelect = newRow.querySelector('.input-weight_type');
+        const newWeightSelect = newRow.querySelector('.input-unit');
         if (newWeightSelect) {
-            handleWeightTypeChange(newWeightSelect);
+            handleUnitChange(newWeightSelect);
         }
         calculateAll();
     }
@@ -1146,13 +1146,13 @@
         row.querySelectorAll('.calc-trigger').forEach(input => {
             input.addEventListener('input', calculateAll);
         });
-        const wSelect = row.querySelector('.input-weight_type');
+        const wSelect = row.querySelector('.input-unit');
         if (wSelect) {
             wSelect.addEventListener('change', function() {
-                handleWeightTypeChange(this);
+                handleUnitChange(this);
             });
             // Initial call to set fields enabled state correctly
-            handleWeightTypeChange(wSelect);
+            handleUnitChange(wSelect);
         }
     }
 
@@ -1249,7 +1249,7 @@
             });
     }
 
-    function handleWeightTypeChange(selectEl) {
+    function handleUnitChange(selectEl) {
         const row = selectEl.closest('tr');
         if (!row) return;
         const qtyInput = row.querySelector('.input-qty');
@@ -1468,16 +1468,16 @@
                         if (!firstInvalidEl) firstInvalidEl = pkgs;
                     }
 
-                    const weightType = row.querySelector('.input-weight_type')?.value;
+                    const unitVal = row.querySelector('.input-unit')?.value;
                     const weightVal = parseFloat(row.querySelector('.input-weight_val')?.value) || 0;
                     const qtyVal = parseFloat(row.querySelector('.input-qty')?.value) || 0;
 
-                    if (weightType === 'KG') {
+                    if (unitVal === 'KG') {
                         if (weightVal <= 0 && qtyVal <= 0) {
                             errors.push(`<strong>Item Row #${rowNum}:</strong> Please enter the weight (KG).`);
                             if (!firstInvalidEl) firstInvalidEl = row.querySelector('.input-weight_val');
                         }
-                    } else if (weightType === 'Fixed') {
+                    } else if (unitVal === 'Fixed') {
                         if (qtyVal <= 0) {
                             errors.push(`<strong>Item Row #${rowNum}:</strong> Quantity must be greater than 0.`);
                             if (!firstInvalidEl) firstInvalidEl = row.querySelector('.input-qty');
@@ -1728,9 +1728,11 @@
                             row.querySelector(`input[name="items[${index}][invoice_no]"]`).value = item.invoice_no;
                             row.querySelector(`input[name="items[${index}][invoice_value]"]`).value = item.invoice_value;
                             
-                            const wSelect = row.querySelector(`select[name="items[${index}][weight_type]"]`);
-                            wSelect.value = item.weight_type;
-                            handleWeightTypeChange(wSelect);
+                            const wSelect = row.querySelector(`select[name="items[${index}][unit]"]`);
+                            if (wSelect) {
+                                wSelect.value = item.unit || 'KG';
+                                handleUnitChange(wSelect);
+                            }
 
                             row.querySelector(`input[name="items[${index}][weight_val]"]`).value = item.weight_val;
                             row.querySelector(`input[name="items[${index}][qty]"]`).value = item.qty;

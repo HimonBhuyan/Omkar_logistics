@@ -14,7 +14,7 @@ class BiltyItem extends Model
         'description',
         'invoice_no',
         'invoice_value',
-        'weight_type',
+        'unit',
         'qty',
         'rate',
         'weight_val',

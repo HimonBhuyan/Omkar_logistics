@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consignment Note #{{ $bilty->series }}-{{ $bilty->bilty_no }} - Omkaar Logistics</title>
+    <title>CN_{{ $bilty->series ? str_replace(['/', '\\', '-'], '_', $bilty->series) . '_' : '' }}{{ $bilty->bilty_no }}</title>
     <style>
         * {
             box-sizing: border-box !important;
@@ -92,7 +92,7 @@
         .logo-text-middle .address-details {
             font-size: 14px;
             font-weight: normal;
-            line-height: 1.15;
+            line-height: 1.2;
         }
 
         /* Meta Table */
@@ -113,8 +113,8 @@
         }
 
         .meta-left div {
-            margin-bottom: 1.5px;
-            font-size: 11px;
+            margin-bottom: 2px;
+            font-size: 12px;
             font-weight: bold;
         }
 
@@ -158,11 +158,14 @@
         .loc-pill {
             border: 1.5px solid #000;
             border-radius: 4px;
-            padding: 3.5px 10px;
+            padding: 3.5px 12px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 14px;
             display: inline-block;
             box-sizing: border-box;
+            width: 175px;
+            min-width: 175px;
+            text-align: center;
         }
 
         .freight-mode-text {
@@ -242,7 +245,7 @@
         .items-table td {
             border-right: 1px solid #000;
             border-bottom: none;
-            padding: 3.5px 4px;
+            padding: 6px 4px;
             font-size: 11px;
             text-align: center;
             vertical-align: middle;
@@ -443,7 +446,7 @@
         @if(!isset($isPdf))
             <a href="{{ route('bilty.create') }}" class="btn-back-link">⬅ Back to Entry Form</a>
             <div style="position: absolute; top: -40px; right: 0; display: flex; gap: 8px;">
-                <a href="{{ route('bilty.pdf', $bilty->id) }}" class="btn-print" style="position: static; background: #c0392b; text-decoration: none; display: inline-block;">📥 Download PDF</a>
+                <a href="{{ route('bilty.pdf', $bilty->id) }}" download="CN_{{ $bilty->series ? str_replace(['/', '\\', '-'], '_', $bilty->series) . '_' : '' }}{{ $bilty->bilty_no }}.pdf" class="btn-print" style="position: static; background: #c0392b; text-decoration: none; display: inline-block;">📥 Download PDF</a>
                 <button class="btn-print" style="position: static;" onclick="window.print()">🖨 Print Bill (A5)</button>
             </div>
         @endif
@@ -461,8 +464,10 @@
                         <h1>OMKAAR LOGISTICS</h1>
                         <div class="address-details">
                             <div>Head office: Lokhra Lalunggaon Near NPS School, GHY-40</div>
-                            <div>Mangaldoi, Kharupetia, Tangla, Dhekiajuli, Basimari, Udalguri, Rangia, Nalbari, Patshala</div>
+                            <div>Mangaldoi, Kharupetia, Tangla, Dhekiajuli, Basimari,</div>
+                            <div>Udalguri, Rangia, Nalbari, Patshala</div>
                             <div>📞 98640-82153, 97335-35513</div>
+                            <div>✉ omkaar.logistics@gmail.com</div>
                             <div>GSTIN: 18AAHFO6045J1ZY</div>
                         </div>
                     </td>
@@ -542,8 +547,8 @@
                             <th width="33%">Discription</th>
                             <th width="14%">Invoice No.</th>
                             <th width="11%">Invoice<br>Value</th>
-                            <th width="8%">Weight</th>
-                            <th width="8%">Qty</th>
+                            <th width="8%">Unit</th>
+                            <th width="8%">Wt. / Qty</th>
                             <th width="6%">Rate</th>
                         </tr>
                     </thead>
@@ -555,15 +560,13 @@
                                 <td>{{ $item->description }}</td>
                                 <td>{{ $item->invoice_no ?? '' }}</td>
                                 <td>{{ $item->invoice_value > 0 ? number_format($item->invoice_value, 2) : '' }}</td>
+                                <td>{{ $item->unit ?? '' }}</td>
                                 <td>
-                                    @if ($item->weight_type === 'KG')
-                                        KG
+                                    @if (($item->unit ?? '') === 'KG')
+                                        {{ $item->weight_val > 0 ? number_format($item->weight_val, 2) : ($item->qty > 0 ? number_format($item->qty, 2) : '') }}
                                     @else
-                                        {{ $item->weight_val > 0 ? number_format($item->weight_val, 2) : '' }}
+                                        {{ $item->qty > 0 ? number_format($item->qty, 2) : '' }}
                                     @endif
-                                </td>
-                                <td>
-                                    {{ $item->qty > 0 ? number_format($item->qty, 2) : '' }}
                                 </td>
                                 <td>{{ number_format($item->rate, 2) }}</td>
                             </tr>
@@ -602,15 +605,15 @@
                 <div class="signature-box">
                     <table class="signature-inner-table">
                         <tr>
-                            <td style="text-align: left; width: 40%; vertical-align: bottom; padding-left: 45px;">
+                            <td style="text-align: left; width: 30%; vertical-align: bottom; padding-left: 45px;">
                                 <div style="display: inline-block; text-align: center;">
                                     <div class="seal-sign">Seal &amp; Sign</div>
                                     <div class="receipt-ack">Receipt Acknowledgment</div>
                                 </div>
                             </td>
-                            <td style="text-align: right; width: 60%; vertical-align: bottom; padding-right: 90px;">
+                            <td style="text-align: right; width: 70%; vertical-align: bottom; padding-right: 150px;">
                                 <div style="display: inline-block; text-align: center;">
-                                    <div class="booking-incharge">Sign. Of the Booking Incharge</div>
+                                    <div class="booking-incharge">Sign. of the Booking Incharge</div>
                                     <div class="terms-footer">* We are not responsible for Brokage /Leakage &amp; Damage of any goods</div>
                                 </div>
                             </td>

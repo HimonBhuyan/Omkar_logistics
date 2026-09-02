@@ -189,7 +189,7 @@ class ReportController extends Controller
             'Description',
             'Invoice No.',
             'Invoice Value',
-            'Weight Type',
+            'Unit',
             'QTY',
             'Rate',
             'ST',
@@ -268,7 +268,7 @@ class ReportController extends Controller
                 $rowTotal = floatval($b->net_amount);
             }
 
-            $weightType = $b->items->first()?->weight_type ?? (($b->type === 'Transport Name') ? 'Fixed' : 'KG');
+            $unit = $b->items->first()?->unit ?? (($b->type === 'Transport Name') ? 'Fixed' : 'KG');
             $dateFormatted = $b->invoice_date ? $b->invoice_date->format('d-m-Y') : '';
             $timeFormatted = $b->created_at ? $b->created_at->format('h:i A') : '';
             $fromLocName = $b->fromLocation ? $b->fromLocation->name : ($b->from_location_name ?? '');
@@ -300,7 +300,7 @@ class ReportController extends Controller
             $sheet->setCellValue('R' . $rowNum, $description);
             $sheet->setCellValueExplicit('S' . $rowNum, (string) $invoiceNo, DataType::TYPE_STRING);
             $sheet->setCellValue('T' . $rowNum, $invoiceVal);
-            $sheet->setCellValue('U' . $rowNum, $weightType);
+            $sheet->setCellValue('U' . $rowNum, $unit);
             $sheet->setCellValue('V' . $rowNum, floatval($b->total_qty));
             $sheet->setCellValue('W' . $rowNum, floatval($rate));
             $sheet->setCellValue('X' . $rowNum, $st);

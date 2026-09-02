@@ -99,7 +99,7 @@ class BiltyController extends Controller
                 'items.*.description' => 'nullable|string|max:255',
                 'items.*.invoice_no' => 'nullable|string|max:50',
                 'items.*.invoice_value' => 'nullable|numeric|min:0',
-                'items.*.weight_type' => 'required|string|in:KG,Fixed',
+                'items.*.unit' => 'required|string|in:KG,Fixed',
                 'items.*.weight_val' => 'nullable|numeric|min:0',
                 'items.*.qty' => 'required|numeric|min:0',
                 'items.*.rate' => 'required|numeric|min:0',
@@ -238,7 +238,7 @@ class BiltyController extends Controller
                         'description' => $itemData['description'] ?? '',
                         'invoice_no' => $itemData['invoice_no'] ?? '',
                         'invoice_value' => $itemData['invoice_value'] ?? 0.00,
-                        'weight_type' => $itemData['weight_type'] ?? 'KG',
+                        'unit' => $itemData['unit'] ?? 'KG',
                         'weight_val' => $itemData['weight_val'] ?? 0.000,
                         'qty' => $itemData['qty'] ?? 0.000,
                         'rate' => $itemData['rate'] ?? 0.00,
@@ -353,7 +353,7 @@ class BiltyController extends Controller
                 'items.*.description' => 'nullable|string|max:255',
                 'items.*.invoice_no' => 'nullable|string|max:50',
                 'items.*.invoice_value' => 'nullable|numeric|min:0',
-                'items.*.weight_type' => 'required|string|in:KG,Fixed',
+                'items.*.unit' => 'required|string|in:KG,Fixed',
                 'items.*.weight_val' => 'nullable|numeric|min:0',
                 'items.*.qty' => 'required|numeric|min:0',
                 'items.*.rate' => 'required|numeric|min:0',
@@ -494,7 +494,7 @@ class BiltyController extends Controller
                         'description' => $itemData['description'] ?? '',
                         'invoice_no' => $itemData['invoice_no'] ?? '',
                         'invoice_value' => $itemData['invoice_value'] ?? 0.00,
-                        'weight_type' => $itemData['weight_type'] ?? 'KG',
+                        'unit' => $itemData['unit'] ?? 'KG',
                         'weight_val' => $itemData['weight_val'] ?? 0.000,
                         'qty' => $itemData['qty'] ?? 0.000,
                         'rate' => $itemData['rate'] ?? 0.00,
@@ -559,10 +559,11 @@ class BiltyController extends Controller
         $dompdf->loadHtml($html);
         $dompdf->render();
 
-        $filename = 'bilty_' . ($bilty->series ? $bilty->series . '_' : '') . $bilty->bilty_no . '.pdf';
+        $seriesPart = $bilty->series ? str_replace(['/', '\\', '-'], '_', $bilty->series) . '_' : '';
+        $filename = 'CN_' . $seriesPart . $bilty->bilty_no . '.pdf';
         return response($dompdf->output(), 200, [
             'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
     }
 }

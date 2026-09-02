@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bilty_items', function (Blueprint $table) {
-            $table->decimal('weight_val', 12, 3)->default(0.000)->after('unit');
+            if (Schema::hasColumn('bilty_items', 'weight_type')) {
+                $table->renameColumn('weight_type', 'unit');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('bilty_items', function (Blueprint $table) {
-            $table->dropColumn('weight_val');
+            if (Schema::hasColumn('bilty_items', 'unit')) {
+                $table->renameColumn('unit', 'weight_type');
+            }
         });
     }
 };

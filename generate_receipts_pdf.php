@@ -25,14 +25,14 @@ if (!is_dir($outputDir)) {
 $artifactsDir = '/home/sahil/.gemini/antigravity-ide/brain/1cb76a33-b518-4355-b411-6c9b8b602125';
 
 $bilties = [
-    1 => 'sample_receipt_1_single_row.pdf',
-    2 => 'sample_receipt_2_two_rows.pdf'
+    4306 => 'sample_receipt_1_single_row.pdf',
+    4307 => 'sample_receipt_2_two_rows.pdf'
 ];
 
-foreach ($bilties as $id => $filename) {
-    $bilty = Bilty::with(['fromLocation', 'toLocation', 'consignor', 'consignee', 'billingParty', 'items'])->find($id);
+foreach ($bilties as $biltyNo => $filename) {
+    $bilty = Bilty::with(['fromLocation', 'toLocation', 'consignor', 'consignee', 'billingParty', 'items'])->where('bilty_no', $biltyNo)->first();
     if (!$bilty) {
-        echo "Bilty #{$id} not found.\n";
+        echo "Bilty #{$biltyNo} not found.\n";
         continue;
     }
 

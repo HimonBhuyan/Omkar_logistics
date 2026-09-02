@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('description')->nullable(); // description of goods
             $table->string('invoice_no')->nullable();
             $table->decimal('invoice_value', 15, 2)->default(0.00);
-            $table->string('weight_type')->default('Actual'); // Actual, Charged, Gross
+            $table->string('unit')->default('KG'); // KG, Fixed
             $table->decimal('qty', 12, 3)->default(0.000);
             $table->decimal('rate', 12, 2)->default(0.00);
             

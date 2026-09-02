@@ -337,7 +337,7 @@
                     <th>Description</th>
                     <th>Invoice No.</th>
                     <th>Invoice Value</th>
-                    <th>Weight Type</th>
+                    <th>Unit</th>
                     <th>QTY</th>
                     <th>Rate</th>
                     <th>ST</th>
@@ -401,7 +401,7 @@
                         <td>{{ $description }}</td>
                         <td>{{ $invoiceNo }}</td>
                         <td>{{ $invoiceVal > 0 ? number_format($invoiceVal, 2) : '0.00' }}</td>
-                        <td>{{ $b->items->first()?->weight_type ?? (($b->type === 'Transport Name') ? 'Fixed' : 'KG') }}</td>
+                        <td>{{ $b->items->first()?->unit ?? (($b->type === 'Transport Name') ? 'Fixed' : 'KG') }}</td>
                         <td>{{ $b->total_qty }}</td>
                         <td>{{ number_format($rate, 2) }}</td>
                         <td>{{ number_format($st, 2) }}</td>
@@ -415,7 +415,7 @@
                         <td>
                             <a href="{{ route('bilty.print', $b->id) }}" target="_blank" onclick="event.stopPropagation();" style="color: #003087; font-weight:600; text-decoration:underline;">Print</a>
                             <span style="color:#ccc;">|</span>
-                            <a href="{{ route('bilty.pdf', $b->id) }}" target="_blank" onclick="event.stopPropagation();" style="color: #c0392b; font-weight:600; text-decoration:underline;">PDF</a>
+                            <a href="{{ route('bilty.pdf', $b->id) }}" download="CN_{{ $b->series ? str_replace(['/', '\\', '-'], '_', $b->series) . '_' : '' }}{{ $b->bilty_no }}.pdf" target="_blank" onclick="event.stopPropagation();" style="color: #c0392b; font-weight:600; text-decoration:underline;">PDF</a>
                         </td>
                     </tr>
                 @empty

@@ -155,7 +155,7 @@ class SampleReceiptsSeeder extends Seeder
             'description'   => 'Electronic Components & Sensor Units',
             'invoice_no'    => 'INV-2026/081',
             'invoice_value' => 45000.00,
-            'weight_type'   => 'KG',
+            'unit'          => 'KG',
             'qty'           => 120.500,
             'rate'          => 12.00,
             'weight_val'    => 120.500,
@@ -190,21 +190,21 @@ class SampleReceiptsSeeder extends Seeder
             'vehicle_no'         => 'AS-25-CC-8901',
             'eway_bill_no'       => '581920448102',
             'total_packages'     => 40,
-            'total_qty'          => 530.000,
-            'gross_amount'       => 7750.00,
+            'total_qty'          => 365.000,
+            'gross_amount'       => 8250.00,
             'st_charge'          => 80.00,
             'rc_charge'          => 40.00,
             'sc_charge'          => 30.00,
             'dd_charge'          => 0.00,
             'round_off'          => 0.00,
-            'net_amount'         => 7900.00,
-            'cash_amount'        => 7900.00,
+            'net_amount'         => 8400.00,
+            'cash_amount'        => 8400.00,
             'voucher_no'         => 1796,
             'status'             => 'active',
             'user_id'            => $admin->id,
         ]);
 
-        // Item 1
+        // Item 1 (KG Unit)
         BiltyItem::create([
             'bilty_id'      => $bilty2->id,
             'no_of_pkgs'    => 25,
@@ -212,13 +212,13 @@ class SampleReceiptsSeeder extends Seeder
             'description'   => 'Cotton Yarn & Textile Fabrics',
             'invoice_no'    => 'TX-4401',
             'invoice_value' => 75000.00,
-            'weight_type'   => 'KG',
+            'unit'          => 'KG',
             'qty'           => 350.000,
             'rate'          => 15.00,
             'weight_val'    => 350.000,
         ]);
 
-        // Item 2
+        // Item 2 (Fixed Unit)
         BiltyItem::create([
             'bilty_id'      => $bilty2->id,
             'no_of_pkgs'    => 15,
@@ -226,10 +226,10 @@ class SampleReceiptsSeeder extends Seeder
             'description'   => 'Industrial Hardware & Brass Fasteners',
             'invoice_no'    => 'HW-4402',
             'invoice_value' => 38500.00,
-            'weight_type'   => 'KG',
-            'qty'           => 180.000,
-            'rate'          => 14.00,
-            'weight_val'    => 180.000,
+            'unit'          => 'Fixed',
+            'qty'           => 15.000,
+            'rate'          => 200.00,
+            'weight_val'    => 0.000,
         ]);
 
         $this->command->info("✓ Sample 2 (Two Rows) Created: ID={$bilty2->id}, C.N.={$bilty2->series}-{$bilty2->bilty_no}");
