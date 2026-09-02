@@ -16,26 +16,31 @@
 
         body {
             background-color: #ffffff !important;
-            font-size: 10px;
+            font-size: 11px;
             padding: 0 !important;
             margin: 0 !important;
+            font-weight: bold;
         }
 
         @page {
             size: A5 landscape;
-            margin: 2mm 3mm;
+            margin: 0 !important;
         }
 
         .receipt-container {
-            width: 100%;
-            height: 134mm;
-            max-height: 134mm;
+            width: 200mm;
+            max-width: 200mm;
+            height: 138mm;
+            max-height: 138mm;
+            position: absolute;
+            top: 5mm;
+            left: 5mm;
             border: 1.5px solid #000000;
-            border-radius: 6px;
+            border-radius: 0;
             padding: 4px 6px;
             background: #fff;
             box-sizing: border-box;
-            position: relative;
+            font-weight: bold;
         }
 
         /* Header Table */
@@ -43,13 +48,15 @@
             width: 100%;
             border-collapse: collapse;
             border: none;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
 
         .header-table td {
             vertical-align: middle;
             border: none;
             padding: 0;
+            font-weight: bold;
         }
 
         .header-table .logo-col {
@@ -65,16 +72,17 @@
         .header-table .logo-text-middle {
             text-align: center;
             line-height: 1.15;
-        }
-
-        .logo-text-middle .sub-header {
-            font-size: 10px;
-            letter-spacing: 0.8px;
             font-weight: bold;
         }
 
+        .logo-text-middle .sub-header {
+            font-size: 14px;
+            letter-spacing: 0.8px;
+            font-weight: normal;
+        }
+
         .logo-text-middle h1 {
-            font-size: 21px;
+            font-size: 28px;
             font-weight: 900;
             letter-spacing: 0.5px;
             line-height: 1.05;
@@ -82,9 +90,9 @@
         }
 
         .logo-text-middle .address-details {
-            font-size: 8.5px;
-            font-weight: 600;
-            line-height: 1.2;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 1.15;
         }
 
         /* Meta Table */
@@ -92,19 +100,22 @@
             width: 100%;
             border-collapse: collapse;
             border: none;
-            margin-bottom: 3px;
-            font-size: 10px;
+            margin-bottom: 5px;
+            font-size: 11px;
+            font-weight: bold;
         }
 
         .meta-table td {
             border: none;
             padding: 0;
             vertical-align: bottom;
+            font-weight: bold;
         }
 
         .meta-left div {
             margin-bottom: 1.5px;
-            font-size: 10px;
+            font-size: 11px;
+            font-weight: bold;
         }
 
         .meta-left strong {
@@ -115,16 +126,16 @@
             border: 1.5px solid #000;
             border-radius: 4px;
             padding: 2px 10px;
-            font-size: 11px;
+            font-size: 14px;
             font-weight: bold;
             display: inline-block;
             text-align: center;
-            min-width: 140px;
+            min-width: 145px;
         }
 
         .meta-date {
             margin-top: 3px;
-            font-size: 10px;
+            font-size: 12px;
             font-weight: bold;
         }
 
@@ -133,27 +144,29 @@
             width: 100%;
             border-collapse: collapse;
             border: none;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
 
         .locations-table td {
             border: none;
             padding: 0;
             vertical-align: middle;
+            font-weight: bold;
         }
 
         .loc-pill {
             border: 1.5px solid #000;
             border-radius: 4px;
-            padding: 2px 8px;
+            padding: 3.5px 10px;
             font-weight: bold;
-            font-size: 10.5px;
+            font-size: 12px;
             display: inline-block;
             box-sizing: border-box;
         }
 
         .freight-mode-text {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
             text-align: center;
         }
@@ -163,64 +176,81 @@
             width: 100%;
             border-collapse: collapse;
             border: none;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
 
         .parties-table td {
             border: none;
             padding: 0;
             vertical-align: top;
+            font-weight: bold;
         }
 
         .party-box {
             border: 1.5px solid #000;
             border-radius: 6px;
-            padding: 3px 6px;
-            font-size: 9px;
+            padding: 5px 8px;
+            font-size: 11px;
             line-height: 1.3;
             box-sizing: border-box;
+            font-weight: bold;
         }
 
         .party-line {
             margin-bottom: 1.5px;
+            font-weight: bold;
         }
 
         .party-line strong {
             display: inline-block;
-            width: 65px;
+            width: 72px;
             font-weight: bold;
         }
 
         /* Table & Charges Section */
         .table-section {
             width: 100%;
-            margin-top: 2px;
+            margin-top: 4px;
         }
 
         /* Consignment Items Table */
         .items-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             border: 1.5px solid #000;
+            border-radius: 6px;
+            overflow: hidden;
             margin-bottom: 0;
         }
 
         .items-table th {
-            border: 1px solid #000;
+            border-right: 1px solid #000;
             border-bottom: 1.5px solid #000;
             padding: 3px 2px;
-            font-size: 9px;
+            font-size: 11px;
             font-weight: bold;
             text-align: center;
             background-color: #fff;
         }
 
+        .items-table th:last-child {
+            border-right: none;
+        }
+
         .items-table td {
-            border: 1px solid #000;
+            border-right: 1px solid #000;
+            border-bottom: none;
             padding: 3.5px 4px;
-            font-size: 9.5px;
+            font-size: 11px;
             text-align: center;
             vertical-align: middle;
+            font-weight: normal !important;
+        }
+
+        .items-table td:last-child {
+            border-right: none;
         }
 
         /* Bottom Sticky Footer Block */
@@ -229,76 +259,76 @@
             bottom: 5px;
             left: 7px;
             right: 7px;
+            font-weight: bold;
         }
 
-        .bottom-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1.5px solid #000;
-            margin-top: 0;
-        }
-
-        .bottom-table td {
-            padding: 0;
-            vertical-align: top;
-        }
-
-        .signature-cell {
-            padding: 4px 6px;
-            vertical-align: bottom !important;
-            border-right: 1.5px solid #000;
+        .signature-box {
+            border: none;
+            padding: 2px 0;
+            box-sizing: border-box;
+            background: transparent;
         }
 
         .signature-inner-table {
             width: 100%;
             border-collapse: collapse;
             border: none;
+            font-weight: bold;
         }
 
         .signature-inner-table td {
             border: none;
             padding: 0;
-            font-size: 9.5px;
+            font-size: 11px;
             line-height: 1.35;
+            font-weight: bold;
         }
 
         .signature-inner-table .seal-sign {
-            font-weight: normal;
-            font-size: 10px;
+            font-weight: bold;
+            font-size: 12px;
+            white-space: nowrap;
         }
 
         .signature-inner-table .receipt-ack {
             font-weight: bold;
-            font-size: 10.5px;
+            font-size: 12px;
+            white-space: nowrap;
         }
 
         .signature-inner-table .booking-incharge {
             font-weight: bold;
-            font-size: 10.5px;
+            font-size: 12px;
+            white-space: nowrap;
         }
 
         .signature-inner-table .terms-footer {
-            font-size: 8px;
+            font-size: 9px;
             font-weight: bold;
             font-style: italic;
             margin-top: 2px;
+            white-space: nowrap;
         }
 
         /* Charges Table */
         .charges-table {
-            width: 140px;
-            border-collapse: collapse;
-            border: none;
+            width: 150px;
+            margin-left: auto;
+            margin-top: 5px;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1.5px solid #000;
+            border-radius: 5px;
+            overflow: hidden;
+            font-weight: bold;
+            background: #fff;
         }
 
         .charges-table td {
             padding: 1.5px 6px;
-            font-size: 9.5px;
-            border-bottom: 1px solid #000;
-        }
-
-        .charges-table tr:last-child td {
+            font-size: 11px;
             border-bottom: none;
+            font-weight: bold;
         }
 
         .charges-table td:first-child {
@@ -354,7 +384,10 @@
             }
 
             .receipt-container {
-                max-width: 204mm;
+                position: relative;
+                top: auto;
+                left: auto;
+                max-width: 200mm;
                 margin: 0 auto;
                 background: #fff;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -364,7 +397,7 @@
         @media print {
             @page {
                 size: A5 landscape;
-                margin: 2mm 3mm;
+                margin: 0 !important;
             }
 
             html, body {
@@ -375,6 +408,17 @@
                 background: #ffffff !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+            }
+
+            .receipt-container {
+                position: absolute !important;
+                top: 5mm !important;
+                left: 5mm !important;
+                width: 200mm !important;
+                max-width: 200mm !important;
+                height: 138mm !important;
+                max-height: 138mm !important;
+                margin: 0 !important;
             }
 
             .btn-print,
@@ -417,9 +461,8 @@
                         <h1>OMKAAR LOGISTICS</h1>
                         <div class="address-details">
                             <div>Head office: Lokhra Lalunggaon Near NPS School, GHY-40</div>
-                            <div>Mangaldoi, Kharupetia, Tangla, Dhekiajuli, Basimari,</div>
-                            <div>Udalguri, Rangia, Nalbari, Patshala</div>
-                            <div>📞 98640-82153, 97335-35513 &nbsp;|&nbsp; ✉ omkaar.logistics@gmail.com</div>
+                            <div>Mangaldoi, Kharupetia, Tangla, Dhekiajuli, Basimari, Udalguri, Rangia, Nalbari, Patshala</div>
+                            <div>📞 98640-82153, 97335-35513</div>
                             <div>GSTIN: 18AAHFO6045J1ZY</div>
                         </div>
                     </td>
@@ -528,56 +571,52 @@
                     </tbody>
                 </table>
 
-            </div>
-
-            <!-- Bottom Sticky Footer Block (Signatures + Charges) -->
-            <div class="bottom-sticky-block">
-                <table class="bottom-table">
+                <!-- Charges Table (Right-aligned immediately below package data table) -->
+                <table class="charges-table">
                     <tr>
-                        <td class="signature-cell">
-                            <table class="signature-inner-table">
-                                <tr>
-                                    <td style="text-align: left; width: 50%;">
-                                        <div class="seal-sign">Seal &amp; Sign</div>
-                                        <div class="receipt-ack">Receipt Acknowledgment</div>
-                                    </td>
-                                    <td style="text-align: right; width: 50%;">
-                                        <div class="booking-incharge">Sign. Of the Booking Incharge</div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2" style="text-align: right;">
-                                        <div class="terms-footer">* We are not responsible for Brokage /Leakage &amp; Damage of any goods</div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                        <td style="width: 140px;">
-                            <table class="charges-table">
-                                <tr>
-                                    <td>ST</td>
-                                    <td>{{ number_format($bilty->st_charge, 2) }}</td>
-                                </tr>
-                                <tr>
-                                    <td>RC</td>
-                                    <td>{{ number_format($bilty->rc_charge, 2) }}</td>
-                                </tr>
-                                <tr>
-                                    <td>SC</td>
-                                    <td>{{ number_format($bilty->sc_charge, 2) }}</td>
-                                </tr>
-                                <tr>
-                                    <td>DD</td>
-                                    <td>{{ number_format($bilty->dd_charge, 2) }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Total</td>
-                                    <td>{{ number_format($bilty->net_amount, 2) }}</td>
-                                </tr>
-                            </table>
-                        </td>
+                        <td>ST</td>
+                        <td>{{ number_format($bilty->st_charge, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>RC</td>
+                        <td>{{ number_format($bilty->rc_charge, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>SC</td>
+                        <td>{{ number_format($bilty->sc_charge, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>DD</td>
+                        <td>{{ number_format($bilty->dd_charge, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td>{{ number_format($bilty->net_amount, 2) }}</td>
                     </tr>
                 </table>
+
+            </div>
+
+            <!-- Bottom Sticky Footer Block (Signatures & Terms) -->
+            <div class="bottom-sticky-block">
+                <div class="signature-box">
+                    <table class="signature-inner-table">
+                        <tr>
+                            <td style="text-align: left; width: 40%; vertical-align: bottom; padding-left: 45px;">
+                                <div style="display: inline-block; text-align: center;">
+                                    <div class="seal-sign">Seal &amp; Sign</div>
+                                    <div class="receipt-ack">Receipt Acknowledgment</div>
+                                </div>
+                            </td>
+                            <td style="text-align: right; width: 60%; vertical-align: bottom; padding-right: 90px;">
+                                <div style="display: inline-block; text-align: center;">
+                                    <div class="booking-incharge">Sign. Of the Booking Incharge</div>
+                                    <div class="terms-footer">* We are not responsible for Brokage /Leakage &amp; Damage of any goods</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </div>
 
         </div>
