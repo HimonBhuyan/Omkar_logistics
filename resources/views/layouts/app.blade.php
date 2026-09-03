@@ -23,6 +23,10 @@
             font-family: 'Poppins', sans-serif;
         }
 
+        input[type="text"], input[type="search"], textarea {
+            text-transform: uppercase;
+        }
+
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -416,6 +420,55 @@
                 }, 200);
             }
         }
+
+        document.addEventListener('input', function(e) {
+            const el = e.target;
+            if (!el || !el.tagName) return;
+
+            const name = (el.name || '').toLowerCase();
+            const id = (el.id || '').toLowerCase();
+
+            // 1. Mobile & Phone fields: strictly digits 0-9 and max 10 digits
+            if (name.includes('mobile') || id.includes('mobile') || name.includes('phone') || id.includes('phone')) {
+                const clean = el.value.replace(/\D/g, '').slice(0, 10);
+                if (el.value !== clean) {
+                    el.value = clean;
+                }
+                return;
+            }
+
+            // 2. Strict Integer fields (no decimals allowed: e.g. no_of_pkgs, bilty_no, eway_bill_input)
+            if (el.classList.contains('input-no_of_pkgs') || id === 'bilty_no' || id === 'eway_bill_input' || name === 'bilty_no') {
+                const clean = el.value.replace(/\D/g, '');
+                if (el.value !== clean) {
+                    el.value = clean;
+                }
+                return;
+            }
+
+            // 3. Uppercase text fields
+            if (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'search' || !el.type))) {
+                const start = el.selectionStart;
+                const end = el.selectionEnd;
+                const upper = el.value.toUpperCase();
+                if (el.value !== upper) {
+                    el.value = upper;
+                    if (start !== null && end !== null) {
+                        el.setSelectionRange(start, end);
+                    }
+                }
+            }
+        });
+
+        // Prevent invalid characters (e, E, +, -) on type="number" inputs
+        document.addEventListener('keydown', function(e) {
+            const el = e.target;
+            if (el && el.tagName === 'INPUT' && el.type === 'number') {
+                if (['e', 'E', '+', '-'].includes(e.key)) {
+                    e.preventDefault();
+                }
+            }
+        });
 
         // Trigger on load
         document.addEventListener('DOMContentLoaded', () => {

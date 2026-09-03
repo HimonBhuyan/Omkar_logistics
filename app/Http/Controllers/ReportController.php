@@ -223,6 +223,7 @@ class ReportController extends Controller
             'Invoice Value',
             'Unit',
             'QTY',
+            'Weight',
             'Rate',
             'ST',
             'RC',
@@ -263,7 +264,7 @@ class ReportController extends Controller
                 ],
             ],
         ];
-        $sheet->getStyle('A4:AE4')->applyFromArray($headerStyle);
+        $sheet->getStyle('A4:AF4')->applyFromArray($headerStyle);
         $sheet->getRowDimension(4)->setRowHeight(26);
 
         // Populate Data rows
@@ -301,6 +302,7 @@ class ReportController extends Controller
             }
 
             $unit = $b->items->first()?->unit ?? (($b->type === 'Transport Name') ? 'Fixed' : 'KG');
+            $itemWeight = floatval($b->items->sum('weight_val'));
             $dateFormatted = $b->invoice_date ? $b->invoice_date->format('d-m-Y') : '';
             $timeFormatted = $b->created_at ? $b->created_at->format('h:i A') : '';
             $fromLocName = $b->fromLocation ? $b->fromLocation->name : ($b->from_location_name ?? '');
@@ -334,23 +336,25 @@ class ReportController extends Controller
             $sheet->setCellValue('T' . $rowNum, $invoiceVal);
             $sheet->setCellValue('U' . $rowNum, $unit);
             $sheet->setCellValue('V' . $rowNum, floatval($b->total_qty));
-            $sheet->setCellValue('W' . $rowNum, floatval($rate));
-            $sheet->setCellValue('X' . $rowNum, $st);
-            $sheet->setCellValue('Y' . $rowNum, $rc);
-            $sheet->setCellValue('Z' . $rowNum, $sc);
-            $sheet->setCellValue('AA' . $rowNum, $dd);
-            $sheet->setCellValue('AB' . $rowNum, $rowTotal);
-            $sheet->setCellValue('AC' . $rowNum, floatval($b->net_amount));
-            $sheet->setCellValue('AD' . $rowNum, $b->billing_type ?? '-');
-            $sheet->setCellValue('AE' . $rowNum, $userName);
+            $sheet->setCellValue('W' . $rowNum, $itemWeight > 0 ? $itemWeight : '');
+            $sheet->setCellValue('X' . $rowNum, floatval($rate));
+            $sheet->setCellValue('Y' . $rowNum, $st);
+            $sheet->setCellValue('Z' . $rowNum, $rc);
+            $sheet->setCellValue('AA' . $rowNum, $sc);
+            $sheet->setCellValue('AB' . $rowNum, $dd);
+            $sheet->setCellValue('AC' . $rowNum, $rowTotal);
+            $sheet->setCellValue('AD' . $rowNum, floatval($b->net_amount));
+            $sheet->setCellValue('AE' . $rowNum, $b->billing_type ?? '-');
+            $sheet->setCellValue('AF' . $rowNum, $userName);
 
             // Format numbers
             $sheet->getStyle('C' . $rowNum)->getNumberFormat()->setFormatCode('#,##0');
             $sheet->getStyle('P' . $rowNum)->getNumberFormat()->setFormatCode('#,##0');
             $sheet->getStyle('T' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
             $sheet->getStyle('V' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.000');
-            $sheet->getStyle('W' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
-            $sheet->getStyle('X' . $rowNum . ':AC' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('W' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.000');
+            $sheet->getStyle('X' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('Y' . $rowNum . ':AD' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
 
             // Alignment
             $sheet->getStyle('A' . $rowNum . ':E' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);

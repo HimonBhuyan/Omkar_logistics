@@ -537,18 +537,26 @@
             </table>
 
             <!-- Table & Charges Section -->
+            @php
+                $hasFixedUnit = $bilty->items->contains(function($i) {
+                    return ($i->unit ?? '') === 'Fixed' || floatval($i->weight_val ?? 0) > 0;
+                });
+            @endphp
             <div class="table-section">
                 <!-- Consignment Items Table -->
                 <table class="items-table">
                     <thead>
                         <tr>
-                            <th width="10%">No Of<br>Packages</th>
-                            <th width="12%">Packing</th>
-                            <th width="33%">Discription</th>
-                            <th width="14%">Invoice No.</th>
-                            <th width="11%">Invoice<br>Value</th>
-                            <th width="8%">Unit</th>
-                            <th width="8%">Wt. / Qty</th>
+                            <th width="{{ $hasFixedUnit ? '10%' : '10%' }}">No Of<br>Packages</th>
+                            <th width="{{ $hasFixedUnit ? '10%' : '12%' }}">Packing</th>
+                            <th width="{{ $hasFixedUnit ? '26%' : '33%' }}">Discription</th>
+                            <th width="{{ $hasFixedUnit ? '13%' : '14%' }}">Invoice No.</th>
+                            <th width="{{ $hasFixedUnit ? '10%' : '11%' }}">Invoice<br>Value</th>
+                            <th width="{{ $hasFixedUnit ? '7%' : '8%' }}">Unit</th>
+                            @if($hasFixedUnit)
+                                <th width="8%">Weight</th>
+                            @endif
+                            <th width="{{ $hasFixedUnit ? '10%' : '8%' }}">Weight / Fixed</th>
                             <th width="6%">Rate</th>
                         </tr>
                     </thead>
@@ -561,11 +569,14 @@
                                 <td>{{ $item->invoice_no ?? '' }}</td>
                                 <td>{{ $item->invoice_value > 0 ? number_format($item->invoice_value, 2) : '' }}</td>
                                 <td>{{ $item->unit ?? '' }}</td>
+                                @if($hasFixedUnit)
+                                    <td>{{ floatval($item->weight_val ?? 0) > 0 ? number_format($item->weight_val, 2) : '' }}</td>
+                                @endif
                                 <td>
                                     @if (($item->unit ?? '') === 'KG')
-                                        {{ $item->weight_val > 0 ? number_format($item->weight_val, 2) : ($item->qty > 0 ? number_format($item->qty, 2) : '') }}
+                                        {{ floatval($item->qty ?? 0) > 0 ? number_format($item->qty, 2) : (floatval($item->weight_val ?? 0) > 0 ? number_format($item->weight_val, 2) : '') }}
                                     @else
-                                        {{ $item->qty > 0 ? number_format($item->qty, 2) : '' }}
+                                        {{ floatval($item->qty ?? 0) > 0 ? number_format($item->qty, 2) : '' }}
                                     @endif
                                 </td>
                                 <td>{{ number_format($item->rate, 2) }}</td>

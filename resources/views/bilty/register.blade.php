@@ -305,98 +305,16 @@
     $mopTbbChecked = $isSubmitted ? request()->has('mop_tbb') : true;
 @endphp
 
-    <form method="GET" action="{{ route('report.bilty_register') }}" id="biltyFilterForm">
-        <input type="hidden" name="search_submitted" value="1">
-        <div class="filter-section">
-            <div class="filter-grid">
-                
-                <div class="filter-group">
-                    <label for="consignor_text">Consignor</label>
-                    <div class="autocomplete-wrapper">
-                        <input type="text" name="consignor_name" id="consignor_text" class="autocomplete-input" placeholder="Type consignor name..." autocomplete="off" value="{{ request('consignor_name') }}">
-                        <div class="autocomplete-dropdown" id="consignor_dropdown"></div>
-                    </div>
-                </div>
-
-                <div class="filter-group">
-                    <label for="consignee_text">Consignee</label>
-                    <div class="autocomplete-wrapper">
-                        <input type="text" name="consignee_name" id="consignee_text" class="autocomplete-input" placeholder="Type consignee name..." autocomplete="off" value="{{ request('consignee_name') }}">
-                        <div class="autocomplete-dropdown" id="consignee_dropdown"></div>
-                    </div>
-                </div>
-
-                <div class="filter-group">
-                    <label for="billing_party_text">Party</label>
-                    <div class="autocomplete-wrapper">
-                        <input type="text" name="billing_party_name" id="billing_party_text" class="autocomplete-input" placeholder="Type party name..." autocomplete="off" value="{{ request('billing_party_name') }}">
-                        <div class="autocomplete-dropdown" id="billing_party_dropdown"></div>
-                    </div>
-                </div>
-
-                <div class="filter-group">
-                    <label for="from_date">From</label>
-                    <input type="date" name="from_date" id="from_date" value="{{ request('from_date', date('Y-m-d')) }}">
-                </div>
-
-                <div class="filter-group">
-                    <label for="to_date">To</label>
-                    <input type="date" name="to_date" id="to_date" value="{{ request('to_date', date('Y-m-d')) }}">
-                </div>
-
-            </div>
-
-            <div class="filter-grid" style="margin-top: 8px;">
-                <div class="filter-group">
-                    <label for="from_location_text">From Loc.</label>
-                    <div class="autocomplete-wrapper">
-                        <input type="text" name="from_location_name" id="from_location_text" class="autocomplete-input" placeholder="Type city name..." autocomplete="off" value="{{ request('from_location_name') }}">
-                        <div class="autocomplete-dropdown" id="from_location_dropdown"></div>
-                    </div>
-                </div>
-
-                <div class="filter-group">
-                    <label for="to_location_text">To Loc.</label>
-                    <div class="autocomplete-wrapper">
-                        <input type="text" name="to_location_name" id="to_location_text" class="autocomplete-input" placeholder="Type city name..." autocomplete="off" value="{{ request('to_location_name') }}">
-                        <div class="autocomplete-dropdown" id="to_location_dropdown"></div>
-                    </div>
-                </div>
-
-                <div class="filter-group">
-                    <label for="series">Series</label>
-                    <input type="text" name="series" id="series" value="{{ request('series') }}" placeholder="e.g. 26-27">
-                </div>
-
-                <div class="filter-group">
-                    <label for="vehicle_no">Vehicle No.</label>
-                    <input type="text" name="vehicle_no" id="vehicle_no" value="{{ request('vehicle_no') }}" placeholder="Search Vehicle No.">
-                </div>
-
-                <div style="display: flex; gap: 6px;">
-                    <button type="submit" class="btn-search">
-                        🔍 Search
-                    </button>
-                    <button type="button" onclick="clearFilters(event)" class="btn-clear" title="Clear search filters preserving date range">
-                        🧹 Clear
-                    </button>
-                </div>
-            </div>
-
-            <div class="filter-checkboxes">
-                <span style="font-weight:700;">Billing Mode:</span>
-                <label class="checkbox-item">
-                    <input type="checkbox" name="mop_paid" value="1" {{ $mopPaidChecked ? 'checked' : '' }}> Paid
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" name="mop_topay" value="1" {{ $mopTopayChecked ? 'checked' : '' }}> To Pay
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" name="mop_tbb" value="1" {{ $mopTbbChecked ? 'checked' : '' }}> T.B.B.
-                </label>
-            </div>
-        </div>
-    </form>
+    @include('common.bilty_filter_form', [
+        'actionUrl' => route('report.bilty_register'),
+        'method' => 'GET',
+        'showDates' => true,
+        'showClear' => true,
+        'showBillingMode' => true,
+        'mopPaidChecked' => $mopPaidChecked,
+        'mopTopayChecked' => $mopTopayChecked,
+        'mopTbbChecked' => $mopTbbChecked
+    ])
 
     <div class="table-container">
         <table class="report-table">
@@ -809,6 +727,8 @@
             dropdownEl: document.getElementById('to_location_dropdown'),
             getItems: () => locationsList
         });
+    });
+
     function clearFilters(e) {
         if (e) e.preventDefault();
         const fromVal = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
@@ -817,6 +737,14 @@
         const params = new URLSearchParams();
         if (fromVal) params.append('from_date', fromVal);
         if (toVal) params.append('to_date', toVal);
+
+        const mopPaid = document.querySelector('input[name="mop_paid"]');
+        const mopTopay = document.querySelector('input[name="mop_topay"]');
+        const mopTbb = document.querySelector('input[name="mop_tbb"]');
+
+        if (mopPaid && mopPaid.checked) params.append('mop_paid', '1');
+        if (mopTopay && mopTopay.checked) params.append('mop_topay', '1');
+        if (mopTbb && mopTbb.checked) params.append('mop_tbb', '1');
 
         const baseUrl = "{{ route('report.bilty_register') }}";
         window.location.href = baseUrl + (params.toString() ? '?' + params.toString() : '');

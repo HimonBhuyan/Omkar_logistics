@@ -82,12 +82,16 @@ class BiltyController extends Controller
                 'series' => 'nullable|string|max:5',
                 'bilty_no' => 'required|integer',
                 'invoice_date' => 'required|date',
-                'from_location_id' => 'required|exists:cities,id',
-                'to_location_id' => 'required|exists:cities,id',
-                'consignor_id' => 'required|exists:account_ledgers,id',
-                'consignee_id' => 'required|exists:account_ledgers,id',
+                'from_location_id' => 'nullable',
+                'from_location_text' => 'required_without:from_location_id|nullable|string',
+                'to_location_id' => 'nullable',
+                'to_location_text' => 'required_without:to_location_id|nullable|string',
+                'consignor_id' => 'nullable',
+                'consignor_name' => 'required_without:consignor_id|nullable|string',
+                'consignee_id' => 'nullable',
+                'consignee_name' => 'required_without:consignee_id|nullable|string',
                 'billing_type' => 'required|string|in:Paid,To Pay,T.B.B.',
-                'billing_party_id' => 'nullable|exists:account_ledgers,id',
+                'billing_party_id' => 'nullable',
                 'vehicle_no' => 'nullable|string|max:50',
                 'eway_bill_no' => 'nullable|string|max:50',
                 'cn_no' => 'nullable|string|max:50',
@@ -139,16 +143,20 @@ class BiltyController extends Controller
             if ($request->filled('from_location_id')) {
                 $fromCity = CityModel::find($request->from_location_id);
                 if ($fromCity) {
-                    $fromLoc = Location::firstOrCreate(['name' => $fromCity->name]);
+                    $fromLoc = Location::firstOrCreate(['name' => mb_strtoupper($fromCity->name, 'UTF-8')]);
                 }
+            } elseif ($request->filled('from_location_text')) {
+                $fromLoc = Location::firstOrCreate(['name' => mb_strtoupper(trim($request->from_location_text), 'UTF-8')]);
             }
 
             $toLoc = null;
             if ($request->filled('to_location_id')) {
                 $toCity = CityModel::find($request->to_location_id);
                 if ($toCity) {
-                    $toLoc = Location::firstOrCreate(['name' => $toCity->name]);
+                    $toLoc = Location::firstOrCreate(['name' => mb_strtoupper($toCity->name, 'UTF-8')]);
                 }
+            } elseif ($request->filled('to_location_text')) {
+                $toLoc = Location::firstOrCreate(['name' => mb_strtoupper(trim($request->to_location_text), 'UTF-8')]);
             }
 
             $consignorLedger = null;
@@ -173,6 +181,7 @@ class BiltyController extends Controller
                 }
             }
 
+            $billingLedger = null;
             if ($request->filled('billing_party_id')) {
                 $billingLedger = AccountLedger::find($request->billing_party_id);
                 if ($billingLedger) {
@@ -185,24 +194,24 @@ class BiltyController extends Controller
 
             // Create Bilty Header
             $bilty = Bilty::create([
-                'series' => $request->series ?? '26-27',
+                'series' => $this->formatUpper($request->series ?? '26-27'),
                 'bilty_no' => $request->bilty_no,
                 'invoice_date' => $request->invoice_date ?: now()->toDateString(),
                 'from_location_id' => $fromLoc ? $fromLoc->id : null,
                 'to_location_id' => $toLoc ? $toLoc->id : null,
                 'consignor_id' => $consignorLedger ? $consignorLedger->id : null,
-                'consignor_name' => $consignorLedger ? $consignorLedger->ledger_name : null,
-                'consignor_mobile' => $consignorLedger ? ($consignorLedger->mobile ?: $consignorLedger->phone_o) : null,
+                'consignor_name' => $this->formatUpper($request->consignor_name ?: ($consignorLedger ? $consignorLedger->ledger_name : null)),
+                'consignor_mobile' => $request->filled('consignor_mobile') ? $this->formatUpper($request->consignor_mobile) : ($consignorLedger ? $this->formatUpper($consignorLedger->mobile ?: $consignorLedger->phone_o) : null),
                 'consignee_id' => $consigneeLedger ? $consigneeLedger->id : null,
-                'consignee_name' => $consigneeLedger ? $consigneeLedger->ledger_name : null,
-                'consignee_mobile' => $consigneeLedger ? ($consigneeLedger->mobile ?: $consigneeLedger->phone_o) : null,
-                'billing_type' => $request->billing_type ?: 'Paid',
-                'type' => $request->vehicle_type ?? 'Vehicle Number',
+                'consignee_name' => $this->formatUpper($request->consignee_name ?: ($consigneeLedger ? $consigneeLedger->ledger_name : null)),
+                'consignee_mobile' => $request->filled('consignee_mobile') ? $this->formatUpper($request->consignee_mobile) : ($consigneeLedger ? $this->formatUpper($consigneeLedger->mobile ?: $consigneeLedger->phone_o) : null),
+                'billing_type' => $this->formatUpper($request->billing_type ?: 'Paid'),
+                'type' => $this->formatUpper($request->vehicle_type ?? 'Vehicle Number'),
                 'billing_party_id' => $billingLedger ? $billingLedger->id : null,
-                'billing_party_name' => $billingLedger ? $billingLedger->ledger_name : null,
-                'cn_no' => $request->cn_no,
-                'vehicle_no' => $request->vehicle_no,
-                'eway_bill_no' => $request->eway_bill_no,
+                'billing_party_name' => $this->formatUpper($request->billing_party_name ?: ($billingLedger ? $billingLedger->ledger_name : null)),
+                'cn_no' => $this->formatUpper($request->cn_no),
+                'vehicle_no' => $this->formatUpper($request->vehicle_no),
+                'eway_bill_no' => $this->formatUpper($request->eway_bill_no),
                 
                 'total_packages' => $request->total_packages ?? 0,
                 'total_qty' => $request->total_qty ?? 0.000,
@@ -218,11 +227,11 @@ class BiltyController extends Controller
                 'cash_amount' => $request->cash_amount ?? 0.00,
                 'card_amount' => $request->card_amount ?? 0.00,
                 'upi_chq_amount' => $request->upi_chq_amount ?? 0.00,
-                'ref_no' => $request->ref_no,
+                'ref_no' => $this->formatUpper($request->ref_no),
                 'payment_date' => $request->payment_date,
-                'bank_account' => $request->bank_account,
+                'bank_account' => $this->formatUpper($request->bank_account),
                 'balance_amount' => $request->balance_amount ?? 0.00,
-                'remark' => $request->remark,
+                'remark' => $this->formatUpper($request->remark),
                 'voucher_no' => $request->voucher_no,
                 'status' => $isDraft ? 'draft' : 'final',
                 'user_id' => auth()->id(),
@@ -234,11 +243,11 @@ class BiltyController extends Controller
                     BiltyItem::create([
                         'bilty_id' => $bilty->id,
                         'no_of_pkgs' => $itemData['no_of_pkgs'] ?? 0,
-                        'packing' => $itemData['packing'] ?? '',
-                        'description' => $itemData['description'] ?? '',
-                        'invoice_no' => $itemData['invoice_no'] ?? '',
+                        'packing' => $this->formatUpper($itemData['packing'] ?? ''),
+                        'description' => $this->formatUpper($itemData['description'] ?? ''),
+                        'invoice_no' => $this->formatUpper($itemData['invoice_no'] ?? ''),
                         'invoice_value' => $itemData['invoice_value'] ?? 0.00,
-                        'unit' => $itemData['unit'] ?? 'KG',
+                        'unit' => $this->formatUpper($itemData['unit'] ?? 'KG'),
                         'weight_val' => $itemData['weight_val'] ?? 0.000,
                         'qty' => $itemData['qty'] ?? 0.000,
                         'rate' => $itemData['rate'] ?? 0.00,
@@ -336,12 +345,16 @@ class BiltyController extends Controller
                 'series' => 'nullable|string|max:5',
                 'bilty_no' => 'required|integer',
                 'invoice_date' => 'required|date',
-                'from_location_id' => 'required|exists:cities,id',
-                'to_location_id' => 'required|exists:cities,id',
-                'consignor_id' => 'required|exists:account_ledgers,id',
-                'consignee_id' => 'required|exists:account_ledgers,id',
+                'from_location_id' => 'nullable',
+                'from_location_text' => 'required_without:from_location_id|nullable|string',
+                'to_location_id' => 'nullable',
+                'to_location_text' => 'required_without:to_location_id|nullable|string',
+                'consignor_id' => 'nullable',
+                'consignor_name' => 'required_without:consignor_id|nullable|string',
+                'consignee_id' => 'nullable',
+                'consignee_name' => 'required_without:consignee_id|nullable|string',
                 'billing_type' => 'required|string|in:Paid,To Pay,T.B.B.',
-                'billing_party_id' => 'nullable|exists:account_ledgers,id',
+                'billing_party_id' => 'nullable',
                 'vehicle_no' => 'nullable|string|max:50',
                 'eway_bill_no' => 'nullable|string|max:50',
                 'cn_no' => 'nullable|string|max:50',
@@ -393,16 +406,20 @@ class BiltyController extends Controller
             if ($request->filled('from_location_id')) {
                 $fromCity = CityModel::find($request->from_location_id);
                 if ($fromCity) {
-                    $fromLoc = Location::firstOrCreate(['name' => $fromCity->name]);
+                    $fromLoc = Location::firstOrCreate(['name' => mb_strtoupper($fromCity->name, 'UTF-8')]);
                 }
+            } elseif ($request->filled('from_location_text')) {
+                $fromLoc = Location::firstOrCreate(['name' => mb_strtoupper(trim($request->from_location_text), 'UTF-8')]);
             }
 
             $toLoc = null;
             if ($request->filled('to_location_id')) {
                 $toCity = CityModel::find($request->to_location_id);
                 if ($toCity) {
-                    $toLoc = Location::firstOrCreate(['name' => $toCity->name]);
+                    $toLoc = Location::firstOrCreate(['name' => mb_strtoupper($toCity->name, 'UTF-8')]);
                 }
+            } elseif ($request->filled('to_location_text')) {
+                $toLoc = Location::firstOrCreate(['name' => mb_strtoupper(trim($request->to_location_text), 'UTF-8')]);
             }
 
             $consignorLedger = null;
@@ -427,6 +444,7 @@ class BiltyController extends Controller
                 }
             }
 
+            $billingLedger = null;
             if ($request->filled('billing_party_id')) {
                 $billingLedger = AccountLedger::find($request->billing_party_id);
                 if ($billingLedger) {
@@ -439,24 +457,24 @@ class BiltyController extends Controller
 
             // Update Header
             $bilty->update([
-                'series' => $request->series ?? $bilty->series,
+                'series' => $this->formatUpper($request->series ?? $bilty->series),
                 'bilty_no' => $request->bilty_no,
                 'invoice_date' => $request->invoice_date ?: ($bilty->invoice_date ?: now()->toDateString()),
                 'from_location_id' => $fromLoc ? $fromLoc->id : $bilty->from_location_id,
                 'to_location_id' => $toLoc ? $toLoc->id : $bilty->to_location_id,
                 'consignor_id' => $consignorLedger ? $consignorLedger->id : $bilty->consignor_id,
-                'consignor_name' => $consignorLedger ? $consignorLedger->ledger_name : $bilty->consignor_name,
-                'consignor_mobile' => $consignorLedger ? ($consignorLedger->mobile ?: $consignorLedger->phone_o) : $bilty->consignor_mobile,
+                'consignor_name' => $this->formatUpper($request->consignor_name ?: ($consignorLedger ? $consignorLedger->ledger_name : $bilty->consignor_name)),
+                'consignor_mobile' => $request->filled('consignor_mobile') ? $this->formatUpper($request->consignor_mobile) : ($consignorLedger ? $this->formatUpper($consignorLedger->mobile ?: $consignorLedger->phone_o) : $bilty->consignor_mobile),
                 'consignee_id' => $consigneeLedger ? $consigneeLedger->id : $bilty->consignee_id,
-                'consignee_name' => $consigneeLedger ? $consigneeLedger->ledger_name : $bilty->consignee_name,
-                'consignee_mobile' => $consigneeLedger ? ($consigneeLedger->mobile ?: $consigneeLedger->phone_o) : $bilty->consignee_mobile,
-                'billing_type' => $request->billing_type ?: $bilty->billing_type,
-                'type' => $request->vehicle_type ?? ($bilty->type ?? 'Vehicle Number'),
+                'consignee_name' => $this->formatUpper($request->consignee_name ?: ($consigneeLedger ? $consigneeLedger->ledger_name : $bilty->consignee_name)),
+                'consignee_mobile' => $request->filled('consignee_mobile') ? $this->formatUpper($request->consignee_mobile) : ($consigneeLedger ? $this->formatUpper($consigneeLedger->mobile ?: $consigneeLedger->phone_o) : $bilty->consignee_mobile),
+                'billing_type' => $this->formatUpper($request->billing_type ?: $bilty->billing_type),
+                'type' => $this->formatUpper($request->vehicle_type ?? ($bilty->type ?? 'Vehicle Number')),
                 'billing_party_id' => $billingLedger ? $billingLedger->id : $request->billing_party_id,
-                'billing_party_name' => $billingLedger ? $billingLedger->ledger_name : $bilty->billing_party_name,
-                'cn_no' => $request->cn_no,
-                'vehicle_no' => $request->vehicle_no,
-                'eway_bill_no' => $request->eway_bill_no,
+                'billing_party_name' => $this->formatUpper($request->billing_party_name ?: ($billingLedger ? $billingLedger->ledger_name : $bilty->billing_party_name)),
+                'cn_no' => $this->formatUpper($request->cn_no),
+                'vehicle_no' => $this->formatUpper($request->vehicle_no),
+                'eway_bill_no' => $this->formatUpper($request->eway_bill_no),
                 
                 'total_packages' => $request->total_packages ?? $bilty->total_packages,
                 'total_qty' => $request->total_qty ?? $bilty->total_qty,
@@ -472,11 +490,11 @@ class BiltyController extends Controller
                 'cash_amount' => $request->cash_amount ?? 0.00,
                 'card_amount' => $request->card_amount ?? 0.00,
                 'upi_chq_amount' => $request->upi_chq_amount ?? 0.00,
-                'ref_no' => $request->ref_no,
+                'ref_no' => $this->formatUpper($request->ref_no),
                 'payment_date' => $request->payment_date,
-                'bank_account' => $request->bank_account,
+                'bank_account' => $this->formatUpper($request->bank_account),
                 'balance_amount' => $request->balance_amount ?? $bilty->balance_amount,
-                'remark' => $request->remark,
+                'remark' => $this->formatUpper($request->remark),
                 'voucher_no' => $request->voucher_no,
                 'status' => $isDraft ? 'draft' : 'final',
                 'user_id' => $bilty->user_id ?: auth()->id(),
@@ -490,11 +508,11 @@ class BiltyController extends Controller
                     BiltyItem::create([
                         'bilty_id' => $bilty->id,
                         'no_of_pkgs' => $itemData['no_of_pkgs'] ?? 0,
-                        'packing' => $itemData['packing'] ?? '',
-                        'description' => $itemData['description'] ?? '',
-                        'invoice_no' => $itemData['invoice_no'] ?? '',
+                        'packing' => $this->formatUpper($itemData['packing'] ?? ''),
+                        'description' => $this->formatUpper($itemData['description'] ?? ''),
+                        'invoice_no' => $this->formatUpper($itemData['invoice_no'] ?? ''),
                         'invoice_value' => $itemData['invoice_value'] ?? 0.00,
-                        'unit' => $itemData['unit'] ?? 'KG',
+                        'unit' => $this->formatUpper($itemData['unit'] ?? 'KG'),
                         'weight_val' => $itemData['weight_val'] ?? 0.000,
                         'qty' => $itemData['qty'] ?? 0.000,
                         'rate' => $itemData['rate'] ?? 0.00,
@@ -526,6 +544,14 @@ class BiltyController extends Controller
                 ->with('error', 'Failed to update Bilty: ' . $e->getMessage())
                 ->withInput();
         }
+    }
+
+    private function formatUpper($value)
+    {
+        if (is_string($value) && $value !== '') {
+            return mb_strtoupper(trim($value), 'UTF-8');
+        }
+        return $value;
     }
 
     public function print($id)
