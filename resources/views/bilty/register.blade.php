@@ -18,19 +18,38 @@
         text-align: center;
         border-bottom: 1px solid #7da9d4;
     }
+    /* Filter Bar Stacking & Autocomplete Floating Dropdown Styling */
     .filter-section {
+        position: relative;
+        z-index: 100;
+        overflow: visible !important;
         background: #d4d0c8;
         padding: 10px;
         border-bottom: 1px solid #999;
         font-size: 12px;
     }
-    .filter-grid {
+    .filter-grid:nth-of-type(1) {
+        position: relative;
+        z-index: 20;
+        overflow: visible !important;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr) auto;
+        gap: 8px;
+        align-items: center;
+    }
+    .filter-grid:nth-of-type(2) {
+        position: relative;
+        z-index: 10;
+        overflow: visible !important;
         display: grid;
         grid-template-columns: repeat(4, 1fr) auto;
         gap: 8px;
         align-items: center;
     }
     .filter-group {
+        position: relative;
+        overflow: visible !important;
+        flex: 1;
         display: flex;
         align-items: center;
         gap: 6px;
@@ -67,22 +86,29 @@
         font-weight: 600;
         cursor: pointer;
     }
-    .btn-search {
+    .btn-search, .btn-clear {
         background: #f0f0f0;
         border: 1px solid #7f9db9;
         padding: 4px 10px;
         font-weight: bold;
         cursor: pointer;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 4px;
         font-size: 12px;
         height: 24px;
+        color: #111;
+        box-sizing: border-box;
+        border-radius: 2px;
+        white-space: nowrap;
     }
-    .btn-search:hover {
+    .btn-search:hover, .btn-clear:hover {
         background: #e0e0e0;
+        color: #800000;
     }
     .table-container {
+        position: relative;
+        z-index: 1;
         overflow-x: auto;
         max-height: 500px;
         background: #fff;
@@ -195,16 +221,75 @@
             margin: 0 !important;
             padding: 0 !important;
         }
-        .table-container {
-            max-height: none !important;
-            overflow: visible !important;
-        }
-        .report-table th {
-            position: static !important;
-            background-color: #f0f0f0 !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
+    }
+    .autocomplete-wrapper {
+        position: relative;
+        width: 100%;
+        flex: 1;
+    }
+    .autocomplete-input {
+        width: 100%;
+        height: 24px;
+        border: 1px solid #7f9db9;
+        font-size: 12px;
+        padding: 2px 4px;
+        box-sizing: border-box;
+        border-radius: 3px;
+        background: #ffffff;
+    }
+    .autocomplete-input:focus {
+        border-color: #0f3460;
+        outline: none;
+    }
+    .autocomplete-dropdown {
+        position: absolute;
+        top: calc(100% + 2px);
+        left: 0;
+        width: 100%;
+        min-width: 220px;
+        max-height: 220px;
+        overflow-y: auto;
+        background: #ffffff;
+        border: 1px solid #7f9db9;
+        border-radius: 4px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+        z-index: 999999 !important;
+        display: none;
+    }
+    .autocomplete-item {
+        padding: 6px 8px;
+        font-size: 11px;
+        color: #1e293b;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .autocomplete-item:last-child {
+        border-bottom: none;
+    }
+    .autocomplete-item:hover,
+    .autocomplete-item.active {
+        background-color: #f1f5f9;
+        color: #0f3460;
+        font-weight: 600;
+    }
+    .autocomplete-item .match-text {
+        font-weight: 700;
+        color: #c92a2a;
+        text-decoration: underline;
+    }
+    .autocomplete-item .item-meta {
+        font-size: 10px;
+        color: #64748b;
+        margin-left: 8px;
+    }
+    .autocomplete-no-match {
+        padding: 6px 8px;
+        font-size: 11px;
+        color: #94a3b8;
+        font-style: italic;
     }
 </style>
 @endsection
@@ -213,41 +298,40 @@
 <div class="report-card">
     <div class="report-header-bar">Bilty Register</div>
     
+@php
+    $isSubmitted = request()->has('search_submitted') || request()->hasAny(['from_date', 'to_date', 'consignor_name', 'consignee_name', 'billing_party_name', 'series', 'vehicle_no', 'from_location_name', 'to_location_name', 'mop_paid', 'mop_topay', 'mop_tbb']);
+    $mopPaidChecked = $isSubmitted ? request()->has('mop_paid') : true;
+    $mopTopayChecked = $isSubmitted ? request()->has('mop_topay') : true;
+    $mopTbbChecked = $isSubmitted ? request()->has('mop_tbb') : true;
+@endphp
+
     <form method="GET" action="{{ route('report.bilty_register') }}" id="biltyFilterForm">
+        <input type="hidden" name="search_submitted" value="1">
         <div class="filter-section">
             <div class="filter-grid">
                 
                 <div class="filter-group">
-                    <input type="checkbox" name="filter_consignor" id="filter_consignor" value="1" {{ request('filter_consignor') ? 'checked' : '' }}>
-                    <label for="filter_consignor" style="min-width: unset;">Consignor</label>
-                    <select name="consignor_id">
-                        <option value="">--All--</option>
-                        @foreach($consignors as $c)
-                            <option value="{{ $c->id }}" {{ request('consignor_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
-                        @endforeach
-                    </select>
+                    <label for="consignor_text">Consignor</label>
+                    <div class="autocomplete-wrapper">
+                        <input type="text" name="consignor_name" id="consignor_text" class="autocomplete-input" placeholder="Type consignor name..." autocomplete="off" value="{{ request('consignor_name') }}">
+                        <div class="autocomplete-dropdown" id="consignor_dropdown"></div>
+                    </div>
                 </div>
 
                 <div class="filter-group">
-                    <input type="checkbox" name="filter_consignee" id="filter_consignee" value="1" {{ request('filter_consignee') ? 'checked' : '' }}>
-                    <label for="filter_consignee" style="min-width: unset;">Consignee</label>
-                    <select name="consignee_id">
-                        <option value="">--All--</option>
-                        @foreach($consignees as $c)
-                            <option value="{{ $c->id }}" {{ request('consignee_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
-                        @endforeach
-                    </select>
+                    <label for="consignee_text">Consignee</label>
+                    <div class="autocomplete-wrapper">
+                        <input type="text" name="consignee_name" id="consignee_text" class="autocomplete-input" placeholder="Type consignee name..." autocomplete="off" value="{{ request('consignee_name') }}">
+                        <div class="autocomplete-dropdown" id="consignee_dropdown"></div>
+                    </div>
                 </div>
 
                 <div class="filter-group">
-                    <input type="checkbox" name="filter_party" id="filter_party" value="1" {{ request('filter_party') ? 'checked' : '' }}>
-                    <label for="filter_party" style="min-width: unset;">Party</label>
-                    <select name="billing_party_id">
-                        <option value="">--All--</option>
-                        @foreach($parties as $p)
-                            <option value="{{ $p->id }}" {{ request('billing_party_id') == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>
-                        @endforeach
-                    </select>
+                    <label for="billing_party_text">Party</label>
+                    <div class="autocomplete-wrapper">
+                        <input type="text" name="billing_party_name" id="billing_party_text" class="autocomplete-input" placeholder="Type party name..." autocomplete="off" value="{{ request('billing_party_name') }}">
+                        <div class="autocomplete-dropdown" id="billing_party_dropdown"></div>
+                    </div>
                 </div>
 
                 <div class="filter-group">
@@ -264,23 +348,19 @@
 
             <div class="filter-grid" style="margin-top: 8px;">
                 <div class="filter-group">
-                    <label for="from_location_id">From Loc.</label>
-                    <select name="from_location_id" id="from_location_id">
-                        <option value="">--All--</option>
-                        @foreach($cities as $city)
-                            <option value="{{ $city->id }}" {{ request('from_location_id') == $city->id ? 'selected' : '' }}>{{ $city->name }}</option>
-                        @endforeach
-                    </select>
+                    <label for="from_location_text">From Loc.</label>
+                    <div class="autocomplete-wrapper">
+                        <input type="text" name="from_location_name" id="from_location_text" class="autocomplete-input" placeholder="Type city name..." autocomplete="off" value="{{ request('from_location_name') }}">
+                        <div class="autocomplete-dropdown" id="from_location_dropdown"></div>
+                    </div>
                 </div>
 
                 <div class="filter-group">
-                    <label for="to_location_id">To Loc.</label>
-                    <select name="to_location_id" id="to_location_id">
-                        <option value="">--All--</option>
-                        @foreach($cities as $city)
-                            <option value="{{ $city->id }}" {{ request('to_location_id') == $city->id ? 'selected' : '' }}>{{ $city->name }}</option>
-                        @endforeach
-                    </select>
+                    <label for="to_location_text">To Loc.</label>
+                    <div class="autocomplete-wrapper">
+                        <input type="text" name="to_location_name" id="to_location_text" class="autocomplete-input" placeholder="Type city name..." autocomplete="off" value="{{ request('to_location_name') }}">
+                        <div class="autocomplete-dropdown" id="to_location_dropdown"></div>
+                    </div>
                 </div>
 
                 <div class="filter-group">
@@ -293,21 +373,26 @@
                     <input type="text" name="vehicle_no" id="vehicle_no" value="{{ request('vehicle_no') }}" placeholder="Search Vehicle No.">
                 </div>
 
-                <button type="submit" class="btn-search">
-                    🔍 Search
-                </button>
+                <div style="display: flex; gap: 6px;">
+                    <button type="submit" class="btn-search">
+                        🔍 Search
+                    </button>
+                    <button type="button" onclick="clearFilters(event)" class="btn-clear" title="Clear search filters preserving date range">
+                        🧹 Clear
+                    </button>
+                </div>
             </div>
 
             <div class="filter-checkboxes">
                 <span style="font-weight:700;">Billing Mode:</span>
                 <label class="checkbox-item">
-                    <input type="checkbox" name="mop_paid" value="1" {{ request('mop_paid', '1') == '1' ? 'checked' : '' }}> Paid
+                    <input type="checkbox" name="mop_paid" value="1" {{ $mopPaidChecked ? 'checked' : '' }}> Paid
                 </label>
                 <label class="checkbox-item">
-                    <input type="checkbox" name="mop_topay" value="1" {{ request('mop_topay', '1') == '1' ? 'checked' : '' }}> To Pay
+                    <input type="checkbox" name="mop_topay" value="1" {{ $mopTopayChecked ? 'checked' : '' }}> To Pay
                 </label>
                 <label class="checkbox-item">
-                    <input type="checkbox" name="mop_tbb" value="1" {{ request('mop_tbb', '1') == '1' ? 'checked' : '' }}> T.B.B.
+                    <input type="checkbox" name="mop_tbb" value="1" {{ $mopTbbChecked ? 'checked' : '' }}> T.B.B.
                 </label>
             </div>
         </div>
@@ -469,6 +554,274 @@
 
 @section('scripts')
 <script>
+    // Master data arrays for high-speed autocomplete
+    const locationsList = [
+        @foreach ($cities as $loc)
+            { id: {{ $loc->id }}, name: @json($loc->name) },
+        @endforeach
+    ];
+
+    const consignorsList = [
+        @foreach ($consignors as $p)
+            { 
+                id: {{ $p->id }}, 
+                name: @json($p->name),
+                mobile: @json($p->mobile ?? ''),
+                gstin: @json($p->gst_no ?? $p->gstin ?? '')
+            },
+        @endforeach
+    ];
+
+    const consigneesList = [
+        @foreach ($consignees as $p)
+            { 
+                id: {{ $p->id }}, 
+                name: @json($p->name),
+                mobile: @json($p->mobile ?? ''),
+                gstin: @json($p->gst_no ?? $p->gstin ?? '')
+            },
+        @endforeach
+    ];
+
+    const partiesList = [
+        @foreach ($parties as $p)
+            { id: {{ $p->id }}, name: @json($p->name) },
+        @endforeach
+    ];
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function highlightMatch(text, query) {
+        if (!query) return escapeHtml(text);
+        const idx = text.toLowerCase().indexOf(query.toLowerCase());
+        if (idx === -1) return escapeHtml(text);
+        const before = text.substring(0, idx);
+        const match = text.substring(idx, idx + query.length);
+        const after = text.substring(idx + query.length);
+        return `${escapeHtml(before)}<span class="match-text">${escapeHtml(match)}</span>${escapeHtml(after)}`;
+    }
+
+    function setupAutocomplete(config) {
+        const { inputEl, dropdownEl, getItems } = config;
+        if (!inputEl || !dropdownEl) return null;
+
+        let activeIndex = -1;
+        let currentMatches = [];
+
+        const filterGroup = inputEl.closest('.filter-group');
+        const filterGrid = inputEl.closest('.filter-grid');
+
+        function showDropdown() {
+            dropdownEl.style.display = 'block';
+            if (filterGroup) filterGroup.style.zIndex = '99999';
+            if (filterGrid) filterGrid.style.zIndex = '99999';
+        }
+
+        function hideDropdown() {
+            dropdownEl.style.display = 'none';
+            if (filterGroup) filterGroup.style.zIndex = '';
+            if (filterGrid) filterGrid.style.zIndex = '';
+            activeIndex = -1;
+        }
+
+        function renderMatches() {
+            const query = inputEl.value.trim();
+            if (query.length < 2) {
+                hideDropdown();
+                return;
+            }
+
+            const items = getItems();
+
+            currentMatches = items.filter(item => {
+                const name = typeof item === 'string' ? item : item.name;
+                return name.toLowerCase().includes(query.toLowerCase());
+            });
+
+            currentMatches.sort((a, b) => {
+                const nameA = (typeof a === 'string' ? a : a.name).toLowerCase();
+                const nameB = (typeof b === 'string' ? b : b.name).toLowerCase();
+                const q = query.toLowerCase();
+                const aStarts = nameA.startsWith(q);
+                const bStarts = nameB.startsWith(q);
+                if (aStarts && !bStarts) return -1;
+                if (!aStarts && bStarts) return 1;
+                return nameA.localeCompare(nameB);
+            });
+
+            if (currentMatches.length === 0) {
+                dropdownEl.innerHTML = `<div class="autocomplete-no-match">No results matching "${escapeHtml(query)}"</div>`;
+                showDropdown();
+                return;
+            }
+
+            const visibleMatches = currentMatches.slice(0, 25);
+            dropdownEl.innerHTML = visibleMatches.map((item, idx) => {
+                const name = typeof item === 'string' ? item : item.name;
+                let metaHtml = '';
+                if (typeof item === 'object') {
+                    const metas = [];
+                    if (item.mobile) metas.push(`📞 ${item.mobile}`);
+                    if (item.gstin) metas.push(`GST: ${item.gstin}`);
+                    if (metas.length > 0) {
+                        metaHtml = `<span class="item-meta">${escapeHtml(metas.join(' | '))}</span>`;
+                    }
+                }
+                return `<div class="autocomplete-item" data-index="${idx}">
+                    <span class="item-name">${highlightMatch(name, query)}</span>
+                    ${metaHtml}
+                </div>`;
+            }).join('');
+
+            showDropdown();
+        }
+
+        function selectItem(item) {
+            if (!item) return;
+            const name = typeof item === 'string' ? item : item.name;
+            inputEl.value = name;
+            hideDropdown();
+        }
+
+        inputEl.addEventListener('input', function() {
+            renderMatches();
+        });
+
+        inputEl.addEventListener('focus', function() {
+            if (inputEl.value.trim().length >= 2) {
+                renderMatches();
+            }
+        });
+
+        inputEl.addEventListener('click', function() {
+            if (inputEl.value.trim().length >= 2) {
+                renderMatches();
+            }
+        });
+
+        inputEl.addEventListener('keydown', function(e) {
+            if (dropdownEl.style.display === 'none') {
+                if (e.key === 'ArrowDown' && inputEl.value.trim().length >= 2) {
+                    renderMatches();
+                    e.preventDefault();
+                }
+                return;
+            }
+
+            const itemsEl = dropdownEl.querySelectorAll('.autocomplete-item');
+            if (!itemsEl.length) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                e.stopPropagation();
+                activeIndex = (activeIndex + 1) % itemsEl.length;
+                updateActiveItem(itemsEl);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                e.stopPropagation();
+                activeIndex = (activeIndex - 1 + itemsEl.length) % itemsEl.length;
+                updateActiveItem(itemsEl);
+            } else if (e.key === 'Enter') {
+                if (activeIndex >= 0 && activeIndex < currentMatches.length) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    selectItem(currentMatches[activeIndex]);
+                } else if (currentMatches.length === 1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    selectItem(currentMatches[0]);
+                }
+            } else if (e.key === 'Tab') {
+                if (activeIndex >= 0 && activeIndex < currentMatches.length) {
+                    selectItem(currentMatches[activeIndex]);
+                }
+                hideDropdown();
+            } else if (e.key === 'Escape') {
+                hideDropdown();
+                e.preventDefault();
+            }
+        });
+
+        function updateActiveItem(itemsEl) {
+            itemsEl.forEach((el, idx) => {
+                if (idx === activeIndex) {
+                    el.classList.add('active');
+                    el.scrollIntoView({ block: 'nearest' });
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+        }
+
+        dropdownEl.addEventListener('mousedown', function(e) {
+            const itemEl = e.target.closest('.autocomplete-item');
+            if (itemEl) {
+                const idx = parseInt(itemEl.getAttribute('data-index'), 10);
+                if (!isNaN(idx) && currentMatches[idx]) {
+                    e.preventDefault();
+                    selectItem(currentMatches[idx]);
+                }
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!inputEl.contains(e.target) && !dropdownEl.contains(e.target)) {
+                hideDropdown();
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        setupAutocomplete({
+            inputEl: document.getElementById('consignor_text'),
+            dropdownEl: document.getElementById('consignor_dropdown'),
+            getItems: () => consignorsList
+        });
+
+        setupAutocomplete({
+            inputEl: document.getElementById('consignee_text'),
+            dropdownEl: document.getElementById('consignee_dropdown'),
+            getItems: () => consigneesList
+        });
+
+        setupAutocomplete({
+            inputEl: document.getElementById('billing_party_text'),
+            dropdownEl: document.getElementById('billing_party_dropdown'),
+            getItems: () => partiesList
+        });
+
+        setupAutocomplete({
+            inputEl: document.getElementById('from_location_text'),
+            dropdownEl: document.getElementById('from_location_dropdown'),
+            getItems: () => locationsList
+        });
+
+        setupAutocomplete({
+            inputEl: document.getElementById('to_location_text'),
+            dropdownEl: document.getElementById('to_location_dropdown'),
+            getItems: () => locationsList
+        });
+    function clearFilters(e) {
+        if (e) e.preventDefault();
+        const fromVal = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
+        const toVal = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
+
+        const params = new URLSearchParams();
+        if (fromVal) params.append('from_date', fromVal);
+        if (toVal) params.append('to_date', toVal);
+
+        const baseUrl = "{{ route('report.bilty_register') }}";
+        window.location.href = baseUrl + (params.toString() ? '?' + params.toString() : '');
+    }
+
     function downloadExcel(e) {
         if (e) e.preventDefault();
         const btn = document.getElementById('btnPrintList');

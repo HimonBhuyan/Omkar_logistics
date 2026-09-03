@@ -26,31 +26,55 @@ class ReportController extends Controller
         $query = Bilty::with(['fromLocation', 'toLocation', 'consignor', 'consignee', 'billingParty', 'items', 'user']);
 
         // 1. From and To Location filter
-        if ($request->filled('from_location_id')) {
-            $fromLoc = DB::table('locations')->where('name', function($q) use ($request) {
-                $q->select('name')->from('cities')->where('id', $request->from_location_id);
-            })->first();
-            if ($fromLoc) {
-                $query->where('from_location_id', $fromLoc->id);
-            }
+        if ($request->filled('from_location_name')) {
+            $fromName = trim($request->from_location_name);
+            $query->whereHas('fromLocation', function($sq) use ($fromName) {
+                $sq->where('name', 'like', '%' . $fromName . '%');
+            });
+        } elseif ($request->filled('from_location_id')) {
+            $query->where('from_location_id', $request->from_location_id);
         }
-        if ($request->filled('to_location_id')) {
-            $toLoc = DB::table('locations')->where('name', function($q) use ($request) {
-                $q->select('name')->from('cities')->where('id', $request->to_location_id);
-            })->first();
-            if ($toLoc) {
-                $query->where('to_location_id', $toLoc->id);
-            }
+
+        if ($request->filled('to_location_name')) {
+            $toName = trim($request->to_location_name);
+            $query->whereHas('toLocation', function($sq) use ($toName) {
+                $sq->where('name', 'like', '%' . $toName . '%');
+            });
+        } elseif ($request->filled('to_location_id')) {
+            $query->where('to_location_id', $request->to_location_id);
         }
 
         // 2. Consignor / Consignee / Party filter
-        if ($request->filled('consignor_id') && $request->has('filter_consignor') && $request->consignor_id !== '') {
+        if ($request->filled('consignor_name')) {
+            $cName = trim($request->consignor_name);
+            $query->where(function($q) use ($cName) {
+                $q->whereHas('consignor', function($sq) use ($cName) {
+                    $sq->where('ledger_name', 'like', '%' . $cName . '%');
+                })->orWhere('consignor_name', 'like', '%' . $cName . '%');
+            });
+        } elseif ($request->filled('consignor_id')) {
             $query->where('consignor_id', $request->consignor_id);
         }
-        if ($request->filled('consignee_id') && $request->has('filter_consignee') && $request->consignee_id !== '') {
+
+        if ($request->filled('consignee_name')) {
+            $ceName = trim($request->consignee_name);
+            $query->where(function($q) use ($ceName) {
+                $q->whereHas('consignee', function($sq) use ($ceName) {
+                    $sq->where('ledger_name', 'like', '%' . $ceName . '%');
+                })->orWhere('consignee_name', 'like', '%' . $ceName . '%');
+            });
+        } elseif ($request->filled('consignee_id')) {
             $query->where('consignee_id', $request->consignee_id);
         }
-        if ($request->filled('billing_party_id') && $request->has('filter_party') && $request->billing_party_id !== '') {
+
+        if ($request->filled('billing_party_name')) {
+            $pName = trim($request->billing_party_name);
+            $query->where(function($q) use ($pName) {
+                $q->whereHas('billingParty', function($sq) use ($pName) {
+                    $sq->where('ledger_name', 'like', '%' . $pName . '%');
+                })->orWhere('billing_party_name', 'like', '%' . $pName . '%');
+            });
+        } elseif ($request->filled('billing_party_id')) {
             $query->where('billing_party_id', $request->billing_party_id);
         }
 
@@ -68,13 +92,21 @@ class ReportController extends Controller
         }
 
         // 5. Billing Type MOP filters (Paid, To Pay, T.B.B.)
-        $billingTypes = [];
-        if ($request->has('mop_paid')) $billingTypes[] = 'Paid';
-        if ($request->has('mop_topay')) $billingTypes[] = 'To Pay';
-        if ($request->has('mop_tbb')) $billingTypes[] = 'T.B.B.';
-        
-        if (!empty($billingTypes)) {
-            $query->whereIn('billing_type', $billingTypes);
+        $isSubmitted = $request->has('search_submitted') || $request->hasAny(['from_date', 'to_date', 'consignor_name', 'consignee_name', 'billing_party_name', 'series', 'vehicle_no', 'from_location_name', 'to_location_name', 'mop_paid', 'mop_topay', 'mop_tbb']);
+
+        if ($isSubmitted) {
+            $billingTypes = [];
+            if ($request->has('mop_paid')) $billingTypes[] = 'Paid';
+            if ($request->has('mop_topay')) $billingTypes[] = 'To Pay';
+            if ($request->has('mop_tbb')) $billingTypes[] = 'T.B.B.';
+
+            if (!empty($billingTypes)) {
+                $query->whereIn('billing_type', $billingTypes);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        } else {
+            $query->whereIn('billing_type', ['Paid', 'To Pay', 'T.B.B.']);
         }
 
         // 6. Series filter
