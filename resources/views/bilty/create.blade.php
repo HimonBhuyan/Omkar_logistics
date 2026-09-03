@@ -1239,12 +1239,22 @@
                             userDisplay.value = data.bilty.user ? (data.bilty.user.username || data.bilty.user.name) : 'admin';
                         }
 
-                        // Format and map radio buttons selection
-                        const radio = document.querySelector(`input[name="billing_type"][value="${data.bilty.billing_type}"]`);
-                        if (radio) {
-                            radio.checked = true;
-                            toggleBillingParty();
+                        // Format and map radio buttons selection (case-insensitive)
+                        const dbBillingType = (data.bilty.billing_type || '').toUpperCase();
+                        let targetRadio = null;
+                        document.querySelectorAll('input[name="billing_type"]').forEach(r => {
+                            const valUpper = r.value.toUpperCase();
+                            if (valUpper === dbBillingType || dbBillingType.includes(valUpper) || (valUpper === 'T.B.B.' && dbBillingType.includes('TBB'))) {
+                                targetRadio = r;
+                            }
+                        });
+                        if (!targetRadio) {
+                            targetRadio = document.querySelector(`input[name="billing_type"][value="${data.bilty.billing_type}"]`);
                         }
+                        if (targetRadio) {
+                            targetRadio.checked = true;
+                        }
+                        toggleBillingParty();
 
                         // Set Date and location IDs
                         if (data.bilty.invoice_date) {
