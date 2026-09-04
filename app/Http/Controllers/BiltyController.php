@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AccountLedger;
 use App\Models\CityModel;
+use App\Models\MeasurementUnit;
 use App\Models\Bilty;
 use App\Models\BiltyItem;
 use App\Models\Location;
@@ -41,7 +42,9 @@ class BiltyController extends Controller
         $lastVoucher = Bilty::orderBy('voucher_no', 'desc')->first();
         $nextVoucherNo = $lastVoucher ? ($lastVoucher->voucher_no + 1) : 1795;
 
-        return view('bilty.create', compact('locations', 'consignors', 'consignees', 'parties', 'vehicles', 'nextBiltyNo', 'nextVoucherNo'));
+        $measurementUnits = MeasurementUnit::active()->orderBy('unit_code')->get();
+
+        return view('bilty.create', compact('locations', 'consignors', 'consignees', 'parties', 'vehicles', 'nextBiltyNo', 'nextVoucherNo', 'measurementUnits'));
     }
 
     public function getPartyDetails($id)
@@ -103,7 +106,7 @@ class BiltyController extends Controller
                 'items.*.description' => 'nullable|string|max:255',
                 'items.*.invoice_no' => 'nullable|string|max:50',
                 'items.*.invoice_value' => 'nullable|numeric|min:0',
-                'items.*.unit' => 'required|string|in:KG,Fixed',
+                'items.*.unit' => 'required|string|max:50',
                 'items.*.weight_val' => 'nullable|numeric|min:0',
                 'items.*.qty' => 'required|numeric|min:0',
                 'items.*.rate' => 'required|numeric|min:0',
@@ -366,7 +369,7 @@ class BiltyController extends Controller
                 'items.*.description' => 'nullable|string|max:255',
                 'items.*.invoice_no' => 'nullable|string|max:50',
                 'items.*.invoice_value' => 'nullable|numeric|min:0',
-                'items.*.unit' => 'required|string|in:KG,Fixed',
+                'items.*.unit' => 'required|string|max:50',
                 'items.*.weight_val' => 'nullable|numeric|min:0',
                 'items.*.qty' => 'required|numeric|min:0',
                 'items.*.rate' => 'required|numeric|min:0',

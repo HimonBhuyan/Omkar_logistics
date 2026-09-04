@@ -203,7 +203,7 @@
             <table class="bilty-grid" id="itemsTable">
                 <thead>
                     <tr>
-                        <th width="8%">NoOfPkgs</th>
+                        <th width="8%" id="colHeaderPkgs">NoOfPkgs</th>
                         <th width="10%">Packing</th>
                         <th width="18%">Description</th>
                         <th width="10%">Invoice No</th>
@@ -239,8 +239,14 @@
                         </td>
                         <td>
                             <select name="items[0][unit]" class="input-unit" onchange="handleUnitChange(this)">
-                                <option value="KG">KG</option>
-                                <option value="Fixed">Fixed</option>
+                                @if(isset($measurementUnits) && count($measurementUnits) > 0)
+                                    @foreach($measurementUnits as $u)
+                                        <option value="{{ $u->unit_code }}" data-type="{{ $u->unit_type }}" data-pkg-label="{{ $u->package_label ?: 'NoOfPkgs' }}">{{ $u->unit_code }}</option>
+                                    @endforeach
+                                @else
+                                    <option value="KG" data-type="weight" data-pkg-label="NoOfPkgs">KG</option>
+                                    <option value="Fixed" data-type="fixed" data-pkg-label="NoOfPkgs">Fixed</option>
+                                @endif
                             </select>
                         </td>
                         <td>

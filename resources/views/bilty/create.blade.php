@@ -694,8 +694,14 @@
             </td>
             <td>
                 <select name="items[${rowIndex}][unit]" class="input-unit" onchange="handleUnitChange(this)">
-                    <option value="KG">KG</option>
-                    <option value="Fixed">Fixed</option>
+                    @if(isset($measurementUnits) && count($measurementUnits) > 0)
+                        @foreach($measurementUnits as $u)
+                            <option value="{{ $u->unit_code }}" data-type="{{ $u->unit_type }}" data-pkg-label="{{ $u->package_label ?: 'NoOfPkgs' }}">{{ $u->unit_code }}</option>
+                        @endforeach
+                    @else
+                        <option value="KG" data-type="weight" data-pkg-label="NoOfPkgs">KG</option>
+                        <option value="Fixed" data-type="fixed" data-pkg-label="NoOfPkgs">Fixed</option>
+                    @endif
                 </select>
             </td>
             <td>
@@ -759,7 +765,7 @@
             pkgsInput.addEventListener('input', function() {
                 const wSelect = row.querySelector('.input-unit');
                 const qtyInput = row.querySelector('.input-qty');
-                if (wSelect && wSelect.value === 'Fixed' && qtyInput) {
+                if (wSelect && getUnitType(wSelect) === 'fixed' && qtyInput) {
                     qtyInput.value = this.value;
                 }
             });
@@ -867,9 +873,57 @@
             });
     }
 
+    function getUnitType(selectEl) {
+        if (!selectEl) return 'weight';
+        const selectedOpt = selectEl.options ? selectEl.options[selectEl.selectedIndex] : null;
+        if (selectedOpt && selectedOpt.dataset && selectedOpt.dataset.type) {
+            return selectedOpt.dataset.type;
+        }
+        const val = (selectEl.value || '').toUpperCase();
+        if (val === 'KG' || val === 'TON' || val === 'QUINTAL' || val === 'QNTL' || val === 'GRAM') {
+            return 'weight';
+        }
+        return 'fixed';
+    }
+
+    function getPackageLabel(selectEl) {
+        if (!selectEl) return 'NoOfPkgs';
+        const selectedOpt = selectEl.options ? selectEl.options[selectEl.selectedIndex] : null;
+        if (selectedOpt && selectedOpt.dataset && selectedOpt.dataset.pkgLabel && selectedOpt.dataset.pkgLabel !== 'NoOfPkgs') {
+            return selectedOpt.dataset.pkgLabel;
+        }
+        const val = (selectEl.value || '').toUpperCase();
+        if (val.includes('BOX')) return 'NoOfBoxes';
+        if (val.includes('CASE')) return 'NoOfCases';
+        if (val.includes('PCS') || val.includes('PIECE')) return 'NoOfPcs';
+        if (val.includes('BAG')) return 'NoOfBags';
+        if (val.includes('DRUM')) return 'NoOfDrums';
+        if (val.includes('CARTON')) return 'NoOfCartons';
+        return (selectedOpt && selectedOpt.dataset && selectedOpt.dataset.pkgLabel) ? selectedOpt.dataset.pkgLabel : 'NoOfPkgs';
+    }
+
+    function updateTableHeaderLabel() {
+        const colHeader = document.getElementById('colHeaderPkgs');
+        if (!colHeader) return;
+
+        const rowSelects = document.querySelectorAll('#gridBody .input-unit');
+        const labels = new Set();
+        rowSelects.forEach(s => {
+            labels.add(getPackageLabel(s));
+        });
+
+        if (labels.size === 1) {
+            colHeader.textContent = Array.from(labels)[0];
+        } else {
+            colHeader.textContent = 'NoOfPkgs';
+        }
+    }
+
     function handleUnitChange(selectEl) {
         const row = selectEl.closest('tr');
         if (!row) return;
+
+        updateTableHeaderLabel();
         const qtyInput = row.querySelector('.input-qty');
         const rateInput = row.querySelector('.input-rate');
         const weightCell = row.querySelector('.weight-col-cell');
@@ -878,9 +932,10 @@
 
         // Toggle table headers visibility for weight column dynamically
         const weightHeaders = document.querySelectorAll('.weight-col');
+        const unitType = getUnitType(selectEl);
         
-        if (selectEl.value === 'KG') {
-            // Hides weight column when KG
+        if (unitType === 'weight') {
+            // Hides weight column when weight-based unit (e.g. KG, Ton)
             if (weightCell) weightCell.style.display = 'none';
             if (weightInput) {
                 weightInput.readOnly = true;
@@ -1091,16 +1146,17 @@
                         if (!firstInvalidEl) firstInvalidEl = pkgs;
                     }
 
-                    const unitVal = row.querySelector('.input-unit')?.value;
+                    const unitEl = row.querySelector('.input-unit');
+                    const unitType = getUnitType(unitEl);
                     const weightVal = parseFloat(row.querySelector('.input-weight_val')?.value) || 0;
                     const qtyVal = parseFloat(row.querySelector('.input-qty')?.value) || 0;
 
-                    if (unitVal === 'KG') {
+                    if (unitType === 'weight') {
                         if (weightVal <= 0 && qtyVal <= 0) {
-                            errors.push(`<strong>Item Row #${rowNum}:</strong> Please enter the weight (KG).`);
-                            if (!firstInvalidEl) firstInvalidEl = row.querySelector('.input-weight_val');
+                            errors.push(`<strong>Item Row #${rowNum}:</strong> Please enter the weight/quantity.`);
+                            if (!firstInvalidEl) firstInvalidEl = row.querySelector('.input-qty');
                         }
-                    } else if (unitVal === 'Fixed') {
+                    } else {
                         if (qtyVal <= 0) {
                             errors.push(`<strong>Item Row #${rowNum}:</strong> Quantity must be greater than 0.`);
                             if (!firstInvalidEl) firstInvalidEl = row.querySelector('.input-qty');

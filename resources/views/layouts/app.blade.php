@@ -579,7 +579,7 @@
                             <a href="#">General &nbsp;&#9658;</a>
                             <div class="sub-menu">
                                 <a href="#">Series</a>
-                                <a href="#">Measurement Unit</a>
+                                <a href="{{ route('master.measurement-unit') }}">Measurement Unit</a>
                                 <a href="#">Transport</a>
                                 <a href="{{ route('master.country') }}">Country</a>
                                 <a href="{{ route('master.state') }}">State</a>

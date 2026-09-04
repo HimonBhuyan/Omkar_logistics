@@ -53,4 +53,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/master/city', [GeneralMasterController::class, 'cityStore'])->name('master.city.store');
     Route::delete('/master/city/bulk', [GeneralMasterController::class, 'cityBulkDestroy'])->name('master.city.bulk_destroy');
     Route::delete('/master/city/{id}', [GeneralMasterController::class, 'cityDestroy'])->name('master.city.destroy');
+
+    Route::get('/master/measurement-unit', [GeneralMasterController::class, 'measurementUnitIndex'])->name('master.measurement-unit');
+    Route::get('/master/measurement-unit/{id}', [GeneralMasterController::class, 'measurementUnitIndex'])->name('master.measurement-unit.load');
+    Route::post('/master/measurement-unit', [GeneralMasterController::class, 'measurementUnitStore'])->name('master.measurement-unit.store');
+    Route::delete('/master/measurement-unit/bulk', [GeneralMasterController::class, 'measurementUnitBulkDestroy'])->name('master.measurement-unit.bulk_destroy');
+    Route::delete('/master/measurement-unit/{id}', [GeneralMasterController::class, 'measurementUnitDestroy'])->name('master.measurement-unit.destroy');
 });

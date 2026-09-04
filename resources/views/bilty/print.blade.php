@@ -539,15 +539,35 @@
             <!-- Table & Charges Section -->
             @php
                 $hasFixedUnit = $bilty->items->contains(function($i) {
-                    return ($i->unit ?? '') === 'Fixed' || floatval($i->weight_val ?? 0) > 0;
+                    $mUnit = \App\Models\MeasurementUnit::where('unit_code', $i->unit)->first();
+                    $isFixed = $mUnit ? ($mUnit->unit_type === 'fixed') : (strtoupper($i->unit ?? '') !== 'KG');
+                    return $isFixed || floatval($i->weight_val ?? 0) > 0;
                 });
+
+                $pkgLabels = $bilty->items->map(function($i) {
+                    $uCode = strtoupper($i->unit ?? '');
+                    $mUnitObj = \App\Models\MeasurementUnit::where('unit_code', $uCode)->first();
+                    if ($mUnitObj && $mUnitObj->package_label && $mUnitObj->package_label !== 'NoOfPkgs') {
+                        return str_replace('NoOf', '', $mUnitObj->package_label);
+                    }
+                    if (str_contains($uCode, 'BOX')) return 'Boxes';
+                    if (str_contains($uCode, 'CASE')) return 'Cases';
+                    if (str_contains($uCode, 'PCS') || str_contains($uCode, 'PIECE')) return 'Pcs';
+                    if (str_contains($uCode, 'BAG')) return 'Bags';
+                    if (str_contains($uCode, 'DRUM')) return 'Drums';
+                    if (str_contains($uCode, 'CARTON')) return 'Cartons';
+                    return 'Packages';
+                })->unique();
+
+                $uniqueLabel = ($pkgLabels->count() === 1) ? $pkgLabels->first() : 'Packages';
+                $pkgHeaderLabel = 'No Of<br>' . $uniqueLabel;
             @endphp
             <div class="table-section">
                 <!-- Consignment Items Table -->
                 <table class="items-table">
                     <thead>
                         <tr>
-                            <th width="{{ $hasFixedUnit ? '10%' : '10%' }}">No Of<br>Packages</th>
+                            <th width="{{ $hasFixedUnit ? '10%' : '10%' }}">{!! $pkgHeaderLabel !!}</th>
                             <th width="{{ $hasFixedUnit ? '10%' : '12%' }}">Packing</th>
                             <th width="{{ $hasFixedUnit ? '26%' : '33%' }}">Discription</th>
                             <th width="{{ $hasFixedUnit ? '13%' : '14%' }}">Invoice No.</th>
