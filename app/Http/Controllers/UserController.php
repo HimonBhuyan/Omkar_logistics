@@ -173,4 +173,39 @@ class UserController extends Controller
         }
         return redirect()->route('system.user')->with('error', 'No users selected.');
     }
+
+    public function showChangePassword(Request $request)
+    {
+        $previousUrl = url()->previous();
+        if (!$previousUrl || $previousUrl === route('system.change_password')) {
+            $previousUrl = route('dashboard');
+        }
+
+        return view('system.change_password', compact('previousUrl'));
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:4|confirmed',
+        ]);
+
+        $user = auth()->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withInput()->with('error', 'Current password does not match.');
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password)
+        ]);
+
+        $redirectTo = $request->input('previous_url') ?: route('dashboard');
+        if ($redirectTo === route('system.change_password')) {
+            $redirectTo = route('dashboard');
+        }
+
+        return redirect($redirectTo)->with('success', 'Password updated successfully!');
+    }
 }

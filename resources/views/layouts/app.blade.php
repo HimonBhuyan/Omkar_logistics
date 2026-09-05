@@ -893,7 +893,7 @@
                             <a href="{{ route('system.role') }}">Role Management</a>
                         @endif
                         @if($user->hasPermission('system.change_password'))
-                            <a href="#">Change Password</a>
+                            <a href="{{ route('system.change_password') }}">Change Password</a>
                         @endif
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

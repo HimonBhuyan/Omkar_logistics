@@ -112,6 +112,12 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/system/users/{id}', [UserController::class, 'destroy'])->name('system.user.destroy');
     });
 
+    // System: Change Password
+    Route::middleware([CheckPermission::class . ':system.change_password'])->group(function () {
+        Route::get('/system/change-password', [UserController::class, 'showChangePassword'])->name('system.change_password');
+        Route::post('/system/change-password', [UserController::class, 'updatePassword'])->name('system.change_password.update');
+    });
+
     // System: Role Management
     Route::middleware([CheckPermission::class . ':system.role_management'])->group(function () {
         Route::get('/system/roles', [RoleController::class, 'index'])->name('system.role');
