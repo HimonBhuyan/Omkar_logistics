@@ -433,7 +433,7 @@
                         <td>
                             <a href="{{ route('bilty.print', $b->id) }}" target="_blank" onclick="event.stopPropagation();" style="color: #003087; font-weight:600; text-decoration:underline;">Print</a>
                             <span style="color:#ccc;">|</span>
-                            <a href="{{ route('bilty.pdf', $b->id) }}" download="CN_{{ $b->series ? str_replace(['/', '\\', '-'], '_', $b->series) . '_' : '' }}{{ $b->bilty_no }}.pdf" target="_blank" onclick="event.stopPropagation();" style="color: #c0392b; font-weight:600; text-decoration:underline;">PDF</a>
+                            <a href="{{ route('bilty.pdf', $b->id) }}" target="_blank" onclick="event.stopPropagation();" style="color: #c0392b; font-weight:600; text-decoration:underline;">PDF</a>
                         </td>
                     </tr>
                 @empty

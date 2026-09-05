@@ -628,13 +628,13 @@ class BiltyController extends Controller
 
     public function print($id)
     {
-        $bilty = Bilty::with(['fromLocation', 'toLocation', 'consignor', 'consignee', 'billingParty', 'items'])->findOrFail($id);
+        $bilty = Bilty::with(['fromLocation', 'toLocation', 'consignor', 'consignee', 'billingParty', 'items', 'user'])->findOrFail($id);
         return view('bilty.print', compact('bilty'));
     }
 
-    public function downloadPdf($id)
+    public function downloadPdf(Request $request, $id)
     {
-        $bilty = Bilty::with(['fromLocation', 'toLocation', 'consignor', 'consignee', 'billingParty', 'items'])->findOrFail($id);
+        $bilty = Bilty::with(['fromLocation', 'toLocation', 'consignor', 'consignee', 'billingParty', 'items', 'user'])->findOrFail($id);
         $isPdf = true;
         $html = view('bilty.print', compact('bilty', 'isPdf'))->render();
 
@@ -645,23 +645,41 @@ class BiltyController extends Controller
             $html = preg_replace('/src="[^"]*assets\/logo\.jpg"/', 'src="' . $logoBase64 . '"', $html);
         }
 
+        $tempDir = storage_path('app/pdf_temp');
+        if (!file_exists($tempDir)) {
+            @mkdir($tempDir, 0777, true);
+        }
+        $fontDir = storage_path('fonts');
+        if (!file_exists($fontDir)) {
+            @mkdir($fontDir, 0777, true);
+        }
+
         $options = new \Dompdf\Options();
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isRemoteEnabled', true);
         $options->set('defaultMediaType', 'print');
         $options->set('defaultFont', 'Helvetica');
         $options->set('dpi', 96);
+        $options->set('tempDir', $tempDir);
+        $options->set('fontDir', $fontDir);
+        $options->set('fontCache', $fontDir);
 
         $dompdf = new \Dompdf\Dompdf($options);
         $dompdf->setPaper('a5', 'landscape');
         $dompdf->loadHtml($html);
         $dompdf->render();
 
-        $seriesPart = $bilty->series ? str_replace(['/', '\\', '-'], '_', $bilty->series) . '_' : '';
-        $filename = 'CN_' . $seriesPart . $bilty->bilty_no . '.pdf';
+        $seriesPart = $bilty->series ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $bilty->series) . '_' : '';
+        $cleanBiltyNo = preg_replace('/[^A-Za-z0-9_\-]/', '_', $bilty->bilty_no);
+        $filename = 'CN_' . $seriesPart . $cleanBiltyNo . '.pdf';
+
+        $disposition = $request->has('download') ? 'attachment' : 'inline';
+
         return response($dompdf->output(), 200, [
             'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => $disposition . '; filename="' . $filename . '"',
+            'Cache-Control'       => 'private, max-age=0, must-revalidate',
+            'Pragma'              => 'public',
         ]);
     }
 }

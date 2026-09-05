@@ -315,7 +315,7 @@
 
         /* Charges Table */
         .charges-table {
-            width: 150px;
+            width: 185px;
             margin-left: auto;
             margin-top: 5px;
             border-collapse: separate;
@@ -336,7 +336,8 @@
 
         .charges-table td:first-child {
             font-weight: bold;
-            width: 60px;
+            width: 90px;
+            white-space: nowrap;
             border-right: 1.5px solid #000;
         }
 
@@ -446,7 +447,7 @@
         @if(!isset($isPdf))
             <a href="{{ route('bilty.create') }}" class="btn-back-link">⬅ Back to Entry Form</a>
             <div style="position: absolute; top: -40px; right: 0; display: flex; gap: 8px;">
-                <a href="{{ route('bilty.pdf', $bilty->id) }}" download="CN_{{ $bilty->series ? str_replace(['/', '\\', '-'], '_', $bilty->series) . '_' : '' }}{{ $bilty->bilty_no }}.pdf" class="btn-print" style="position: static; background: #c0392b; text-decoration: none; display: inline-block;">📥 Download PDF</a>
+                <a href="{{ route('bilty.pdf', ['id' => $bilty->id, 'download' => 1]) }}" class="btn-print" style="position: static; background: #c0392b; text-decoration: none; display: inline-block;">📥 Download PDF</a>
                 <button class="btn-print" style="position: static;" onclick="window.print()">🖨 Print Bill (A5)</button>
             </div>
         @endif
@@ -605,8 +606,28 @@
                     </tbody>
                 </table>
 
+                @php
+                    $calculatedGross = floatval($bilty->gross_amount ?? 0);
+                    if ($calculatedGross <= 0) {
+                        $calculatedGross = 0;
+                        foreach ($bilty->items as $item) {
+                            $q = floatval($item->qty ?? 0);
+                            if ($q <= 0) {
+                                $q = floatval($item->weight_val ?? 0);
+                            }
+                            if ($q <= 0) {
+                                $q = 1;
+                            }
+                            $calculatedGross += ($q * floatval($item->rate ?? 0));
+                        }
+                    }
+                @endphp
                 <!-- Charges Table (Right-aligned immediately below package data table) -->
                 <table class="charges-table">
+                    <tr>
+                        <td>Total</td>
+                        <td>{{ number_format($calculatedGross, 2) }}</td>
+                    </tr>
                     <tr>
                         <td>ST</td>
                         <td>{{ number_format($bilty->st_charge, 2) }}</td>
@@ -624,7 +645,7 @@
                         <td>{{ number_format($bilty->dd_charge, 2) }}</td>
                     </tr>
                     <tr>
-                        <td>Total</td>
+                        <td>Grade Total</td>
                         <td>{{ number_format($bilty->net_amount, 2) }}</td>
                     </tr>
                 </table>
@@ -636,15 +657,19 @@
                 <div class="signature-box">
                     <table class="signature-inner-table">
                         <tr>
-                            <td style="text-align: left; width: 30%; vertical-align: bottom; padding-left: 45px;">
+                            <td style="text-align: left; width: 20%; vertical-align: bottom; padding-left: 10px;">
                                 <div style="display: inline-block; text-align: center;">
-                                    <div class="seal-sign">Seal &amp; Sign</div>
-                                    <div class="receipt-ack">Receipt Acknowledgment</div>
+                                    <div class="seal-sign">Customer Seal &amp; Sign</div>
                                 </div>
                             </td>
-                            <td style="text-align: right; width: 70%; vertical-align: bottom; padding-right: 150px;">
+                            <td style="text-align: right; width: 80%; vertical-align: bottom; padding-right: 220px;">
                                 <div style="display: inline-block; text-align: center;">
-                                    <div class="booking-incharge">Sign. of the Booking Incharge</div>
+                                    <div style="font-size: 11px; font-weight: bold; color: #000; text-transform: uppercase;">
+                                        {{ $bilty->user ? ($bilty->user->name ?: $bilty->user->username) : 'System' }}
+                                    </div>
+                                    <div class="booking-incharge" style="font-size: 10px; font-weight: bold; color: #444; margin-top: 2px;">
+                                        (This is a computer generated C.N. — Signature is not required)
+                                    </div>
                                     <div class="terms-footer">* We are not responsible for Brokage /Leakage &amp; Damage of any goods</div>
                                 </div>
                             </td>
