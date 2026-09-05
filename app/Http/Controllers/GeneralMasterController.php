@@ -136,7 +136,7 @@ class GeneralMasterController extends Controller
 
     public function measurementUnitIndex(Request $request, $id = null)
     {
-        $query = MeasurementUnit::query();
+        $query = MeasurementUnit::forCompany();
         if ($request->filled('q')) {
             $q = trim($request->q);
             $query->where(function($sub) use ($q) {
@@ -152,12 +152,13 @@ class GeneralMasterController extends Controller
     public function measurementUnitStore(Request $request)
     {
         $data = $request->validate([
-            'unit_code' => 'required|string|max:50|unique:measurement_units,unit_code,' . $request->id,
+            'unit_code' => 'required|string|max:50',
             'unit_name' => 'required|string|max:100',
             'unit_type' => 'required|string|in:weight,fixed',
             'package_label' => 'nullable|string|max:50',
             'is_active' => 'nullable|boolean',
         ]);
+        $data['company_id'] = session('company_id', 1);
         if ($request->filled('package_label')) {
             $data['package_label'] = trim($request->package_label);
         } else {

@@ -12,6 +12,7 @@ class MeasurementUnit extends Model
     protected $table = 'measurement_units';
 
     protected $fillable = [
+        'company_id',
         'unit_code',
         'unit_name',
         'unit_type',
@@ -28,6 +29,20 @@ class MeasurementUnit extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeForCompany($query, $companyId = null)
+    {
+        $companyId = $companyId ?: session('company_id');
+
+        return $query->where(function ($q) use ($companyId) {
+            $q->whereNull('company_id')
+              ->orWhere('is_system', true);
+
+            if ($companyId) {
+                $q->orWhere('company_id', $companyId);
+            }
+        });
     }
 
     public function isDeletable(): bool

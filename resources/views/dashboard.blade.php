@@ -215,103 +215,204 @@
 <body>
 
     <!-- Title Bar -->
-    <div class="title-bar">
-        <span class="app-title">
-            {{ strtoupper(session('company_name', 'OMKAAR LOGISTICS')) }}-{{ session('financial_year', '2026-2027') }}
-        </span>
-        <span class="version">Version :10.10.1005</span>
-        <span class="user-badge">{{ strtoupper(auth()->user()->username ?? 'USER') }}</span>
+    <div class="title-bar" style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:15px;">
+            <span class="app-title">
+                {{ strtoupper(session('company_name', 'OMKAAR LOGISTICS')) }}
+            </span>
+            <form action="{{ route('financial-year.switch') }}" method="POST" style="display:inline-block; margin:0;">
+                @csrf
+                <span style="background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:4px; font-weight:bold; font-size:11px; color:#fff;">
+                    FY:
+                    <select name="financial_year" onchange="this.form.submit()" style="background:transparent; color:#fff; border:none; font-weight:bold; font-size:11px; cursor:pointer; outline:none;">
+                        @php
+                            $allFinYears = \App\Models\FinancialYear::all();
+                            $currentFy = session('financial_year', '2026-2027');
+                        @endphp
+                        <option value="ALL" {{ $currentFy === 'ALL' ? 'selected' : '' }} style="color:#000;">ALL (All Years)</option>
+                        @foreach($allFinYears as $fy)
+                            <option value="{{ $fy->year_string }}" {{ $currentFy === $fy->year_string ? 'selected' : '' }} style="color:#000;">{{ $fy->year_string }}</option>
+                        @endforeach
+                    </select>
+                </span>
+            </form>
+        </div>
+        <div>
+            <span class="version">Version :10.10.1005</span>
+            <span class="user-badge" style="margin-left:10px;">{{ strtoupper(auth()->user()->username ?? 'USER') }}</span>
+        </div>
     </div>
+
+    @php
+        $user = Auth::user();
+        $canTransaction = $user->hasPermission('transaction.cn_book') || $user->hasPermission('transaction.receipt') || $user->hasPermission('transaction.payment') || $user->hasPermission('transaction.party_bill');
+        $canAccount = $user->hasPermission('account.group') || $user->hasPermission('account.ledger') || $user->hasPermission('account.payment_expenses') || $user->hasPermission('account.voucher') || $user->hasPermission('account.deposit_bank') || $user->hasPermission('account.reports');
+        $canReport = $user->hasPermission('report.bilty_register') || $user->hasPermission('report.party_bill_register') || $user->hasPermission('report.receipt_register') || $user->hasPermission('report.payment_register') || $user->hasPermission('report.tds_report');
+        $canMaster = $user->hasPermission('master.item') || $user->hasPermission('master.measurement_unit') || $user->hasPermission('master.series') || $user->hasPermission('master.transport') || $user->hasPermission('master.country') || $user->hasPermission('master.state') || $user->hasPermission('master.city') || $user->hasPermission('master.currency');
+        $canTools = $user->hasPermission('tools.backup') || $user->hasPermission('tools.restore') || $user->hasPermission('tools.settings');
+        $canSystem = $user->hasPermission('system.change_password') || $user->hasPermission('system.user_management') || $user->hasPermission('system.role_management');
+    @endphp
 
     <!-- Menu Bar -->
     <nav class="menu-bar" style="display: flex; justify-content: space-between; align-items: center;">
 
         <div style="display: flex; align-items: center;">
             <!-- Transaction -->
+            @if($canTransaction)
             <div class="menu-item">
                 <a href="#">Transaction</a>
                 <div class="dropdown-menu">
-                    <a href="{{ route('bilty.create') }}" target="_blank" class="highlighted">C.N Book</a>
-                    <a href="#">Receipt</a>
-                    <a href="#">Payment</a>
-                    <a href="#">Party Bill</a>
+                    @if($user->hasPermission('transaction.cn_book'))
+                        <a href="{{ route('bilty.create') }}" target="_blank" class="highlighted">C.N Book</a>
+                    @endif
+                    @if($user->hasPermission('transaction.receipt'))
+                        <a href="#">Receipt</a>
+                    @endif
+                    @if($user->hasPermission('transaction.payment'))
+                        <a href="#">Payment</a>
+                    @endif
+                    @if($user->hasPermission('transaction.party_bill'))
+                        <a href="#">Party Bill</a>
+                    @endif
                 </div>
             </div>
+            @endif
 
             <!-- Account -->
+            @if($canAccount)
             <div class="menu-item">
                 <a href="#">Account</a>
                 <div class="dropdown-menu">
-                    <a href="#">Group</a>
-                    <a href="{{ route('account.ledger') }}">Account Ledger</a>
-                    <a href="#">Payment &amp; Expenses</a>
-                    <a href="#">Voucher</a>
-                    <a href="#">Deposit in Bank</a>
-                    <a href="#">Reports &nbsp;&#9658;</a>
+                    @if($user->hasPermission('account.group'))
+                        <a href="#">Group</a>
+                    @endif
+                    @if($user->hasPermission('account.ledger'))
+                        <a href="{{ route('account.ledger') }}">Account Ledger</a>
+                    @endif
+                    @if($user->hasPermission('account.payment_expenses'))
+                        <a href="#">Payment &amp; Expenses</a>
+                    @endif
+                    @if($user->hasPermission('account.voucher'))
+                        <a href="#">Voucher</a>
+                    @endif
+                    @if($user->hasPermission('account.deposit_bank'))
+                        <a href="#">Deposit in Bank</a>
+                    @endif
+                    @if($user->hasPermission('account.reports'))
+                        <a href="#">Reports &nbsp;&#9658;</a>
+                    @endif
                 </div>
             </div>
+            @endif
 
             <!-- Report -->
+            @if($canReport)
             <div class="menu-item">
                 <a href="#">Report</a>
                 <div class="dropdown-menu">
-                    <div class="has-sub">
-                        <a href="{{ route('report.bilty_register') }}">C.N &nbsp;&#9658;</a>
-                        <div class="sub-menu">
-                            <a href="{{ route('report.bilty_register') }}">C.N Register</a>
-                            <a href="#">Party Bill Register</a>
+                    @if($user->hasPermission('report.bilty_register'))
+                        <div class="has-sub">
+                            <a href="{{ route('report.bilty_register') }}">C.N &nbsp;&#9658;</a>
+                            <div class="sub-menu">
+                                <a href="{{ route('report.bilty_register') }}">C.N Register</a>
+                                @if($user->hasPermission('report.party_bill_register'))
+                                    <a href="#">Party Bill Register</a>
+                                @endif
+                            </div>
                         </div>
-                    </div>
-                    <a href="#">Receipt Register</a>
-                    <a href="#">Payment Register</a>
-                    <a href="#">Receipt Detail/TDS Report</a>
+                    @endif
+                    @if($user->hasPermission('report.receipt_register'))
+                        <a href="#">Receipt Register</a>
+                    @endif
+                    @if($user->hasPermission('report.payment_register'))
+                        <a href="#">Payment Register</a>
+                    @endif
+                    @if($user->hasPermission('report.tds_report'))
+                        <a href="#">Receipt Detail/TDS Report</a>
+                    @endif
                 </div>
             </div>
+            @endif
 
             <!-- Master -->
+            @if($canMaster)
             <div class="menu-item">
                 <a href="#">Master</a>
                 <div class="dropdown-menu">
-                    <div class="has-sub">
-                        <a href="#">Item &nbsp;&#9658;</a>
-                        <div class="sub-menu">
-                            <a href="#">Create Item</a>
-                            <a href="#">Item List</a>
+                    @if($user->hasPermission('master.item'))
+                        <div class="has-sub">
+                            <a href="#">Item &nbsp;&#9658;</a>
+                            <div class="sub-menu">
+                                <a href="#">Create Item</a>
+                                <a href="#">Item List</a>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                     <div class="has-sub">
                         <a href="#">General &nbsp;&#9658;</a>
                         <div class="sub-menu">
-                            <a href="#">Series</a>
-                            <a href="{{ route('master.measurement-unit') }}">Measurement Unit</a>
-                            <a href="#">Transport</a>
-                            <a href="{{ route('master.country') }}">Country</a>
-                            <a href="{{ route('master.state') }}">State</a>
-                            <a href="{{ route('master.city') }}">City</a>
-                            <a href="#">Currency</a>
+                            @if($user->hasPermission('master.series'))
+                                <a href="#">Series</a>
+                            @endif
+                            @if($user->hasPermission('master.measurement_unit'))
+                                <a href="{{ route('master.measurement-unit') }}">Measurement Unit</a>
+                            @endif
+                            @if($user->hasPermission('master.transport'))
+                                <a href="#">Transport</a>
+                            @endif
+                            @if($user->hasPermission('master.country'))
+                                <a href="{{ route('master.country') }}">Country</a>
+                            @endif
+                            @if($user->hasPermission('master.state'))
+                                <a href="{{ route('master.state') }}">State</a>
+                            @endif
+                            @if($user->hasPermission('master.city'))
+                                <a href="{{ route('master.city') }}">City</a>
+                            @endif
+                            @if($user->hasPermission('master.currency'))
+                                <a href="#">Currency</a>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
+            @endif
 
             <!-- Tools -->
+            @if($canTools)
             <div class="menu-item">
                 <a href="#">Tools</a>
                 <div class="dropdown-menu">
-                    <a href="#">Backup</a>
-                    <a href="#">Restore</a>
-                    <a href="#">Settings</a>
+                    @if($user->hasPermission('tools.backup'))
+                        <a href="#">Backup</a>
+                    @endif
+                    @if($user->hasPermission('tools.restore'))
+                        <a href="#">Restore</a>
+                    @endif
+                    @if($user->hasPermission('tools.settings'))
+                        <a href="#">Settings</a>
+                    @endif
                 </div>
             </div>
+            @endif
 
             <!-- System -->
+            @if($canSystem)
             <div class="menu-item">
                 <a href="#">System</a>
                 <div class="dropdown-menu">
-                    <a href="#">Change Password</a>
-                    <a href="#">User Management</a>
+                    @if($user->hasPermission('system.user_management'))
+                        <a href="{{ route('system.user') }}">User Management</a>
+                    @endif
+                    @if($user->hasPermission('system.role_management'))
+                        <a href="{{ route('system.role') }}">Role Management</a>
+                    @endif
+                    @if($user->hasPermission('system.change_password'))
+                        <a href="#">Change Password</a>
+                    @endif
                 </div>
             </div>
+            @endif
         </div>
 
         <!-- Right Side: Navbar Log Out Button -->

@@ -678,19 +678,19 @@
         newRow.className = 'grid-row';
         newRow.innerHTML = `
             <td>
-                <input type="number" name="items[${rowIndex}][no_of_pkgs]" class="input-no_of_pkgs calc-trigger" required min="1" value="1">
+                <input type="number" name="items[${rowIndex}][no_of_pkgs]" class="input-no_of_pkgs calc-trigger" required min="1" value="">
             </td>
             <td>
-                <input type="text" name="items[${rowIndex}][packing]" placeholder="Box/Bag/Roll" value="Box">
+                <input type="text" name="items[${rowIndex}][packing]" placeholder="Box/Bag/Roll" value="">
             </td>
             <td>
-                <input type="text" name="items[${rowIndex}][description]" placeholder="Goods Description" value="Goods">
+                <input type="text" name="items[${rowIndex}][description]" placeholder="Goods Description" value="">
             </td>
             <td>
                 <input type="text" name="items[${rowIndex}][invoice_no]" placeholder="Inv No">
             </td>
             <td>
-                <input type="number" name="items[${rowIndex}][invoice_value]" class="input-invoice_value" value="0.00" step="0.01">
+                <input type="number" name="items[${rowIndex}][invoice_value]" class="input-invoice_value" value="" step="0.01" placeholder="0.00">
             </td>
             <td>
                 <select name="items[${rowIndex}][unit]" class="input-unit" onchange="handleUnitChange(this)">

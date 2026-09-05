@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Bilty extends Model
 {
     protected $fillable = [
+        'company_id',
         'series',
         'bilty_no',
         'invoice_date',
@@ -48,6 +49,20 @@ class Bilty extends Model
         'status',
         'user_id'
     ];
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    public function scopeForCompany($query, $companyId = null)
+    {
+        $companyId = $companyId ?: session('company_id');
+        if ($companyId) {
+            return $query->where('company_id', $companyId);
+        }
+        return $query;
+    }
 
     protected $casts = [
         'invoice_date' => 'date',

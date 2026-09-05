@@ -34,15 +34,15 @@ class BiltyController extends Controller
             ->pluck('ledger_name', 'ledger_name')
             ->unique();
 
-        // Calculate next C.N. number for Series '26-27' (starting from 4306)
-        $maxBiltyNo = Bilty::where('series', '26-27')->max('bilty_no');
+        // Calculate next C.N. number for Series '26-27' scoped to active company
+        $maxBiltyNo = Bilty::forCompany()->where('series', '26-27')->max('bilty_no');
         $nextBiltyNo = ($maxBiltyNo && $maxBiltyNo >= 4306) ? ($maxBiltyNo + 1) : 4306;
 
         // Calculate next Voucher No
-        $lastVoucher = Bilty::orderBy('voucher_no', 'desc')->first();
+        $lastVoucher = Bilty::forCompany()->orderBy('voucher_no', 'desc')->first();
         $nextVoucherNo = $lastVoucher ? ($lastVoucher->voucher_no + 1) : 1795;
 
-        $measurementUnits = MeasurementUnit::active()->orderBy('unit_code')->get();
+        $measurementUnits = MeasurementUnit::forCompany()->active()->orderBy('unit_code')->get();
 
         return view('bilty.create', compact('locations', 'consignors', 'consignees', 'parties', 'vehicles', 'nextBiltyNo', 'nextVoucherNo', 'measurementUnits'));
     }
@@ -197,6 +197,7 @@ class BiltyController extends Controller
 
             // Create Bilty Header
             $bilty = Bilty::create([
+                'company_id' => session('company_id', 1),
                 'series' => $this->formatUpper($request->series ?? '26-27'),
                 'bilty_no' => $request->bilty_no,
                 'invoice_date' => $request->invoice_date ?: now()->toDateString(),
@@ -298,8 +299,8 @@ class BiltyController extends Controller
 
     public function lookup($bilty_no)
     {
-        // Try to find the bilty with the current series or fall back to any series
-        $bilty = Bilty::with(['items', 'user', 'consignor', 'consignee', 'billingParty', 'fromLocation', 'toLocation'])->where('bilty_no', $bilty_no)->first();
+        // Try to find the bilty scoped by company
+        $bilty = Bilty::forCompany()->with(['items', 'user', 'consignor', 'consignee', 'billingParty', 'fromLocation', 'toLocation'])->where('bilty_no', $bilty_no)->first();
         if (!$bilty) {
             return response()->json(['error' => 'Bilty consignment not found'], 404);
         }
