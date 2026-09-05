@@ -188,7 +188,7 @@
 <div class="master-wrapper">
     {{-- Left List Panel --}}
     <div class="master-list-panel">
-        <form id="bulkDeleteForm" method="POST" action="{{ route('master.measurement-unit.bulk_destroy') }}" onsubmit="return confirm('Delete selected custom units? System units (KG, FIXED) will be preserved.')" style="display:flex; flex-direction:column; flex:1; min-height:100%;">
+        <form id="bulkDeleteForm" method="POST" action="{{ route('master.measurement-unit.bulk_destroy') }}" data-confirm="Delete selected custom units? System units (KG, FIXED) will be preserved." style="display:flex; flex-direction:column; flex:1; min-height:100%;">
             @csrf @method('DELETE')
             <div class="master-list-header" style="display:flex; justify-content:space-between; align-items:center;">
                 <span>Measurement Units ({{ count($units) }})</span>
@@ -229,7 +229,7 @@
                         </a>
 
                         @if(!$isSys)
-                            <form method="POST" action="{{ route('master.measurement-unit.destroy', $u->id) }}" onsubmit="return confirm('Delete unit \'{{ $u->unit_code }}\'?'); event.stopPropagation();" style="display:inline;">
+                            <form method="POST" action="{{ route('master.measurement-unit.destroy', $u->id) }}" data-confirm="Delete unit '{{ $u->unit_code }}'?" onclick="event.stopPropagation();" style="display:inline;">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn-delete" title="Delete Unit">❌</button>
                             </form>

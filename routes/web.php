@@ -84,6 +84,15 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/master/measurement-unit/{id}', [GeneralMasterController::class, 'measurementUnitDestroy'])->name('master.measurement-unit.destroy');
     });
 
+    // Master: Shipping Status
+    Route::middleware([CheckPermission::class . ':master.shipping_status'])->group(function () {
+        Route::get('/master/shipping-status', [GeneralMasterController::class, 'shippingStatusIndex'])->name('master.shipping-status');
+        Route::get('/master/shipping-status/{id}', [GeneralMasterController::class, 'shippingStatusIndex'])->name('master.shipping-status.load');
+        Route::post('/master/shipping-status', [GeneralMasterController::class, 'shippingStatusStore'])->name('master.shipping-status.store');
+        Route::delete('/master/shipping-status/bulk', [GeneralMasterController::class, 'shippingStatusBulkDestroy'])->name('master.shipping-status.bulk_destroy');
+        Route::delete('/master/shipping-status/{id}', [GeneralMasterController::class, 'shippingStatusDestroy'])->name('master.shipping-status.destroy');
+    });
+
     // System: User Management
     Route::middleware([CheckPermission::class . ':system.user_management'])->group(function () {
         Route::get('/system/users', [UserController::class, 'index'])->name('system.user');

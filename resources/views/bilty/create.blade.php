@@ -751,7 +751,7 @@
             row.remove();
             calculateAll();
         } else {
-            alert('At least one consignment row is required.');
+            SysDialog.alert('At least one consignment row is required.', 'Validation Warning');
         }
     }
 
@@ -1381,8 +1381,10 @@
                         } else {
                             typeSelector.value = 'Vehicle Number';
                         }
-                        toggleVehicleFields();
                         document.getElementById('vehicle_no_text').value = vehicleVal;
+                        if (document.getElementById('shipping_status')) {
+                            document.getElementById('shipping_status').value = data.bilty.shipping_status || (vehicleVal ? (isTransportOption ? 'Shipped' : 'In Transit') : 'Booked');
+                        }
 
                         document.getElementById('eway_bill_no').value = data.bilty.eway_bill_no || '';
                         if (data.bilty.eway_bill_no) {
@@ -1866,6 +1868,23 @@
         toggleVehicleFields();
     });
 
+    function autoUpdateShippingStatus() {
+        const statusSelect = document.getElementById('shipping_status');
+        if (!statusSelect) return;
+        const type = document.getElementById('vehicle_type')?.value || 'Vehicle Number';
+        const val = document.getElementById('vehicle_no_text')?.value.trim() || '';
+
+        if (val !== '') {
+            if (type === 'Transport Name') {
+                statusSelect.value = 'Shipped';
+            } else {
+                statusSelect.value = 'In Transit';
+            }
+        } else {
+            statusSelect.value = 'Booked';
+        }
+    }
+
     function toggleVehicleFields() {
         const type = document.getElementById('vehicle_type').value;
         const label = document.getElementById('vehicle_no_label');
@@ -1880,7 +1899,12 @@
             if (label) label.textContent = 'Vehicle No.';
             if (input) input.placeholder = 'e.g. AS-01-XX-1234';
         }
+        autoUpdateShippingStatus();
     }
+
+    document.getElementById('vehicle_no_text')?.addEventListener('input', function() {
+        autoUpdateShippingStatus();
+    });
 
     let ewayBills = [];
     const existingVal = document.getElementById('eway_bill_no').value.trim();
@@ -1893,7 +1917,7 @@
         const val = input.value.trim().toUpperCase();
         if (val === '') return;
         if (ewayBills.includes(val)) {
-            alert('E-Way Bill number already added.');
+            SysDialog.alert('E-Way Bill number already added.', 'Duplicate Entry');
             input.value = '';
             return;
         }

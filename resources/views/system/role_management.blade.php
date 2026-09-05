@@ -201,7 +201,7 @@
                         </span>
                     </a>
                     @if(!$isSys)
-                        <form method="POST" action="{{ route('system.role.destroy', $r->id) }}" onsubmit="return confirm('Delete role \'{{ $r->name }}\'?');" style="display:inline; margin-left:6px;">
+                        <form method="POST" action="{{ route('system.role.destroy', $r->id) }}" data-confirm="Delete role '{{ $r->name }}'?" style="display:inline; margin-left:6px;">
                             @csrf @method('DELETE')
                             <button type="submit" class="btn-delete" title="Delete Role">❌</button>
                         </form>

@@ -37,6 +37,7 @@ class PermissionSeeder extends Seeder
             // Master
             ['name' => 'master.item', 'display_name' => 'Item Master', 'module' => 'Master'],
             ['name' => 'master.measurement_unit', 'display_name' => 'Measurement Unit Master', 'module' => 'Master'],
+            ['name' => 'master.shipping_status', 'display_name' => 'Shipping Status Master', 'module' => 'Master'],
             ['name' => 'master.series', 'display_name' => 'Series Master', 'module' => 'Master'],
             ['name' => 'master.transport', 'display_name' => 'Transport Master', 'module' => 'Master'],
             ['name' => 'master.country', 'display_name' => 'Country Master', 'module' => 'Master'],
@@ -77,7 +78,7 @@ class PermissionSeeder extends Seeder
             'transaction.cn_book', 'transaction.receipt', 'transaction.payment', 'transaction.party_bill',
             'account.group', 'account.ledger', 'account.payment_expenses', 'account.voucher', 'account.deposit_bank', 'account.reports',
             'report.bilty_register', 'report.party_bill_register', 'report.receipt_register', 'report.payment_register', 'report.tds_report',
-            'master.item', 'master.measurement_unit', 'master.country', 'master.state', 'master.city',
+            'master.item', 'master.measurement_unit', 'master.shipping_status', 'master.country', 'master.state', 'master.city',
             'system.change_password',
         ];
         $managerPermIds = Permission::whereIn('name', $managerPermissionNames)->pluck('id')->toArray();

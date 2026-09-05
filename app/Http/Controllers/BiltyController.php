@@ -98,6 +98,7 @@ class BiltyController extends Controller
                 'vehicle_no' => 'nullable|string|max:50',
                 'eway_bill_no' => 'nullable|string|max:50',
                 'cn_no' => 'nullable|string|max:50',
+                'shipping_status' => 'nullable|string|max:50',
                 
                 // Grid items
                 'items' => 'required|array|min:1',
@@ -215,6 +216,7 @@ class BiltyController extends Controller
                 'billing_party_name' => $this->formatUpper($request->billing_party_name ?: ($billingLedger ? $billingLedger->ledger_name : null)),
                 'cn_no' => $this->formatUpper($request->cn_no),
                 'vehicle_no' => $this->formatUpper($request->vehicle_no),
+                'shipping_status' => $request->filled('shipping_status') ? trim($request->shipping_status) : ($request->filled('vehicle_no') ? (strtoupper(trim($request->vehicle_type ?? '')) === 'TRANSPORT NAME' ? 'Shipped' : 'In Transit') : 'Booked'),
                 'eway_bill_no' => $this->formatUpper($request->eway_bill_no),
                 
                 'total_packages' => $request->total_packages ?? 0,
@@ -478,6 +480,7 @@ class BiltyController extends Controller
                 'billing_party_name' => $this->formatUpper($request->billing_party_name ?: ($billingLedger ? $billingLedger->ledger_name : $bilty->billing_party_name)),
                 'cn_no' => $this->formatUpper($request->cn_no),
                 'vehicle_no' => $this->formatUpper($request->vehicle_no),
+                'shipping_status' => $request->filled('shipping_status') ? trim($request->shipping_status) : ($request->filled('vehicle_no') ? (strtoupper(trim($request->vehicle_type ?? ($bilty->type ?? ''))) === 'TRANSPORT NAME' ? 'Shipped' : 'In Transit') : ($bilty->shipping_status ?: 'Booked')),
                 'eway_bill_no' => $this->formatUpper($request->eway_bill_no),
                 
                 'total_packages' => $request->total_packages ?? $bilty->total_packages,

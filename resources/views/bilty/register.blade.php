@@ -42,7 +42,7 @@
         z-index: 10;
         overflow: visible !important;
         display: grid;
-        grid-template-columns: repeat(4, 1fr) auto;
+        grid-template-columns: 1fr 1fr auto auto auto auto;
         gap: 8px;
         align-items: center;
     }
@@ -335,6 +335,7 @@
                     <th>Third Party C.N.</th>
                     <th>E-WayBill No</th>
                     <th>Vehicle No</th>
+                    <th>Ship Status</th>
                     <th>Packages</th>
                     <th>Packing</th>
                     <th>Description</th>
@@ -399,6 +400,20 @@
                         <td>{{ $b->cn_no }}</td>
                         <td>{{ $b->eway_bill_no }}</td>
                         <td>{{ $b->vehicle_no }}</td>
+                        <td>
+                            @php
+                                $shipStatus = $b->shipping_status ?: ($b->vehicle_no ? 'Shipped' : 'Booked');
+                            @endphp
+                            @if(in_array($shipStatus, ['Shipped', 'In Transit']))
+                                <span style="background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc; padding:2px 6px; border-radius:10px; font-size:10px; font-weight:700; white-space:nowrap;">{{ $shipStatus }}</span>
+                            @elseif($shipStatus === 'Delivered')
+                                <span style="background:#dcfce7; color:#15803d; border:1px solid #86efac; padding:2px 6px; border-radius:10px; font-size:10px; font-weight:700; white-space:nowrap;">Delivered</span>
+                            @elseif($shipStatus === 'Cancelled')
+                                <span style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; padding:2px 6px; border-radius:10px; font-size:10px; font-weight:700; white-space:nowrap;">Cancelled</span>
+                            @else
+                                <span style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:2px 6px; border-radius:10px; font-size:10px; font-weight:700; white-space:nowrap;">Booked</span>
+                            @endif
+                        </td>
                         <td>{{ $b->total_packages }}</td>
                         <td>{{ $packing }}</td>
                         <td>{{ $description }}</td>
@@ -423,7 +438,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="32" style="text-align: center; color: #666; padding: 20px;">No Bilty records found for the selected criteria.</td>
+                        <td colspan="33" style="text-align: center; color: #666; padding: 20px;">No Bilty records found for the selected criteria.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -432,6 +447,10 @@
 
     <div class="report-footer">
         <div class="totals-box">
+            <div class="totals-item">
+                <span class="totals-label">Paid:</span>
+                <span class="totals-value">{{ number_format($totalPaid, 2) }}</span>
+            </div>
             <div class="totals-item">
                 <span class="totals-label">To Pay:</span>
                 <span class="totals-value">{{ number_format($totalToPay, 2) }}</span>
@@ -447,6 +466,10 @@
             <div class="totals-item">
                 <span class="totals-label">KG Wt:</span>
                 <span class="totals-value">{{ number_format($totalKg, 3) }}</span>
+            </div>
+            <div class="totals-item">
+                <span class="totals-label">Fixed Qty:</span>
+                <span class="totals-value">{{ number_format($totalFixedQty, 3) }}</span>
             </div>
             <div class="totals-item">
                 <span class="totals-label">Fixed Wt:</span>

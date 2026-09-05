@@ -155,7 +155,7 @@
         <!-- Middle Section: Consignment, Vehicle, Eway numbers -->
         <div class="section-box" style="margin-bottom: 20px;">
             <div class="section-title">TRANSPORT DETAILS</div>
-            <div class="grid-fields-2" style="grid-template-columns: repeat(5, 1fr); gap: 10px;">
+            <div class="grid-fields-2" style="grid-template-columns: repeat(6, 1fr); gap: 10px;">
                 <div class="form-group-custom" id="billing_party_wrapper" style="display: {{ in_array(old('billing_type'), ['Paid', 'To Pay', 'T.B.B.']) ? 'flex' : 'none' }};">
                     <label for="billing_party_text">Third Party</label>
                     <div class="autocomplete-wrapper">
@@ -184,6 +184,29 @@
                         <input type="text" name="vehicle_no" id="vehicle_no_text" placeholder="e.g. AS-01-XX-1234" value="{{ old('vehicle_no') }}" autocomplete="off">
                         <div class="autocomplete-dropdown" id="vehicle_no_dropdown"></div>
                     </div>
+                </div>
+
+                <div class="form-group-custom" id="shipping_status_wrapper">
+                    <label for="shipping_status">Shipping Status</label>
+                    @php
+                        try {
+                            $activeStatuses = \App\Models\ShippingStatus::where('is_active', true)->orderBy('id')->pluck('name')->toArray();
+                        } catch (\Throwable $e) {
+                            $activeStatuses = [];
+                        }
+                        if (empty($activeStatuses)) {
+                            $activeStatuses = ['Booked', 'Shipped', 'In Transit', 'Delivered'];
+                        }
+                        if (isset($bilty) && $bilty->shipping_status && !in_array($bilty->shipping_status, $activeStatuses)) {
+                            $activeStatuses[] = $bilty->shipping_status;
+                        }
+                        $selectedStatus = old('shipping_status', isset($bilty) ? $bilty->shipping_status : 'Booked');
+                    @endphp
+                    <select name="shipping_status" id="shipping_status" style="height:32px; font-weight:600;">
+                        @foreach($activeStatuses as $stName)
+                            <option value="{{ $stName }}" {{ $selectedStatus == $stName ? 'selected' : '' }}>{{ $stName }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 
                 <div class="form-group-custom" style="position: relative;">

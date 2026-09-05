@@ -27,6 +27,7 @@ class Bilty extends Model
         'billing_party_name',
         'cn_no',
         'vehicle_no',
+        'shipping_status',
         'eway_bill_no',
         'total_packages',
         'total_qty',

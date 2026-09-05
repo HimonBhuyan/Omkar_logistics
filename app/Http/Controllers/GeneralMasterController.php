@@ -8,6 +8,7 @@ use App\Models\Country;
 use App\Models\StateModel;
 use App\Models\CityModel;
 use App\Models\MeasurementUnit;
+use App\Models\ShippingStatus;
 
 class GeneralMasterController extends Controller
 {
@@ -216,5 +217,62 @@ class GeneralMasterController extends Controller
             return redirect()->route('master.measurement-unit')->with('success', "{$deletedCount} custom measurement unit(s) deleted successfully.");
         }
         return redirect()->route('master.measurement-unit')->with('error', 'No measurement units selected.');
+    }
+
+    public function shippingStatusIndex(Request $request, $id = null)
+    {
+        $query = ShippingStatus::query();
+        if ($request->filled('q')) {
+            $q = trim($request->q);
+            $query->where('name', 'like', "%{$q}%");
+        }
+        $statuses = $query->orderBy('id')->get();
+        $selected = $id ? ShippingStatus::findOrFail($id) : new ShippingStatus(['is_active' => true]);
+        return view('master.shipping_status', compact('statuses', 'selected'));
+    }
+
+    public function shippingStatusStore(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:50|unique:shipping_statuses,name,' . $request->id,
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $data['is_active'] = $request->has('is_active') ? (bool)$request->is_active : true;
+
+        if ($request->id) {
+            $status = ShippingStatus::findOrFail($request->id);
+            if ($status->is_system) {
+                // System default statuses cannot change their name
+                unset($data['name']);
+            }
+            $status->update($data);
+            return redirect()->route('master.shipping-status.load', $request->id)->with('success', 'Shipping Status updated successfully.');
+        }
+
+        $status = ShippingStatus::create($data);
+        return redirect()->route('master.shipping-status.load', $status->id)->with('success', 'Shipping Status added successfully.');
+    }
+
+    public function shippingStatusDestroy($id)
+    {
+        $status = ShippingStatus::findOrFail($id);
+        if ($status->is_system) {
+            return redirect()->route('master.shipping-status')->with('error', 'Default system shipping statuses cannot be deleted.');
+        }
+        $status->delete();
+        return redirect()->route('master.shipping-status')->with('success', 'Shipping Status deleted successfully.');
+    }
+
+    public function shippingStatusBulkDestroy(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (!empty($ids)) {
+            $deletedCount = ShippingStatus::whereIn('id', $ids)
+                ->where('is_system', false)
+                ->delete();
+            return redirect()->route('master.shipping-status')->with('success', "{$deletedCount} custom shipping status(es) deleted successfully.");
+        }
+        return redirect()->route('master.shipping-status')->with('error', 'No shipping statuses selected.');
     }
 }

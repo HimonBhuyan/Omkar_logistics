@@ -705,7 +705,7 @@
             <button type="submit" class="btn-action btn-save" title="Save">💾</button>
             @if($selected->id)
                 <button type="button" class="btn-action btn-delete" title="Delete"
-                    onclick="if(confirm('Delete this ledger?')) document.getElementById('deleteForm').submit()">❌</button>
+                    onclick="SysDialog.delete('Delete this ledger?').then(yes => { if(yes) document.getElementById('deleteForm').submit(); })">❌</button>
             @else
                 <button type="button" class="btn-action btn-delete" title="Delete" disabled style="opacity:0.4;">❌</button>
             @endif
@@ -1003,7 +1003,7 @@
                             confirmButtonColor: '#0f3460'
                         });
                     } else {
-                        alert('Please correct the validation errors (marked in red) before saving.');
+                        SysDialog.alert('Please correct the validation errors (marked in red) before saving.', 'Validation Errors');
                     }
                 }
             });
@@ -1090,11 +1090,13 @@
                         }
                     });
                 } else {
-                    if (confirm(`No state found with code "${cleanVal}". Would you like to create this state now?`)) {
-                        window.location.href = "{{ route('master.state') }}?code=" + encodeURIComponent(cleanVal);
-                    } else {
-                        document.getElementById('top_state_code').value = '';
-                    }
+                    SysDialog.confirm(`No state found with code "${cleanVal}". Would you like to create this state now?`, 'State Not Found').then(confirmed => {
+                        if (confirmed) {
+                            window.location.href = "{{ route('master.state') }}?code=" + encodeURIComponent(cleanVal);
+                        } else {
+                            document.getElementById('top_state_code').value = '';
+                        }
+                    });
                 }
             }
         }, 200);

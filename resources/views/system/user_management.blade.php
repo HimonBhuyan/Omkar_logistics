@@ -201,7 +201,7 @@
             <input type="text" id="userSearch" placeholder="🔍 Filter Users..." oninput="filterUsers(this.value)">
         </div>
 
-        <form id="bulkDeleteForm" method="POST" action="{{ route('system.user.bulk_destroy') }}" onsubmit="return confirm('Delete selected users?');">
+        <form id="bulkDeleteForm" method="POST" action="{{ route('system.user.bulk_destroy') }}" data-confirm="Delete selected users?">
             @csrf @method('DELETE')
             <div class="master-list-items">
                 @foreach($users as $u)
@@ -233,7 +233,7 @@
                         </a>
 
                         @if($isDeletable)
-                            <form method="POST" action="{{ route('system.user.destroy', $u->id) }}" onsubmit="return confirm('Delete user \'{{ $u->username }}\'?'); event.stopPropagation();" style="display:inline;">
+                            <form method="POST" action="{{ route('system.user.destroy', $u->id) }}" data-confirm="Delete user '{{ $u->username }}'?" onclick="event.stopPropagation();" style="display:inline;">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn-delete" title="Delete User">❌</button>
                             </form>
