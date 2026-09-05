@@ -288,42 +288,79 @@
             box-sizing: border-box;
         }
 
-        /* Alerts and notifications */
-        .alert {
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 13px;
+        /* Floating Auto-dismiss Toast Notifications */
+        #toast-container {
+            position: fixed;
+            top: 75px;
+            right: 20px;
+            z-index: 999999;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast-badge {
+            pointer-events: auto;
+            min-width: 280px;
+            max-width: 420px;
+            padding: 12px 18px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
             align-items: center;
-            animation: slideDown 0.3s ease;
+            justify-content: space-between;
+            gap: 12px;
+            animation: toastSlideIn 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
 
-        @keyframes slideDown {
-            from { transform: translateY(-10px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .toast-badge.toast-exit {
+            animation: toastSlideOut 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
 
-        .alert-success {
-            background-color: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
+        @keyframes toastSlideIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
-        .alert-danger {
-            background-color: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fca5a5;
+        @keyframes toastSlideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(120%); opacity: 0; }
         }
 
-        .alert .btn-close {
-            background: none;
+        .toast-success {
+            background: #065f46;
+            color: #ffffff;
+            border-left: 5px solid #34d399;
+        }
+
+        .toast-error {
+            background: #991b1b;
+            color: #ffffff;
+            border-left: 5px solid #f87171;
+        }
+
+        .toast-info {
+            background: #0f3460;
+            color: #ffffff;
+            border-left: 5px solid #60a5fa;
+        }
+
+        .toast-close {
+            background: transparent;
             border: none;
             color: currentColor;
-            cursor: pointer;
             font-size: 16px;
             font-weight: bold;
+            cursor: pointer;
+            opacity: 0.8;
+            padding: 0 4px;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
         }
 
         /* Footer */
@@ -604,9 +641,23 @@
             }
         });
 
+        function dismissToast(el) {
+            if (!el || el.classList.contains('toast-exit')) return;
+            el.classList.add('toast-exit');
+            setTimeout(() => {
+                el.remove();
+            }, 800);
+        }
+
         // Trigger on load
         document.addEventListener('DOMContentLoaded', () => {
             finishLoadingBar();
+
+            document.querySelectorAll('.toast-badge').forEach(toast => {
+                setTimeout(() => {
+                    dismissToast(toast);
+                }, 4500);
+            });
 
             // Intercept form submissions and link clicks to show loading bar
             document.querySelectorAll('form').forEach(form => {
@@ -859,28 +910,43 @@
     </div>
     </div>
 
-    <main>
-        <!-- Success Alert -->
+    <!-- Floating Toast Notification Overlay -->
+    <div id="toast-container">
         @if (session('success'))
-            <div class="alert alert-success">
-                <div>
-                    <strong>Success!</strong> {{ session('success') }}
+            <div class="toast-badge toast-success">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:16px;">✅</span>
+                    <span>{{ session('success') }}</span>
                     @if (session('print_id'))
-                        <a href="{{ route('bilty.print', session('print_id')) }}" target="_blank" style="margin-left:15px; color:var(--primary-color); font-weight:600; text-decoration:underline;">Print Lorry Receipt (Bilty)</a>
+                        <a href="{{ route('bilty.print', session('print_id')) }}" target="_blank" style="margin-left:10px; color:#fff; font-weight:700; text-decoration:underline;">🖨 Print Bilty</a>
                     @endif
                 </div>
-                <button class="btn-close" onclick="this.parentElement.remove()">&times;</button>
+                <button class="toast-close" onclick="dismissToast(this.closest('.toast-badge'))">&times;</button>
             </div>
         @endif
 
-        <!-- Error Alert -->
         @if (session('error'))
-            <div class="alert alert-danger">
-                <div><strong>Error!</strong> {{ session('error') }}</div>
-                <button class="btn-close" onclick="this.parentElement.remove()">&times;</button>
+            <div class="toast-badge toast-error">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:16px;">⚠️</span>
+                    <span>{{ session('error') }}</span>
+                </div>
+                <button class="toast-close" onclick="dismissToast(this.closest('.toast-badge'))">&times;</button>
             </div>
         @endif
 
+        @if (session('info'))
+            <div class="toast-badge toast-info">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:16px;">ℹ️</span>
+                    <span>{{ session('info') }}</span>
+                </div>
+                <button class="toast-close" onclick="dismissToast(this.closest('.toast-badge'))">&times;</button>
+            </div>
+        @endif
+    </div>
+
+    <main>
         @yield('content')
     </main>
 
