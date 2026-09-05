@@ -30,6 +30,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/bilty/pdf/{id}', [BiltyController::class, 'downloadPdf'])->name('bilty.pdf');
         Route::get('/bilty/party-details/{id}', [BiltyController::class, 'getPartyDetails'])->name('bilty.party-details');
         Route::get('/bilty/lookup/{bilty_no}', [BiltyController::class, 'lookup'])->name('bilty.lookup');
+        Route::get('/bilty/next-no', [BiltyController::class, 'getNextBiltyNo'])->name('bilty.next-no');
         Route::post('/bilty/update/{id}', [BiltyController::class, 'update'])->name('bilty.update');
     });
 
@@ -46,6 +47,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/account/ledger', [AccountLedgerController::class, 'store'])->name('account.ledger.store');
         Route::put('/account/ledger/{id}', [AccountLedgerController::class, 'update'])->name('account.ledger.update');
         Route::delete('/account/ledger/{id}', [AccountLedgerController::class, 'destroy'])->name('account.ledger.destroy');
+    });
+
+    // Master: Series
+    Route::middleware([CheckPermission::class . ':master.series'])->group(function () {
+        Route::get('/master/series', [GeneralMasterController::class, 'seriesIndex'])->name('master.series');
+        Route::get('/master/series/{id}', [GeneralMasterController::class, 'seriesIndex'])->name('master.series.load');
+        Route::post('/master/series', [GeneralMasterController::class, 'seriesStore'])->name('master.series.store');
+        Route::delete('/master/series/bulk', [GeneralMasterController::class, 'seriesBulkDestroy'])->name('master.series.bulk_destroy');
+        Route::delete('/master/series/{id}', [GeneralMasterController::class, 'seriesDestroy'])->name('master.series.destroy');
     });
 
     // Master: Country

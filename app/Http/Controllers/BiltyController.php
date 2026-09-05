@@ -9,6 +9,7 @@ use App\Models\Bilty;
 use App\Models\BiltyItem;
 use App\Models\Location;
 use App\Models\Party;
+use App\Models\Series;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -34,9 +35,36 @@ class BiltyController extends Controller
             ->pluck('ledger_name', 'ledger_name')
             ->unique();
 
-        // Calculate next C.N. number for Series '26-27' scoped to active company
-        $maxBiltyNo = Bilty::forCompany()->where('series', '26-27')->max('bilty_no');
-        $nextBiltyNo = ($maxBiltyNo && $maxBiltyNo >= 4306) ? ($maxBiltyNo + 1) : 4306;
+        // Load active Series list
+        $seriesList = Series::orderBy('name', 'asc')->get();
+
+        // Determine default series based on top navbar Financial Year session (e.g., '2026-2027' -> '26-27')
+        $fySession = session('financial_year', '2026-2027');
+        $defaultSeries = '26-27';
+        if ($fySession && $fySession !== 'ALL' && strpos($fySession, '-') !== false) {
+            $parts = explode('-', $fySession);
+            if (count($parts) === 2 && strlen(trim($parts[0])) >= 2 && strlen(trim($parts[1])) >= 2) {
+                $defaultSeries = substr(trim($parts[0]), -2) . '-' . substr(trim($parts[1]), -2);
+            }
+        }
+
+        // Dynamically create or resolve series in Series Master table
+        $seriesObj = $this->resolveOrCreateSeries($defaultSeries);
+
+        // Load active Series list
+        $seriesList = Series::orderBy('name', 'asc')->get();
+
+        // Calculate next C.N. number for default series scoped to active company
+        $maxBiltyNo = Bilty::forCompany()->where(function($q) use ($seriesObj, $defaultSeries) {
+            $q->where('series_id', $seriesObj->id)->orWhere('series', $defaultSeries);
+        })->max('bilty_no');
+
+        if ($defaultSeries === '26-27') {
+            $next = ($maxBiltyNo && $maxBiltyNo >= 4306) ? ($maxBiltyNo + 1) : 4306;
+        } else {
+            $next = $maxBiltyNo ? ($maxBiltyNo + 1) : 1;
+        }
+        $nextBiltyNo = str_pad($next, 2, '0', STR_PAD_LEFT);
 
         // Calculate next Voucher No
         $lastVoucher = Bilty::forCompany()->orderBy('voucher_no', 'desc')->first();
@@ -44,7 +72,40 @@ class BiltyController extends Controller
 
         $measurementUnits = MeasurementUnit::forCompany()->active()->orderBy('unit_code')->get();
 
-        return view('bilty.create', compact('locations', 'consignors', 'consignees', 'parties', 'vehicles', 'nextBiltyNo', 'nextVoucherNo', 'measurementUnits'));
+        return view('bilty.create', compact('locations', 'consignors', 'consignees', 'parties', 'vehicles', 'seriesList', 'defaultSeries', 'nextBiltyNo', 'nextVoucherNo', 'measurementUnits'));
+    }
+
+    protected function resolveOrCreateSeries($seriesCode)
+    {
+        $seriesCode = strtoupper(trim($seriesCode ?: '26-27'));
+        return Series::firstOrCreate(
+            ['name' => $seriesCode],
+            [
+                'description' => 'FY ' . (strlen($seriesCode) === 5 ? ('20' . substr($seriesCode, 0, 2) . '-20' . substr($seriesCode, 3, 2)) : $seriesCode),
+                'is_active' => true,
+            ]
+        );
+    }
+
+    public function getNextBiltyNo(Request $request)
+    {
+        $seriesCode = trim($request->query('series', '26-27'));
+        $seriesObj = $this->resolveOrCreateSeries($seriesCode);
+        $series = $seriesObj->name;
+
+        $maxBiltyNo = Bilty::forCompany()->where(function($q) use ($seriesObj, $series) {
+            $q->where('series_id', $seriesObj->id)->orWhere('series', $series);
+        })->max('bilty_no');
+        
+        if ($series === '26-27') {
+            $next = ($maxBiltyNo && $maxBiltyNo >= 4306) ? ($maxBiltyNo + 1) : 4306;
+        } else {
+            $next = $maxBiltyNo ? ($maxBiltyNo + 1) : 1;
+        }
+
+        return response()->json([
+            'next_bilty_no' => str_pad($next, 2, '0', STR_PAD_LEFT)
+        ]);
     }
 
     public function getPartyDetails($id)
@@ -197,9 +258,11 @@ class BiltyController extends Controller
             }
 
             // Create Bilty Header
+            $seriesObj = $this->resolveOrCreateSeries($request->series ?? '26-27');
             $bilty = Bilty::create([
                 'company_id' => session('company_id', 1),
-                'series' => $this->formatUpper($request->series ?? '26-27'),
+                'series_id' => $seriesObj->id,
+                'series' => $seriesObj->name,
                 'bilty_no' => $request->bilty_no,
                 'invoice_date' => $request->invoice_date ?: now()->toDateString(),
                 'from_location_id' => $fromLoc ? $fromLoc->id : null,
@@ -462,8 +525,10 @@ class BiltyController extends Controller
             }
 
             // Update Header
+            $seriesObj = $this->resolveOrCreateSeries($request->series ?? $bilty->series);
             $bilty->update([
-                'series' => $this->formatUpper($request->series ?? $bilty->series),
+                'series_id' => $seriesObj->id,
+                'series' => $seriesObj->name,
                 'bilty_no' => $request->bilty_no,
                 'invoice_date' => $request->invoice_date ?: ($bilty->invoice_date ?: now()->toDateString()),
                 'from_location_id' => $fromLoc ? $fromLoc->id : $bilty->from_location_id,

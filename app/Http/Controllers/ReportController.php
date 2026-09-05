@@ -120,7 +120,7 @@ class ReportController extends Controller
 
         // 6. Series filter
         if ($request->filled('series')) {
-            $query->where('series', 'like', '%' . $request->series . '%');
+            $query->where('series', trim($request->series));
         }
 
         return $query->orderBy('invoice_date', 'desc')->orderBy('bilty_no', 'desc');

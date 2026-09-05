@@ -10,6 +10,7 @@ class Bilty extends Model
 {
     protected $fillable = [
         'company_id',
+        'series_id',
         'series',
         'bilty_no',
         'invoice_date',
@@ -54,6 +55,11 @@ class Bilty extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    public function seriesModel(): BelongsTo
+    {
+        return $this->belongsTo(Series::class, 'series_id');
     }
 
     public function scopeForCompany($query, $companyId = null)

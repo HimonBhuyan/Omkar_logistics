@@ -62,7 +62,21 @@
 
             <div class="filter-group" style="max-width: 125px;">
                 <label for="series" style="min-width: unset; font-size: 11px;">Series</label>
-                <input type="text" name="series" id="series" value="{{ request('series') }}" placeholder="26-27" style="width: 65px; font-size: 11px;">
+                @php
+                    if (!isset($seriesList)) {
+                        try {
+                            $seriesList = \App\Models\Series::orderBy('name', 'asc')->get();
+                        } catch (\Throwable $e) {
+                            $seriesList = collect();
+                        }
+                    }
+                @endphp
+                <select name="series" id="series" style="width: 70px; font-size: 11px; height: 24px; border: 1px solid #7f9db9; padding: 1px 3px;">
+                    <option value="">-- ALL --</option>
+                    @foreach($seriesList as $s)
+                        <option value="{{ $s->name }}" {{ request('series') == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="filter-group" style="max-width: 190px;">

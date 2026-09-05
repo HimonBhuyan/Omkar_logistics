@@ -783,7 +783,7 @@
                             <a href="#">General &nbsp;&#9658;</a>
                             <div class="sub-menu">
                                 @if($user->hasPermission('master.series'))
-                                    <a href="#">Series</a>
+                                    <a href="{{ route('master.series') }}">Series</a>
                                 @endif
                                 @if($user->hasPermission('master.measurement_unit'))
                                     <a href="{{ route('master.measurement-unit') }}">Measurement Unit</a>

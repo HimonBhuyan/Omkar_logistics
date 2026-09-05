@@ -78,7 +78,7 @@ class PermissionSeeder extends Seeder
             'transaction.cn_book', 'transaction.receipt', 'transaction.payment', 'transaction.party_bill',
             'account.group', 'account.ledger', 'account.payment_expenses', 'account.voucher', 'account.deposit_bank', 'account.reports',
             'report.bilty_register', 'report.party_bill_register', 'report.receipt_register', 'report.payment_register', 'report.tds_report',
-            'master.item', 'master.measurement_unit', 'master.shipping_status', 'master.country', 'master.state', 'master.city',
+            'master.item', 'master.measurement_unit', 'master.shipping_status', 'master.series', 'master.country', 'master.state', 'master.city',
             'system.change_password',
         ];
         $managerPermIds = Permission::whereIn('name', $managerPermissionNames)->pluck('id')->toArray();

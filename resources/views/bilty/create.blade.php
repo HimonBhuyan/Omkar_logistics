@@ -539,6 +539,22 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    $(document).ready(function() {
+        $('#series_select').on('change', function() {
+            const selectedSeries = $(this).val();
+            $.ajax({
+                url: '{{ route("bilty.next-no") }}',
+                type: 'GET',
+                data: { series: selectedSeries },
+                success: function(response) {
+                    if (response && response.next_bilty_no !== undefined) {
+                        $('#bilty_no').val(response.next_bilty_no);
+                    }
+                }
+            });
+        });
+    });
+
     let rowIndex = 1;
 
     // Master data arrays for high-speed autocomplete

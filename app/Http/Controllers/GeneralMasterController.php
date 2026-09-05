@@ -9,6 +9,7 @@ use App\Models\StateModel;
 use App\Models\CityModel;
 use App\Models\MeasurementUnit;
 use App\Models\ShippingStatus;
+use App\Models\Series;
 
 class GeneralMasterController extends Controller
 {
@@ -274,5 +275,77 @@ class GeneralMasterController extends Controller
             return redirect()->route('master.shipping-status')->with('success', "{$deletedCount} custom shipping status(es) deleted successfully.");
         }
         return redirect()->route('master.shipping-status')->with('error', 'No shipping statuses selected.');
+    }
+
+    public function seriesIndex(Request $request, $id = null)
+    {
+        $query = Series::query();
+        if ($request->filled('q')) {
+            $q = trim($request->q);
+            $query->where(function($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+        $seriesList = $query->orderBy('name', 'desc')->get();
+        $selected = $id ? Series::findOrFail($id) : new Series(['is_active' => true]);
+        return view('master.series', compact('seriesList', 'selected'));
+    }
+
+    public function seriesStore(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:50|unique:series,name,' . $request->id,
+            'description' => 'nullable|string|max:100',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $data['name'] = strtoupper(trim($request->name));
+        $data['is_active'] = $request->has('is_active') ? (bool)$request->is_active : true;
+
+        if ($request->id) {
+            $series = Series::findOrFail($request->id);
+            $series->update($data);
+            return redirect()->route('master.series.load', $request->id)->with('success', 'Series updated successfully.');
+        }
+
+        $series = Series::create($data);
+        return redirect()->route('master.series.load', $series->id)->with('success', 'Series added successfully.');
+    }
+
+    public function seriesDestroy($id)
+    {
+        $series = Series::findOrFail($id);
+        $hasEntries = \App\Models\Bilty::where('series_id', $series->id)->orWhere('series', $series->name)->exists();
+        if ($hasEntries) {
+            return redirect()->route('master.series')->with('error', "Cannot delete series '{$series->name}' because it has existing C.N. entries.");
+        }
+        $series->delete();
+        return redirect()->route('master.series')->with('success', "Series '{$series->name}' deleted successfully.");
+    }
+
+    public function seriesBulkDestroy(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (!empty($ids)) {
+            $seriesItems = Series::whereIn('id', $ids)->get();
+            $deletedCount = 0;
+            $blocked = [];
+            foreach ($seriesItems as $series) {
+                $hasEntries = \App\Models\Bilty::where('series_id', $series->id)->orWhere('series', $series->name)->exists();
+                if ($hasEntries) {
+                    $blocked[] = $series->name;
+                } else {
+                    $series->delete();
+                    $deletedCount++;
+                }
+            }
+            $msg = "{$deletedCount} series deleted successfully.";
+            if (!empty($blocked)) {
+                $msg .= " Series (" . implode(', ', $blocked) . ") could not be deleted because they have existing C.N. entries.";
+            }
+            return redirect()->route('master.series')->with($deletedCount > 0 ? 'success' : 'error', $msg);
+        }
+        return redirect()->route('master.series')->with('error', 'No series selected.');
     }
 }

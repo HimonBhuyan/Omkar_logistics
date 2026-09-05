@@ -29,11 +29,43 @@
         </div>
         
         <div class="bilty-header-inputs">
-            <input type="hidden" name="series" value="26-27">
             <input type="hidden" name="status" id="bilty_status" value="{{ old('status', 'final') }}">
             <div>
+                <label for="series_select">Series</label>
+                @php
+                    if (!isset($seriesList)) {
+                        try {
+                            $seriesList = \App\Models\Series::where('is_active', true)->orderBy('name', 'asc')->get();
+                        } catch (\Throwable $e) {
+                            $seriesList = collect();
+                        }
+                    }
+                    if (!isset($defaultSeries)) {
+                        $fySession = session('financial_year', '2026-2027');
+                        $defaultSeries = '26-27';
+                        if ($fySession && $fySession !== 'ALL' && strpos($fySession, '-') !== false) {
+                            $parts = explode('-', $fySession);
+                            if (count($parts) === 2 && strlen(trim($parts[0])) >= 2 && strlen(trim($parts[1])) >= 2) {
+                                $defaultSeries = substr(trim($parts[0]), -2) . '-' . substr(trim($parts[1]), -2);
+                            }
+                        }
+                    }
+                    $selectedSeries = old('series', isset($bilty) ? $bilty->series : $defaultSeries);
+                @endphp
+                <select name="series" id="series_select" style="height:30px; font-weight:600; background:#fff; border:1px solid #cbd5e1; border-radius:4px; padding:2px 6px; color:#333;">
+                    @if(count($seriesList) > 0)
+                        @foreach($seriesList as $s)
+                            <option value="{{ $s->name }}" {{ $selectedSeries == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
+                        @endforeach
+                    @else
+                        <option value="26-27" selected>26-27</option>
+                    @endif
+                </select>
+            </div>
+            
+            <div>
                 <label for="bilty_no">C.N No.</label>
-                <input type="number" name="bilty_no" id="bilty_no" value="{{ old('bilty_no', $nextBiltyNo ?? '') }}" required min="1" autocomplete="off">
+                <input type="text" name="bilty_no" id="bilty_no" value="{{ old('bilty_no', $nextBiltyNo ?? '01') }}" required autocomplete="off" style="width:75px; font-weight:bold;">
             </div>
             
             <div>
