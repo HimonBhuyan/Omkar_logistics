@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'State Master - Omkaar Logistics')
+@section('title', 'Shipping Status Master - Omkaar Logistics')
 
 @section('styles')
 <style>
@@ -17,8 +17,8 @@
     }
 
     .master-list-panel {
-        width: 290px;
-        min-width: 290px;
+        width: 280px;
+        min-width: 280px;
         border-right: 2px solid #999;
         display: flex;
         flex-direction: column;
@@ -111,11 +111,11 @@
     .f-row {
         display: flex;
         align-items: center;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
     }
 
     .f-row label {
-        width: 120px;
+        width: 130px;
         text-align: right;
         margin-right: 12px;
         font-weight: bold;
@@ -124,12 +124,12 @@
 
     .f-row input, .f-row select {
         flex: 1;
-        max-width: 280px;
+        max-width: 320px;
         border: 1px solid #999;
         padding: 3px 6px;
         font-size: 12px;
         background: #fff;
-        height: 24px;
+        height: 26px;
         outline: none;
     }
 
@@ -205,30 +205,37 @@
 <div class="master-wrapper">
     {{-- Left List --}}
     <div class="master-list-panel">
-        <form id="bulkDeleteForm" method="POST" action="{{ route('master.state.bulk_destroy') }}" data-confirm="Delete selected states?" style="display:flex; flex-direction:column; flex:1; min-height:100%;">
+        <form id="bulkDeleteForm" method="POST" action="{{ route('master.shipping-status.bulk_destroy') }}" data-confirm="Delete selected shipping statuses?" style="display:flex; flex-direction:column; flex:1; min-height:100%;">
             @csrf @method('DELETE')
             <div class="master-list-header" style="display:flex; justify-content:space-between; align-items:center;">
-                <span>States ({{ count($states) }})</span>
+                <span>Shipping Statuses ({{ count($statuses) }})</span>
                 <div style="display:flex; gap:6px; align-items:center;">
                     <input type="checkbox" id="selectAll" title="Select All" style="cursor:pointer; width:14px; height:14px; margin:0;">
                     <button type="submit" class="btn-delete" style="color:#fff; padding:2px 4px; background:#d32f2f; border-radius:2px; font-size:10px;" title="Delete Selected">🗑 Bulk</button>
                 </div>
             </div>
             <div class="master-list-search">
-                <input type="text" id="listSearch" placeholder="🔍 Filter States..." oninput="filterRows(this.value)">
+                <input type="text" id="listSearch" placeholder="🔍 Filter Statuses..." oninput="filterRows(this.value)">
             </div>
             <div class="master-list-items" id="masterItemsContainer">
-                @foreach($states as $s)
-                    @php $pCode = str_pad($s->code, 2, '0', STR_PAD_LEFT); @endphp
+                @foreach($statuses as $s)
                     <div class="master-item-link master-row-item" style="gap:10px;">
-                        <input type="checkbox" name="ids[]" value="{{ $s->id }}" class="row-checkbox" style="width:14px; height:14px; margin:0;" onclick="event.stopPropagation();">
-                        <a href="{{ route('master.state.load', $s->id) }}" style="text-decoration:none; color:inherit; flex:1;">
-                            <span class="item-name"><strong>({{ $pCode }})</strong> {{ $s->name }}</span>
+                        @if(!$s->is_system)
+                            <input type="checkbox" name="ids[]" value="{{ $s->id }}" class="row-checkbox" style="width:14px; height:14px; margin:0;" onclick="event.stopPropagation();">
+                        @else
+                            <span style="width:14px; display:inline-block;">🔒</span>
+                        @endif
+                        <a href="{{ route('master.shipping-status.load', $s->id) }}" style="text-decoration:none; color:inherit; flex:1;">
+                            <span class="item-name" style="{{ !$s->is_active ? 'text-decoration: line-through; color: #888;' : '' }}">
+                                {{ $s->name }}
+                            </span>
                         </a>
-                        <form method="POST" action="{{ route('master.state.destroy', $s->id) }}" data-confirm="Delete state '{{ $s->name }}'?" onclick="event.stopPropagation();" style="display:inline;">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="btn-delete">❌</button>
-                        </form>
+                        @if(!$s->is_system)
+                            <form method="POST" action="{{ route('master.shipping-status.destroy', $s->id) }}" data-confirm="Delete shipping status '{{ $s->name }}'?" onclick="event.stopPropagation();" style="display:inline;">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn-delete">❌</button>
+                            </form>
+                        @endif
                     </div>
                 @endforeach
             </div>
@@ -237,9 +244,9 @@
 
     {{-- Right Form --}}
     <div class="master-form-panel">
-        <div class="master-title-bar">State Master</div>
+        <div class="master-title-bar">Shipping Status Master</div>
         
-        <form method="POST" action="{{ route('master.state.store') }}" class="master-form-body" id="stateForm">
+        <form method="POST" action="{{ route('master.shipping-status.store') }}" class="master-form-body">
             @csrf
             <input type="hidden" name="id" value="{{ $selected->id }}">
 
@@ -250,65 +257,54 @@
                     @endforeach
                 </div>
             @endif
+
             @if(session('success'))
                 <div style="background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; padding:8px 12px; margin-bottom:15px; border-radius:4px; font-size:12px;">
-                    ✔ {{ session('success') }}
+                    ✅ {{ session('success') }}
                 </div>
             @endif
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <div>
-                    <div class="f-row">
-                        <label>State <span style="color:#d32f2f; font-weight:bold;">*</span></label>
-                        <input type="text" name="name" required placeholder="State Name" style="background:#ffffcc; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()" value="{{ old('name', $selected->name) }}">
-                    </div>
-                    <div class="f-row">
-                        <label>Short Name</label>
-                        <input type="text" name="short_name" placeholder="Short Name" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()" value="{{ old('short_name', $selected->short_name) }}">
-                    </div>
+            @if(session('error'))
+                <div style="background:#ffebee; color:#c62828; border:1px solid #ef9a9a; padding:8px 12px; margin-bottom:15px; border-radius:4px; font-size:12px;">
+                    ⚠️ {{ session('error') }}
                 </div>
-                <div>
-                    <div class="f-row">
-                        <label>State Code <span style="color:#d32f2f; font-weight:bold;">*</span></label>
-                        <input type="text" name="code" required placeholder="State Code" style="background:#ffffcc; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()" value="{{ old('code', $selected->code) }}">
-                    </div>
-                    <div class="f-row">
-                        <label>Country <span style="color:#d32f2f; font-weight:bold;">*</span></label>
-                        <select name="country_id" required style="background:#ffffcc;">
-                            <option value="">-- Select Country --</option>
-                            @foreach($countries as $c)
-                                <option value="{{ $c->id }}" {{ (old('country_id', $selected->country_id) == $c->id || (empty(old('country_id', $selected->country_id)) && $c->name === 'INDIA')) ? 'selected' : '' }}>{{ $c->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+            @endif
+
+            <div class="f-row">
+                <label for="name">Status Name <span style="color:red">*</span></label>
+                <input type="text" id="name" name="name" value="{{ old('name', $selected->name) }}" required max="50" {{ $selected->is_system ? 'readonly style=background:#eee;' : '' }} placeholder="e.g. In Transit, Out for Delivery">
+                @if($selected->is_system)
+                    <span style="margin-left:8px; font-size:11px; color:#666;">(System Default)</span>
+                @endif
+            </div>
+
+            <div class="f-row" style="margin-top:15px;">
+                <label for="is_active">Is Active?</label>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="is_active" name="is_active" value="1" {{ old('is_active', $selected->is_active ?? true) ? 'checked' : '' }} style="width:16px; height:16px;">
+                    <span style="font-size:11px; color:#555;">Active status options are visible in C.N entry dropdowns</span>
                 </div>
             </div>
 
-            <button type="submit" style="display:none;" id="submitBtn"></button>
+            <div class="master-action-bar">
+                <a href="{{ route('master.shipping-status') }}" class="btn-action" style="text-decoration:none;">➕ New Status</a>
+                <button type="submit" class="btn-action btn-save">💾 Save Status</button>
+            </div>
         </form>
-
-        <div class="master-action-bar">
-            <a href="{{ route('master.state') }}" class="btn-action" style="text-decoration:none; background:#e8f5e9; border-color:#81c784;">➕ New</a>
-            <button type="button" class="btn-action" onclick="window.history.back()">🔙</button>
-            <button type="button" class="btn-action btn-save" onclick="document.getElementById('submitBtn').click()">💾 Save</button>
-        </div>
     </div>
 </div>
 
 <script>
-    document.getElementById('selectAll').addEventListener('change', function() {
-        const checkboxes = document.querySelectorAll('.row-checkbox');
-        checkboxes.forEach(cb => cb.checked = this.checked);
+function filterRows(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll('.master-row-item').forEach(el => {
+        const text = el.querySelector('.item-name').textContent.toLowerCase();
+        el.style.display = text.includes(q) ? 'flex' : 'none';
     });
+}
 
-    function filterRows(q) {
-        const term = (q || '').trim().toUpperCase();
-        const rows = document.querySelectorAll('.master-row-item');
-        rows.forEach(r => {
-            const nameEl = r.querySelector('.item-name');
-            const txt = (nameEl ? nameEl.textContent : r.textContent).toUpperCase();
-            r.style.display = (!term || txt.includes(term)) ? 'flex' : 'none';
-        });
-    }
+document.getElementById('selectAll')?.addEventListener('change', function() {
+    document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = this.checked);
+});
 </script>
 @endsection

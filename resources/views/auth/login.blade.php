@@ -325,30 +325,22 @@
                 <div class="form-group">
                     <label for="company">Company</label>
                     <select name="company" id="company" class="form-control" required>
-                        @foreach ($companies as $company)
-                            <option value="{{ $company->id }}" {{ old('company') == $company->id ? 'selected' : '' }}>
-                                {{ $company->name }}
-                            </option>
-                        @endforeach
+                        @if(isset($companies) && count($companies) > 0)
+                            @foreach ($companies as $comp)
+                                <option value="{{ $comp->id }}" {{ old('company') == $comp->id ? 'selected' : '' }}>
+                                    {{ $comp->name }}
+                                </option>
+                            @endforeach
+                        @else
+                            <option value="1">OMKAAR LOGISTICS</option>
+                        @endif
                     </select>
                 </div>
 
-                <!-- Financial Year select -->
-                <div class="form-group">
-                    <label for="financial_year">Fin. Year</label>
-                    <select name="financial_year" id="financial_year" class="form-control" required>
-                        @foreach ($financialYears as $year)
-                            <option value="{{ $year->year_string }}" {{ old('financial_year') == $year->year_string ? 'selected' : ($year->is_active ? 'selected' : '') }}>
-                                {{ $year->year_string }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- User Name select/input -->
+                <!-- User Name input -->
                 <div class="form-group">
                     <label for="username">User Name</label>
-                    <input type="text" name="username" id="username" class="form-control" placeholder="e.g. admin" value="{{ old('username', 'admin') }}" required>
+                    <input type="text" name="username" id="username" class="form-control" placeholder="Enter Username" value="{{ old('username') }}" required>
                 </div>
 
                 <!-- Password input -->

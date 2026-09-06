@@ -29,11 +29,43 @@
         </div>
         
         <div class="bilty-header-inputs">
-            <input type="hidden" name="series" value="26-27">
             <input type="hidden" name="status" id="bilty_status" value="{{ old('status', 'final') }}">
             <div>
+                <label for="series_select">Series</label>
+                @php
+                    if (!isset($seriesList)) {
+                        try {
+                            $seriesList = \App\Models\Series::where('is_active', true)->orderBy('name', 'asc')->get();
+                        } catch (\Throwable $e) {
+                            $seriesList = collect();
+                        }
+                    }
+                    if (!isset($defaultSeries)) {
+                        $fySession = session('financial_year', '2026-2027');
+                        $defaultSeries = '26-27';
+                        if ($fySession && $fySession !== 'ALL' && strpos($fySession, '-') !== false) {
+                            $parts = explode('-', $fySession);
+                            if (count($parts) === 2 && strlen(trim($parts[0])) >= 2 && strlen(trim($parts[1])) >= 2) {
+                                $defaultSeries = substr(trim($parts[0]), -2) . '-' . substr(trim($parts[1]), -2);
+                            }
+                        }
+                    }
+                    $selectedSeries = old('series', isset($bilty) ? $bilty->series : $defaultSeries);
+                @endphp
+                <select name="series" id="series_select" style="height:30px; font-weight:600; background:#fff; border:1px solid #cbd5e1; border-radius:4px; padding:2px 6px; color:#333;">
+                    @if(count($seriesList) > 0)
+                        @foreach($seriesList as $s)
+                            <option value="{{ $s->name }}" {{ $selectedSeries == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
+                        @endforeach
+                    @else
+                        <option value="26-27" selected>26-27</option>
+                    @endif
+                </select>
+            </div>
+            
+            <div>
                 <label for="bilty_no">C.N No.</label>
-                <input type="number" name="bilty_no" id="bilty_no" value="{{ old('bilty_no', $nextBiltyNo ?? '') }}" required min="1" autocomplete="off">
+                <input type="text" name="bilty_no" id="bilty_no" value="{{ old('bilty_no', $nextBiltyNo ?? '01') }}" required autocomplete="off" style="width:75px; font-weight:bold;">
             </div>
             
             <div>
@@ -155,7 +187,7 @@
         <!-- Middle Section: Consignment, Vehicle, Eway numbers -->
         <div class="section-box" style="margin-bottom: 20px;">
             <div class="section-title">TRANSPORT DETAILS</div>
-            <div class="grid-fields-2" style="grid-template-columns: repeat(5, 1fr); gap: 10px;">
+            <div class="grid-fields-2" style="grid-template-columns: repeat(6, 1fr); gap: 10px;">
                 <div class="form-group-custom" id="billing_party_wrapper" style="display: {{ in_array(old('billing_type'), ['Paid', 'To Pay', 'T.B.B.']) ? 'flex' : 'none' }};">
                     <label for="billing_party_text">Third Party</label>
                     <div class="autocomplete-wrapper">
@@ -185,6 +217,29 @@
                         <div class="autocomplete-dropdown" id="vehicle_no_dropdown"></div>
                     </div>
                 </div>
+
+                <div class="form-group-custom" id="shipping_status_wrapper">
+                    <label for="shipping_status">Shipping Status</label>
+                    @php
+                        try {
+                            $activeStatuses = \App\Models\ShippingStatus::where('is_active', true)->orderBy('id')->pluck('name')->toArray();
+                        } catch (\Throwable $e) {
+                            $activeStatuses = [];
+                        }
+                        if (empty($activeStatuses)) {
+                            $activeStatuses = ['Booked', 'Shipped', 'In Transit', 'Delivered'];
+                        }
+                        if (isset($bilty) && $bilty->shipping_status && !in_array($bilty->shipping_status, $activeStatuses)) {
+                            $activeStatuses[] = $bilty->shipping_status;
+                        }
+                        $selectedStatus = old('shipping_status', isset($bilty) ? $bilty->shipping_status : 'Booked');
+                    @endphp
+                    <select name="shipping_status" id="shipping_status" style="height:32px; font-weight:600;">
+                        @foreach($activeStatuses as $stName)
+                            <option value="{{ $stName }}" {{ $selectedStatus == $stName ? 'selected' : '' }}>{{ $stName }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 
                 <div class="form-group-custom" style="position: relative;">
                     <label for="eway_bill_no">E-Way Bill No.</label>
@@ -203,7 +258,7 @@
             <table class="bilty-grid" id="itemsTable">
                 <thead>
                     <tr>
-                        <th width="8%">NoOfPkgs</th>
+                        <th width="8%" id="colHeaderPkgs">NoOfPkgs</th>
                         <th width="10%">Packing</th>
                         <th width="18%">Description</th>
                         <th width="10%">Invoice No</th>
@@ -223,46 +278,52 @@
                     <!-- Standard Row 1 -->
                     <tr class="grid-row">
                         <td>
-                            <input type="number" name="items[0][no_of_pkgs]" class="input-no_of_pkgs calc-trigger" required min="1" value="1">
+                            <input type="number" name="items[0][no_of_pkgs]" class="input-no_of_pkgs calc-trigger" required min="1" value="">
                         </td>
                         <td>
-                            <input type="text" name="items[0][packing]" placeholder="Box/Bag/Roll" value="Box">
+                            <input type="text" name="items[0][packing]" placeholder="Box/Bag/Roll" value="">
                         </td>
                         <td>
-                            <input type="text" name="items[0][description]" placeholder="Goods Description" value="Auto Parts">
+                            <input type="text" name="items[0][description]" placeholder="Goods Description" value="">
                         </td>
                         <td>
                             <input type="text" name="items[0][invoice_no]" placeholder="Inv No">
                         </td>
                         <td>
-                            <input type="number" name="items[0][invoice_value]" class="input-invoice_value" value="0.00" step="0.01">
+                            <input type="number" name="items[0][invoice_value]" class="input-invoice_value" value="" step="0.01" placeholder="0.00">
                         </td>
                         <td>
                             <select name="items[0][unit]" class="input-unit" onchange="handleUnitChange(this)">
-                                <option value="KG">KG</option>
-                                <option value="Fixed">Fixed</option>
+                                @if(isset($measurementUnits) && count($measurementUnits) > 0)
+                                    @foreach($measurementUnits as $u)
+                                        <option value="{{ $u->unit_code }}" data-type="{{ $u->unit_type }}" data-pkg-label="{{ $u->package_label ?: 'NoOfPkgs' }}">{{ $u->unit_code }}</option>
+                                    @endforeach
+                                @else
+                                    <option value="KG" data-type="weight" data-pkg-label="NoOfPkgs">KG</option>
+                                    <option value="Fixed" data-type="fixed" data-pkg-label="NoOfPkgs">Fixed</option>
+                                @endif
                             </select>
                         </td>
                         <td>
-                            <input type="number" name="items[0][qty]" class="input-qty calc-trigger" required min="0" step="0.001" value="0" style="background-color: #ffffff; color: #333;">
+                            <input type="number" name="items[0][qty]" class="input-qty calc-trigger" required min="0" step="0.001" value="" placeholder="0.000" style="background-color: #ffffff; color: #333;">
                         </td>
                         <td class="weight-col-cell">
-                            <input type="number" name="items[0][weight_val]" class="input-weight_val calc-trigger" step="0.001" value="0">
+                            <input type="number" name="items[0][weight_val]" class="input-weight_val calc-trigger" step="0.001" value="" placeholder="0.000">
                         </td>
                         <td>
-                            <input type="number" name="items[0][rate]" class="input-rate calc-trigger" required min="0.00" step="0.01" value="0.00" style="background-color: #ffffff; color: #333;">
+                            <input type="number" name="items[0][rate]" class="input-rate calc-trigger" required min="0.00" step="0.01" value="" placeholder="0.00" style="background-color: #ffffff; color: #333;">
                         </td>
                         <td>
-                            <input type="number" name="items[0][st]" class="input-st calc-trigger" value="0.00" step="0.01" style="min-width: 80px; text-align: right;">
+                            <input type="number" name="items[0][st]" class="input-st calc-trigger" value="" placeholder="0.00" step="0.01" style="min-width: 80px; text-align: right;">
                         </td>
                         <td>
-                            <input type="number" name="items[0][rc]" class="input-rc calc-trigger" value="0.00" step="0.01" style="min-width: 80px; text-align: right;">
+                            <input type="number" name="items[0][rc]" class="input-rc calc-trigger" value="" placeholder="0.00" step="0.01" style="min-width: 80px; text-align: right;">
                         </td>
                         <td>
-                            <input type="number" name="items[0][sc]" class="input-sc calc-trigger" value="0.00" step="0.01" style="min-width: 80px; text-align: right;">
+                            <input type="number" name="items[0][sc]" class="input-sc calc-trigger" value="" placeholder="0.00" step="0.01" style="min-width: 80px; text-align: right;">
                         </td>
                         <td>
-                            <input type="number" name="items[0][dd]" class="input-dd calc-trigger" value="0.00" step="0.01" style="min-width: 85px; text-align: right;">
+                            <input type="number" name="items[0][dd]" class="input-dd calc-trigger" value="" placeholder="0.00" step="0.01" style="min-width: 85px; text-align: right;">
                         </td>
                         <td>
                             <button type="button" class="btn-delete-row" onclick="removeRow(this)">&times;</button>
@@ -285,15 +346,15 @@
                 <div class="totals-grid">
                     <div class="form-group-custom">
                         <label for="total_packages">Total Pkgs</label>
-                        <input type="text" name="total_packages" id="total_packages" readonly value="1">
+                        <input type="text" name="total_packages" id="total_packages" readonly value="0">
                     </div>
                     <div class="form-group-custom">
                         <label for="total_qty">Total Qty</label>
-                        <input type="text" name="total_qty" id="total_qty" readonly value="1.000">
+                        <input type="text" name="total_qty" id="total_qty" readonly value="0.000">
                     </div>
                     <div class="form-group-custom">
                         <label for="gross_amount">Gross Amt (Qty*Rate)</label>
-                        <input type="text" name="gross_amount" id="gross_amount" readonly value="500.00">
+                        <input type="text" name="gross_amount" id="gross_amount" readonly value="0.00">
                     </div>
                     
                     <div class="form-group-custom">
@@ -320,7 +381,7 @@
 
                     <div class="net-amount-card" style="grid-column: span 4; margin-top: 10px;">
                         <label>NET BILL AMOUNT (INR)</label>
-                        <input type="text" name="net_amount" id="net_amount" readonly value="500.00">
+                        <input type="text" name="net_amount" id="net_amount" readonly value="0.00">
                     </div>
                 </div>
             </div>
@@ -380,8 +441,8 @@
 
                 <div id="balanceBox" class="balance-box balance-unpaid">
                     <span>Balance Due:</span>
-                    <span id="balanceText">₹ 500.00</span>
-                    <input type="hidden" name="balance_amount" id="balance_amount" value="500.00">
+                    <span id="balanceText">₹ 0.00</span>
+                    <input type="hidden" name="balance_amount" id="balance_amount" value="0.00">
                 </div>
             </div>
 

@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Country;
 use App\Models\StateModel;
 use App\Models\CityModel;
+use App\Models\MeasurementUnit;
+use App\Models\ShippingStatus;
+use App\Models\Series;
 
 class GeneralMasterController extends Controller
 {
@@ -130,5 +134,218 @@ class GeneralMasterController extends Controller
             return redirect()->route('master.city')->with('success', 'Selected cities deleted.');
         }
         return redirect()->route('master.city')->with('error', 'No cities selected.');
+    }
+
+    public function measurementUnitIndex(Request $request, $id = null)
+    {
+        $query = MeasurementUnit::forCompany();
+        if ($request->filled('q')) {
+            $q = trim($request->q);
+            $query->where(function($sub) use ($q) {
+                $sub->where('unit_code', 'like', "%{$q}%")
+                    ->orWhere('unit_name', 'like', "%{$q}%");
+            });
+        }
+        $units = $query->orderBy('unit_code')->get();
+        $selected = $id ? MeasurementUnit::findOrFail($id) : new MeasurementUnit(['is_active' => true, 'unit_type' => 'weight']);
+        return view('master.measurement_unit', compact('units', 'selected'));
+    }
+
+    public function measurementUnitStore(Request $request)
+    {
+        $data = $request->validate([
+            'unit_code' => 'required|string|max:50',
+            'unit_name' => 'required|string|max:100',
+            'unit_type' => 'required|string|in:weight,fixed',
+            'package_label' => 'nullable|string|max:50',
+            'is_active' => 'nullable|boolean',
+        ]);
+        $data['company_id'] = session('company_id', 1);
+        if ($request->filled('package_label')) {
+            $data['package_label'] = trim($request->package_label);
+        } else {
+            $uCode = strtoupper(trim($request->unit_code ?? ''));
+            if (str_contains($uCode, 'BOX')) {
+                $data['package_label'] = 'NoOfBoxes';
+            } elseif (str_contains($uCode, 'CASE')) {
+                $data['package_label'] = 'NoOfCases';
+            } elseif (str_contains($uCode, 'PCS') || str_contains($uCode, 'PIECE')) {
+                $data['package_label'] = 'NoOfPcs';
+            } elseif (str_contains($uCode, 'BAG')) {
+                $data['package_label'] = 'NoOfBags';
+            } elseif (str_contains($uCode, 'DRUM')) {
+                $data['package_label'] = 'NoOfDrums';
+            } elseif (str_contains($uCode, 'CARTON')) {
+                $data['package_label'] = 'NoOfCartons';
+            } else {
+                $data['package_label'] = 'NoOfPkgs';
+            }
+        }
+        $data['is_active'] = $request->has('is_active') ? (bool)$request->is_active : true;
+
+        if ($request->id) {
+            $unit = MeasurementUnit::findOrFail($request->id);
+            // Protect system units from changing unit_code
+            if ($unit->is_system || in_array(strtoupper($unit->unit_code), ['KG', 'FIXED'])) {
+                unset($data['unit_code']);
+            }
+            $unit->update($data);
+            return redirect()->route('master.measurement-unit.load', $request->id)->with('success', 'Measurement Unit updated successfully.');
+        }
+
+        $unit = MeasurementUnit::create($data);
+        return redirect()->route('master.measurement-unit.load', $unit->id)->with('success', 'Measurement Unit added successfully.');
+    }
+
+    public function measurementUnitDestroy($id)
+    {
+        $unit = MeasurementUnit::findOrFail($id);
+        if ($unit->is_system || in_array(strtoupper($unit->unit_code), ['KG', 'FIXED'])) {
+            return redirect()->route('master.measurement-unit')->with('error', 'System default units (KG and FIXED) cannot be deleted.');
+        }
+        $unit->delete();
+        return redirect()->route('master.measurement-unit')->with('success', 'Measurement Unit deleted successfully.');
+    }
+
+    public function measurementUnitBulkDestroy(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (!empty($ids)) {
+            $deletedCount = MeasurementUnit::whereIn('id', $ids)
+                ->where('is_system', false)
+                ->whereNotIn(DB::raw('UPPER(unit_code)'), ['KG', 'FIXED'])
+                ->delete();
+            return redirect()->route('master.measurement-unit')->with('success', "{$deletedCount} custom measurement unit(s) deleted successfully.");
+        }
+        return redirect()->route('master.measurement-unit')->with('error', 'No measurement units selected.');
+    }
+
+    public function shippingStatusIndex(Request $request, $id = null)
+    {
+        $query = ShippingStatus::query();
+        if ($request->filled('q')) {
+            $q = trim($request->q);
+            $query->where('name', 'like', "%{$q}%");
+        }
+        $statuses = $query->orderBy('id')->get();
+        $selected = $id ? ShippingStatus::findOrFail($id) : new ShippingStatus(['is_active' => true]);
+        return view('master.shipping_status', compact('statuses', 'selected'));
+    }
+
+    public function shippingStatusStore(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:50|unique:shipping_statuses,name,' . $request->id,
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $data['is_active'] = $request->has('is_active') ? (bool)$request->is_active : true;
+
+        if ($request->id) {
+            $status = ShippingStatus::findOrFail($request->id);
+            if ($status->is_system) {
+                // System default statuses cannot change their name
+                unset($data['name']);
+            }
+            $status->update($data);
+            return redirect()->route('master.shipping-status.load', $request->id)->with('success', 'Shipping Status updated successfully.');
+        }
+
+        $status = ShippingStatus::create($data);
+        return redirect()->route('master.shipping-status.load', $status->id)->with('success', 'Shipping Status added successfully.');
+    }
+
+    public function shippingStatusDestroy($id)
+    {
+        $status = ShippingStatus::findOrFail($id);
+        if ($status->is_system) {
+            return redirect()->route('master.shipping-status')->with('error', 'Default system shipping statuses cannot be deleted.');
+        }
+        $status->delete();
+        return redirect()->route('master.shipping-status')->with('success', 'Shipping Status deleted successfully.');
+    }
+
+    public function shippingStatusBulkDestroy(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (!empty($ids)) {
+            $deletedCount = ShippingStatus::whereIn('id', $ids)
+                ->where('is_system', false)
+                ->delete();
+            return redirect()->route('master.shipping-status')->with('success', "{$deletedCount} custom shipping status(es) deleted successfully.");
+        }
+        return redirect()->route('master.shipping-status')->with('error', 'No shipping statuses selected.');
+    }
+
+    public function seriesIndex(Request $request, $id = null)
+    {
+        $query = Series::query();
+        if ($request->filled('q')) {
+            $q = trim($request->q);
+            $query->where(function($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+        $seriesList = $query->orderBy('name', 'desc')->get();
+        $selected = $id ? Series::findOrFail($id) : new Series(['is_active' => true]);
+        return view('master.series', compact('seriesList', 'selected'));
+    }
+
+    public function seriesStore(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:50|unique:series,name,' . $request->id,
+            'description' => 'nullable|string|max:100',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $data['name'] = strtoupper(trim($request->name));
+        $data['is_active'] = $request->has('is_active') ? (bool)$request->is_active : true;
+
+        if ($request->id) {
+            $series = Series::findOrFail($request->id);
+            $series->update($data);
+            return redirect()->route('master.series.load', $request->id)->with('success', 'Series updated successfully.');
+        }
+
+        $series = Series::create($data);
+        return redirect()->route('master.series.load', $series->id)->with('success', 'Series added successfully.');
+    }
+
+    public function seriesDestroy($id)
+    {
+        $series = Series::findOrFail($id);
+        $hasEntries = \App\Models\Bilty::where('series_id', $series->id)->orWhere('series', $series->name)->exists();
+        if ($hasEntries) {
+            return redirect()->route('master.series')->with('error', "Cannot delete series '{$series->name}' because it has existing C.N. entries.");
+        }
+        $series->delete();
+        return redirect()->route('master.series')->with('success', "Series '{$series->name}' deleted successfully.");
+    }
+
+    public function seriesBulkDestroy(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (!empty($ids)) {
+            $seriesItems = Series::whereIn('id', $ids)->get();
+            $deletedCount = 0;
+            $blocked = [];
+            foreach ($seriesItems as $series) {
+                $hasEntries = \App\Models\Bilty::where('series_id', $series->id)->orWhere('series', $series->name)->exists();
+                if ($hasEntries) {
+                    $blocked[] = $series->name;
+                } else {
+                    $series->delete();
+                    $deletedCount++;
+                }
+            }
+            $msg = "{$deletedCount} series deleted successfully.";
+            if (!empty($blocked)) {
+                $msg .= " Series (" . implode(', ', $blocked) . ") could not be deleted because they have existing C.N. entries.";
+            }
+            return redirect()->route('master.series')->with($deletedCount > 0 ? 'success' : 'error', $msg);
+        }
+        return redirect()->route('master.series')->with('error', 'No series selected.');
     }
 }

@@ -116,7 +116,8 @@ class SampleReceiptsSeeder extends Seeder
         // SAMPLE 1: Single Row Data Receipt (#4306)
         // ==========================================
         $bilty1 = Bilty::create([
-            'series'             => 'A',
+            'company_id'         => 1,
+            'series'             => '26-27',
             'bilty_no'           => 4306,
             'invoice_date'       => Carbon::now()->toDateString(),
             'from_location_id'   => $fromLoc->id,
@@ -127,8 +128,8 @@ class SampleReceiptsSeeder extends Seeder
             'consignee_id'       => $consignee1->id,
             'consignee_name'     => $consignee1->ledger_name,
             'consignee_mobile'   => $consignee1->mobile,
-            'billing_type'       => 'TO PAY',
-            'type'               => 'L',
+            'billing_type'       => 'To Pay',
+            'type'               => 'Vehicle Number',
             'billing_party_id'   => $consignor1->id,
             'billing_party_name' => $consignor1->ledger_name,
             'cn_no'              => 'CN-4306',
@@ -144,7 +145,7 @@ class SampleReceiptsSeeder extends Seeder
             'round_off'          => 4.00,
             'net_amount'         => 1550.00,
             'voucher_no'         => 1795,
-            'status'             => 'active',
+            'status'             => 'final',
             'user_id'            => $admin->id,
         ]);
 
@@ -171,7 +172,8 @@ class SampleReceiptsSeeder extends Seeder
         // SAMPLE 2: Two Row Data Receipt (#4307)
         // ==========================================
         $bilty2 = Bilty::create([
-            'series'             => 'A',
+            'company_id'         => 1,
+            'series'             => '26-27',
             'bilty_no'           => 4307,
             'invoice_date'       => Carbon::now()->toDateString(),
             'from_location_id'   => $fromLoc->id,
@@ -182,8 +184,8 @@ class SampleReceiptsSeeder extends Seeder
             'consignee_id'       => $consignee2->id,
             'consignee_name'     => $consignee2->ledger_name,
             'consignee_mobile'   => $consignee2->mobile,
-            'billing_type'       => 'PAID',
-            'type'               => 'L',
+            'billing_type'       => 'Paid',
+            'type'               => 'Vehicle Number',
             'billing_party_id'   => $consignor1->id,
             'billing_party_name' => $consignor1->ledger_name,
             'cn_no'              => 'CN-4307',
@@ -200,7 +202,7 @@ class SampleReceiptsSeeder extends Seeder
             'net_amount'         => 8400.00,
             'cash_amount'        => 8400.00,
             'voucher_no'         => 1796,
-            'status'             => 'active',
+            'status'             => 'final',
             'user_id'            => $admin->id,
         ]);
 

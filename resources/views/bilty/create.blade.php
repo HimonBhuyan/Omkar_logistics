@@ -539,6 +539,22 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    $(document).ready(function() {
+        $('#series_select').on('change', function() {
+            const selectedSeries = $(this).val();
+            $.ajax({
+                url: '{{ route("bilty.next-no") }}',
+                type: 'GET',
+                data: { series: selectedSeries },
+                success: function(response) {
+                    if (response && response.next_bilty_no !== undefined) {
+                        $('#bilty_no').val(response.next_bilty_no);
+                    }
+                }
+            });
+        });
+    });
+
     let rowIndex = 1;
 
     // Master data arrays for high-speed autocomplete
@@ -678,24 +694,30 @@
         newRow.className = 'grid-row';
         newRow.innerHTML = `
             <td>
-                <input type="number" name="items[${rowIndex}][no_of_pkgs]" class="input-no_of_pkgs calc-trigger" required min="1" value="1">
+                <input type="number" name="items[${rowIndex}][no_of_pkgs]" class="input-no_of_pkgs calc-trigger" required min="1" value="">
             </td>
             <td>
-                <input type="text" name="items[${rowIndex}][packing]" placeholder="Box/Bag/Roll" value="Box">
+                <input type="text" name="items[${rowIndex}][packing]" placeholder="Box/Bag/Roll" value="">
             </td>
             <td>
-                <input type="text" name="items[${rowIndex}][description]" placeholder="Goods Description" value="Goods">
+                <input type="text" name="items[${rowIndex}][description]" placeholder="Goods Description" value="">
             </td>
             <td>
                 <input type="text" name="items[${rowIndex}][invoice_no]" placeholder="Inv No">
             </td>
             <td>
-                <input type="number" name="items[${rowIndex}][invoice_value]" class="input-invoice_value" value="0.00" step="0.01">
+                <input type="number" name="items[${rowIndex}][invoice_value]" class="input-invoice_value" value="" step="0.01" placeholder="0.00">
             </td>
             <td>
                 <select name="items[${rowIndex}][unit]" class="input-unit" onchange="handleUnitChange(this)">
-                    <option value="KG">KG</option>
-                    <option value="Fixed">Fixed</option>
+                    @if(isset($measurementUnits) && count($measurementUnits) > 0)
+                        @foreach($measurementUnits as $u)
+                            <option value="{{ $u->unit_code }}" data-type="{{ $u->unit_type }}" data-pkg-label="{{ $u->package_label ?: 'NoOfPkgs' }}">{{ $u->unit_code }}</option>
+                        @endforeach
+                    @else
+                        <option value="KG" data-type="weight" data-pkg-label="NoOfPkgs">KG</option>
+                        <option value="Fixed" data-type="fixed" data-pkg-label="NoOfPkgs">Fixed</option>
+                    @endif
                 </select>
             </td>
             <td>
@@ -745,7 +767,7 @@
             row.remove();
             calculateAll();
         } else {
-            alert('At least one consignment row is required.');
+            SysDialog.alert('At least one consignment row is required.', 'Validation Warning');
         }
     }
 
@@ -759,7 +781,7 @@
             pkgsInput.addEventListener('input', function() {
                 const wSelect = row.querySelector('.input-unit');
                 const qtyInput = row.querySelector('.input-qty');
-                if (wSelect && wSelect.value === 'Fixed' && qtyInput) {
+                if (wSelect && getUnitType(wSelect) === 'fixed' && qtyInput) {
                     qtyInput.value = this.value;
                 }
             });
@@ -867,9 +889,57 @@
             });
     }
 
+    function getUnitType(selectEl) {
+        if (!selectEl) return 'weight';
+        const selectedOpt = selectEl.options ? selectEl.options[selectEl.selectedIndex] : null;
+        if (selectedOpt && selectedOpt.dataset && selectedOpt.dataset.type) {
+            return selectedOpt.dataset.type;
+        }
+        const val = (selectEl.value || '').toUpperCase();
+        if (val === 'KG' || val === 'TON' || val === 'QUINTAL' || val === 'QNTL' || val === 'GRAM') {
+            return 'weight';
+        }
+        return 'fixed';
+    }
+
+    function getPackageLabel(selectEl) {
+        if (!selectEl) return 'NoOfPkgs';
+        const selectedOpt = selectEl.options ? selectEl.options[selectEl.selectedIndex] : null;
+        if (selectedOpt && selectedOpt.dataset && selectedOpt.dataset.pkgLabel && selectedOpt.dataset.pkgLabel !== 'NoOfPkgs') {
+            return selectedOpt.dataset.pkgLabel;
+        }
+        const val = (selectEl.value || '').toUpperCase();
+        if (val.includes('BOX')) return 'NoOfBoxes';
+        if (val.includes('CASE')) return 'NoOfCases';
+        if (val.includes('PCS') || val.includes('PIECE')) return 'NoOfPcs';
+        if (val.includes('BAG')) return 'NoOfBags';
+        if (val.includes('DRUM')) return 'NoOfDrums';
+        if (val.includes('CARTON')) return 'NoOfCartons';
+        return (selectedOpt && selectedOpt.dataset && selectedOpt.dataset.pkgLabel) ? selectedOpt.dataset.pkgLabel : 'NoOfPkgs';
+    }
+
+    function updateTableHeaderLabel() {
+        const colHeader = document.getElementById('colHeaderPkgs');
+        if (!colHeader) return;
+
+        const rowSelects = document.querySelectorAll('#gridBody .input-unit');
+        const labels = new Set();
+        rowSelects.forEach(s => {
+            labels.add(getPackageLabel(s));
+        });
+
+        if (labels.size === 1) {
+            colHeader.textContent = Array.from(labels)[0];
+        } else {
+            colHeader.textContent = 'NoOfPkgs';
+        }
+    }
+
     function handleUnitChange(selectEl) {
         const row = selectEl.closest('tr');
         if (!row) return;
+
+        updateTableHeaderLabel();
         const qtyInput = row.querySelector('.input-qty');
         const rateInput = row.querySelector('.input-rate');
         const weightCell = row.querySelector('.weight-col-cell');
@@ -878,9 +948,10 @@
 
         // Toggle table headers visibility for weight column dynamically
         const weightHeaders = document.querySelectorAll('.weight-col');
+        const unitType = getUnitType(selectEl);
         
-        if (selectEl.value === 'KG') {
-            // Hides weight column when KG
+        if (unitType === 'weight') {
+            // Hides weight column when weight-based unit (e.g. KG, Ton)
             if (weightCell) weightCell.style.display = 'none';
             if (weightInput) {
                 weightInput.readOnly = true;
@@ -1091,16 +1162,17 @@
                         if (!firstInvalidEl) firstInvalidEl = pkgs;
                     }
 
-                    const unitVal = row.querySelector('.input-unit')?.value;
+                    const unitEl = row.querySelector('.input-unit');
+                    const unitType = getUnitType(unitEl);
                     const weightVal = parseFloat(row.querySelector('.input-weight_val')?.value) || 0;
                     const qtyVal = parseFloat(row.querySelector('.input-qty')?.value) || 0;
 
-                    if (unitVal === 'KG') {
+                    if (unitType === 'weight') {
                         if (weightVal <= 0 && qtyVal <= 0) {
-                            errors.push(`<strong>Item Row #${rowNum}:</strong> Please enter the weight (KG).`);
-                            if (!firstInvalidEl) firstInvalidEl = row.querySelector('.input-weight_val');
+                            errors.push(`<strong>Item Row #${rowNum}:</strong> Please enter the weight/quantity.`);
+                            if (!firstInvalidEl) firstInvalidEl = row.querySelector('.input-qty');
                         }
-                    } else if (unitVal === 'Fixed') {
+                    } else {
                         if (qtyVal <= 0) {
                             errors.push(`<strong>Item Row #${rowNum}:</strong> Quantity must be greater than 0.`);
                             if (!firstInvalidEl) firstInvalidEl = row.querySelector('.input-qty');
@@ -1239,12 +1311,22 @@
                             userDisplay.value = data.bilty.user ? (data.bilty.user.username || data.bilty.user.name) : 'admin';
                         }
 
-                        // Format and map radio buttons selection
-                        const radio = document.querySelector(`input[name="billing_type"][value="${data.bilty.billing_type}"]`);
-                        if (radio) {
-                            radio.checked = true;
-                            toggleBillingParty();
+                        // Format and map radio buttons selection (case-insensitive)
+                        const dbBillingType = (data.bilty.billing_type || '').toUpperCase();
+                        let targetRadio = null;
+                        document.querySelectorAll('input[name="billing_type"]').forEach(r => {
+                            const valUpper = r.value.toUpperCase();
+                            if (valUpper === dbBillingType || dbBillingType.includes(valUpper) || (valUpper === 'T.B.B.' && dbBillingType.includes('TBB'))) {
+                                targetRadio = r;
+                            }
+                        });
+                        if (!targetRadio) {
+                            targetRadio = document.querySelector(`input[name="billing_type"][value="${data.bilty.billing_type}"]`);
                         }
+                        if (targetRadio) {
+                            targetRadio.checked = true;
+                        }
+                        toggleBillingParty();
 
                         // Set Date and location IDs
                         if (data.bilty.invoice_date) {
@@ -1315,8 +1397,10 @@
                         } else {
                             typeSelector.value = 'Vehicle Number';
                         }
-                        toggleVehicleFields();
                         document.getElementById('vehicle_no_text').value = vehicleVal;
+                        if (document.getElementById('shipping_status')) {
+                            document.getElementById('shipping_status').value = data.bilty.shipping_status || (vehicleVal ? (isTransportOption ? 'Shipped' : 'In Transit') : 'Booked');
+                        }
 
                         document.getElementById('eway_bill_no').value = data.bilty.eway_bill_no || '';
                         if (data.bilty.eway_bill_no) {
@@ -1800,6 +1884,23 @@
         toggleVehicleFields();
     });
 
+    function autoUpdateShippingStatus() {
+        const statusSelect = document.getElementById('shipping_status');
+        if (!statusSelect) return;
+        const type = document.getElementById('vehicle_type')?.value || 'Vehicle Number';
+        const val = document.getElementById('vehicle_no_text')?.value.trim() || '';
+
+        if (val !== '') {
+            if (type === 'Transport Name') {
+                statusSelect.value = 'Shipped';
+            } else {
+                statusSelect.value = 'In Transit';
+            }
+        } else {
+            statusSelect.value = 'Booked';
+        }
+    }
+
     function toggleVehicleFields() {
         const type = document.getElementById('vehicle_type').value;
         const label = document.getElementById('vehicle_no_label');
@@ -1814,7 +1915,12 @@
             if (label) label.textContent = 'Vehicle No.';
             if (input) input.placeholder = 'e.g. AS-01-XX-1234';
         }
+        autoUpdateShippingStatus();
     }
+
+    document.getElementById('vehicle_no_text')?.addEventListener('input', function() {
+        autoUpdateShippingStatus();
+    });
 
     let ewayBills = [];
     const existingVal = document.getElementById('eway_bill_no').value.trim();
@@ -1827,7 +1933,7 @@
         const val = input.value.trim().toUpperCase();
         if (val === '') return;
         if (ewayBills.includes(val)) {
-            alert('E-Way Bill number already added.');
+            SysDialog.alert('E-Way Bill number already added.', 'Duplicate Entry');
             input.value = '';
             return;
         }

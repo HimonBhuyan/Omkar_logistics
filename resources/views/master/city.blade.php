@@ -205,7 +205,7 @@
 <div class="master-wrapper">
     {{-- Left List --}}
     <div class="master-list-panel">
-        <form id="bulkDeleteForm" method="POST" action="{{ route('master.city.bulk_destroy') }}" onsubmit="return confirm('Delete selected cities?')" style="display:flex; flex-direction:column; flex:1; min-height:100%;">
+        <form id="bulkDeleteForm" method="POST" action="{{ route('master.city.bulk_destroy') }}" data-confirm="Delete selected cities?" style="display:flex; flex-direction:column; flex:1; min-height:100%;">
             @csrf @method('DELETE')
             <div class="master-list-header" style="display:flex; justify-content:space-between; align-items:center;">
                 <span>Cities ({{ count($cities) }})</span>
@@ -232,7 +232,7 @@
                                 @endif
                             </span>
                         </a>
-                        <form method="POST" action="{{ route('master.city.destroy', $c->id) }}" onsubmit="return confirm('Delete this City?'); event.stopPropagation();" style="display:inline;">
+                        <form method="POST" action="{{ route('master.city.destroy', $c->id) }}" data-confirm="Delete city '{{ $c->name }}'?" onclick="event.stopPropagation();" style="display:inline;">
                             @csrf @method('DELETE')
                             <button type="submit" class="btn-delete">❌</button>
                         </form>

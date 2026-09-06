@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\AccountLedger;
 use App\Models\CityModel;
+use App\Models\MeasurementUnit;
 use App\Models\Bilty;
 use App\Models\BiltyItem;
 use App\Models\Location;
 use App\Models\Party;
+use App\Models\Series;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -33,15 +35,77 @@ class BiltyController extends Controller
             ->pluck('ledger_name', 'ledger_name')
             ->unique();
 
-        // Calculate next C.N. number for Series '26-27' (starting from 4306)
-        $maxBiltyNo = Bilty::where('series', '26-27')->max('bilty_no');
-        $nextBiltyNo = ($maxBiltyNo && $maxBiltyNo >= 4306) ? ($maxBiltyNo + 1) : 4306;
+        // Load active Series list
+        $seriesList = Series::orderBy('name', 'asc')->get();
+
+        // Determine default series based on top navbar Financial Year session (e.g., '2026-2027' -> '26-27')
+        $fySession = session('financial_year', '2026-2027');
+        $defaultSeries = '26-27';
+        if ($fySession && $fySession !== 'ALL' && strpos($fySession, '-') !== false) {
+            $parts = explode('-', $fySession);
+            if (count($parts) === 2 && strlen(trim($parts[0])) >= 2 && strlen(trim($parts[1])) >= 2) {
+                $defaultSeries = substr(trim($parts[0]), -2) . '-' . substr(trim($parts[1]), -2);
+            }
+        }
+
+        // Dynamically create or resolve series in Series Master table
+        $seriesObj = $this->resolveOrCreateSeries($defaultSeries);
+
+        // Load active Series list
+        $seriesList = Series::orderBy('name', 'asc')->get();
+
+        // Calculate next C.N. number for default series scoped to active company
+        $maxBiltyNo = Bilty::forCompany()->where(function($q) use ($seriesObj, $defaultSeries) {
+            $q->where('series_id', $seriesObj->id)->orWhere('series', $defaultSeries);
+        })->max('bilty_no');
+
+        if ($defaultSeries === '26-27') {
+            $next = ($maxBiltyNo && $maxBiltyNo >= 4306) ? ($maxBiltyNo + 1) : 4306;
+        } else {
+            $next = $maxBiltyNo ? ($maxBiltyNo + 1) : 1;
+        }
+        $nextBiltyNo = str_pad($next, 2, '0', STR_PAD_LEFT);
 
         // Calculate next Voucher No
-        $lastVoucher = Bilty::orderBy('voucher_no', 'desc')->first();
+        $lastVoucher = Bilty::forCompany()->orderBy('voucher_no', 'desc')->first();
         $nextVoucherNo = $lastVoucher ? ($lastVoucher->voucher_no + 1) : 1795;
 
-        return view('bilty.create', compact('locations', 'consignors', 'consignees', 'parties', 'vehicles', 'nextBiltyNo', 'nextVoucherNo'));
+        $measurementUnits = MeasurementUnit::forCompany()->active()->orderBy('unit_code')->get();
+
+        return view('bilty.create', compact('locations', 'consignors', 'consignees', 'parties', 'vehicles', 'seriesList', 'defaultSeries', 'nextBiltyNo', 'nextVoucherNo', 'measurementUnits'));
+    }
+
+    protected function resolveOrCreateSeries($seriesCode)
+    {
+        $seriesCode = strtoupper(trim($seriesCode ?: '26-27'));
+        return Series::firstOrCreate(
+            ['name' => $seriesCode],
+            [
+                'description' => 'FY ' . (strlen($seriesCode) === 5 ? ('20' . substr($seriesCode, 0, 2) . '-20' . substr($seriesCode, 3, 2)) : $seriesCode),
+                'is_active' => true,
+            ]
+        );
+    }
+
+    public function getNextBiltyNo(Request $request)
+    {
+        $seriesCode = trim($request->query('series', '26-27'));
+        $seriesObj = $this->resolveOrCreateSeries($seriesCode);
+        $series = $seriesObj->name;
+
+        $maxBiltyNo = Bilty::forCompany()->where(function($q) use ($seriesObj, $series) {
+            $q->where('series_id', $seriesObj->id)->orWhere('series', $series);
+        })->max('bilty_no');
+        
+        if ($series === '26-27') {
+            $next = ($maxBiltyNo && $maxBiltyNo >= 4306) ? ($maxBiltyNo + 1) : 4306;
+        } else {
+            $next = $maxBiltyNo ? ($maxBiltyNo + 1) : 1;
+        }
+
+        return response()->json([
+            'next_bilty_no' => str_pad($next, 2, '0', STR_PAD_LEFT)
+        ]);
     }
 
     public function getPartyDetails($id)
@@ -95,6 +159,7 @@ class BiltyController extends Controller
                 'vehicle_no' => 'nullable|string|max:50',
                 'eway_bill_no' => 'nullable|string|max:50',
                 'cn_no' => 'nullable|string|max:50',
+                'shipping_status' => 'nullable|string|max:50',
                 
                 // Grid items
                 'items' => 'required|array|min:1',
@@ -103,7 +168,7 @@ class BiltyController extends Controller
                 'items.*.description' => 'nullable|string|max:255',
                 'items.*.invoice_no' => 'nullable|string|max:50',
                 'items.*.invoice_value' => 'nullable|numeric|min:0',
-                'items.*.unit' => 'required|string|in:KG,Fixed',
+                'items.*.unit' => 'required|string|max:50',
                 'items.*.weight_val' => 'nullable|numeric|min:0',
                 'items.*.qty' => 'required|numeric|min:0',
                 'items.*.rate' => 'required|numeric|min:0',
@@ -193,8 +258,11 @@ class BiltyController extends Controller
             }
 
             // Create Bilty Header
+            $seriesObj = $this->resolveOrCreateSeries($request->series ?? '26-27');
             $bilty = Bilty::create([
-                'series' => $this->formatUpper($request->series ?? '26-27'),
+                'company_id' => session('company_id', 1),
+                'series_id' => $seriesObj->id,
+                'series' => $seriesObj->name,
                 'bilty_no' => $request->bilty_no,
                 'invoice_date' => $request->invoice_date ?: now()->toDateString(),
                 'from_location_id' => $fromLoc ? $fromLoc->id : null,
@@ -211,6 +279,7 @@ class BiltyController extends Controller
                 'billing_party_name' => $this->formatUpper($request->billing_party_name ?: ($billingLedger ? $billingLedger->ledger_name : null)),
                 'cn_no' => $this->formatUpper($request->cn_no),
                 'vehicle_no' => $this->formatUpper($request->vehicle_no),
+                'shipping_status' => $request->filled('shipping_status') ? trim($request->shipping_status) : ($request->filled('vehicle_no') ? (strtoupper(trim($request->vehicle_type ?? '')) === 'TRANSPORT NAME' ? 'Shipped' : 'In Transit') : 'Booked'),
                 'eway_bill_no' => $this->formatUpper($request->eway_bill_no),
                 
                 'total_packages' => $request->total_packages ?? 0,
@@ -295,8 +364,8 @@ class BiltyController extends Controller
 
     public function lookup($bilty_no)
     {
-        // Try to find the bilty with the current series or fall back to any series
-        $bilty = Bilty::with(['items', 'user', 'consignor', 'consignee', 'billingParty', 'fromLocation', 'toLocation'])->where('bilty_no', $bilty_no)->first();
+        // Try to find the bilty scoped by company
+        $bilty = Bilty::forCompany()->with(['items', 'user', 'consignor', 'consignee', 'billingParty', 'fromLocation', 'toLocation'])->where('bilty_no', $bilty_no)->first();
         if (!$bilty) {
             return response()->json(['error' => 'Bilty consignment not found'], 404);
         }
@@ -366,7 +435,7 @@ class BiltyController extends Controller
                 'items.*.description' => 'nullable|string|max:255',
                 'items.*.invoice_no' => 'nullable|string|max:50',
                 'items.*.invoice_value' => 'nullable|numeric|min:0',
-                'items.*.unit' => 'required|string|in:KG,Fixed',
+                'items.*.unit' => 'required|string|max:50',
                 'items.*.weight_val' => 'nullable|numeric|min:0',
                 'items.*.qty' => 'required|numeric|min:0',
                 'items.*.rate' => 'required|numeric|min:0',
@@ -456,8 +525,10 @@ class BiltyController extends Controller
             }
 
             // Update Header
+            $seriesObj = $this->resolveOrCreateSeries($request->series ?? $bilty->series);
             $bilty->update([
-                'series' => $this->formatUpper($request->series ?? $bilty->series),
+                'series_id' => $seriesObj->id,
+                'series' => $seriesObj->name,
                 'bilty_no' => $request->bilty_no,
                 'invoice_date' => $request->invoice_date ?: ($bilty->invoice_date ?: now()->toDateString()),
                 'from_location_id' => $fromLoc ? $fromLoc->id : $bilty->from_location_id,
@@ -474,6 +545,7 @@ class BiltyController extends Controller
                 'billing_party_name' => $this->formatUpper($request->billing_party_name ?: ($billingLedger ? $billingLedger->ledger_name : $bilty->billing_party_name)),
                 'cn_no' => $this->formatUpper($request->cn_no),
                 'vehicle_no' => $this->formatUpper($request->vehicle_no),
+                'shipping_status' => $request->filled('shipping_status') ? trim($request->shipping_status) : ($request->filled('vehicle_no') ? (strtoupper(trim($request->vehicle_type ?? ($bilty->type ?? ''))) === 'TRANSPORT NAME' ? 'Shipped' : 'In Transit') : ($bilty->shipping_status ?: 'Booked')),
                 'eway_bill_no' => $this->formatUpper($request->eway_bill_no),
                 
                 'total_packages' => $request->total_packages ?? $bilty->total_packages,
@@ -556,13 +628,13 @@ class BiltyController extends Controller
 
     public function print($id)
     {
-        $bilty = Bilty::with(['fromLocation', 'toLocation', 'consignor', 'consignee', 'billingParty', 'items'])->findOrFail($id);
+        $bilty = Bilty::with(['fromLocation', 'toLocation', 'consignor', 'consignee', 'billingParty', 'items', 'user'])->findOrFail($id);
         return view('bilty.print', compact('bilty'));
     }
 
-    public function downloadPdf($id)
+    public function downloadPdf(Request $request, $id)
     {
-        $bilty = Bilty::with(['fromLocation', 'toLocation', 'consignor', 'consignee', 'billingParty', 'items'])->findOrFail($id);
+        $bilty = Bilty::with(['fromLocation', 'toLocation', 'consignor', 'consignee', 'billingParty', 'items', 'user'])->findOrFail($id);
         $isPdf = true;
         $html = view('bilty.print', compact('bilty', 'isPdf'))->render();
 
@@ -573,23 +645,41 @@ class BiltyController extends Controller
             $html = preg_replace('/src="[^"]*assets\/logo\.jpg"/', 'src="' . $logoBase64 . '"', $html);
         }
 
+        $tempDir = storage_path('app/pdf_temp');
+        if (!file_exists($tempDir)) {
+            @mkdir($tempDir, 0777, true);
+        }
+        $fontDir = storage_path('fonts');
+        if (!file_exists($fontDir)) {
+            @mkdir($fontDir, 0777, true);
+        }
+
         $options = new \Dompdf\Options();
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isRemoteEnabled', true);
         $options->set('defaultMediaType', 'print');
         $options->set('defaultFont', 'Helvetica');
         $options->set('dpi', 96);
+        $options->set('tempDir', $tempDir);
+        $options->set('fontDir', $fontDir);
+        $options->set('fontCache', $fontDir);
 
         $dompdf = new \Dompdf\Dompdf($options);
         $dompdf->setPaper('a5', 'landscape');
         $dompdf->loadHtml($html);
         $dompdf->render();
 
-        $seriesPart = $bilty->series ? str_replace(['/', '\\', '-'], '_', $bilty->series) . '_' : '';
-        $filename = 'CN_' . $seriesPart . $bilty->bilty_no . '.pdf';
+        $seriesPart = $bilty->series ? preg_replace('/[^A-Za-z0-9_\-]/', '_', $bilty->series) . '_' : '';
+        $cleanBiltyNo = preg_replace('/[^A-Za-z0-9_\-]/', '_', $bilty->bilty_no);
+        $filename = 'CN_' . $seriesPart . $cleanBiltyNo . '.pdf';
+
+        $disposition = $request->has('download') ? 'attachment' : 'inline';
+
         return response($dompdf->output(), 200, [
             'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => $disposition . '; filename="' . $filename . '"',
+            'Cache-Control'       => 'private, max-age=0, must-revalidate',
+            'Pragma'              => 'public',
         ]);
     }
 }
