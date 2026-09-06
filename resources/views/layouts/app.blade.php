@@ -755,25 +755,10 @@
                 <li class="menu-item active">
                     <a href="#" class="menu-link">Transaction</a>
                     <div class="dropdown">
-<<<<<<< HEAD
                         <a href="{{ route('bilty.create') }}" target="_blank" class="highlighted">C.N Book</a>
                         <a href="{{ route('receipt.create') }}" target="_blank">Receipt</a>
                         <a href="{{ route('payment.create') }}" target="_blank">Payment</a>
                         <a href="{{ route('invoice.create') }}" target="_blank">Invoice</a>
-=======
-                        @if($user->hasPermission('transaction.cn_book'))
-                            <a href="{{ route('bilty.create') }}" target="_blank" class="highlighted">C.N Book</a>
-                        @endif
-                        @if($user->hasPermission('transaction.receipt'))
-                            <a href="#">Receipt</a>
-                        @endif
-                        @if($user->hasPermission('transaction.payment'))
-                            <a href="#">Payment</a>
-                        @endif
-                        @if($user->hasPermission('transaction.party_bill'))
-                            <a href="#">Party Bill</a>
-                        @endif
->>>>>>> e3c606eb1f2b742ae4f588713daa92aa2f99fc73
                     </div>
                 </li>
                 @endif
@@ -783,7 +768,6 @@
                 <li class="menu-item">
                     <a href="#" class="menu-link">Account</a>
                     <div class="dropdown">
-<<<<<<< HEAD
                         <a href="#">Group</a>
                         <a href="{{ route('account.ledger') }}">Account Ledger</a>
                         <a href="#">Payment &amp; Expenses</a>
@@ -808,26 +792,6 @@
                                 <a href="#">Balance Sheet</a>
                             </div>
                         </div>
-=======
-                        @if($user->hasPermission('account.group'))
-                            <a href="#">Group</a>
-                        @endif
-                        @if($user->hasPermission('account.ledger'))
-                            <a href="{{ route('account.ledger') }}">Account Ledger</a>
-                        @endif
-                        @if($user->hasPermission('account.payment_expenses'))
-                            <a href="#">Payment &amp; Expenses</a>
-                        @endif
-                        @if($user->hasPermission('account.voucher'))
-                            <a href="#">Voucher</a>
-                        @endif
-                        @if($user->hasPermission('account.deposit_bank'))
-                            <a href="#">Deposit in Bank</a>
-                        @endif
-                        @if($user->hasPermission('account.reports'))
-                            <a href="#">Reports &nbsp;&#9658;</a>
-                        @endif
->>>>>>> e3c606eb1f2b742ae4f588713daa92aa2f99fc73
                     </div>
                 </li>
                 @endif
@@ -837,7 +801,6 @@
                 <li class="menu-item">
                     <a href="#" class="menu-link">Report</a>
                     <div class="dropdown">
-<<<<<<< HEAD
                         <div class="has-sub">
                             <a href="{{ route('report.bilty_register') }}">C.N &nbsp;&#9658;</a>
                             <div class="sub-menu">
@@ -848,28 +811,6 @@
                         <a href="{{ route('receipt.register') }}">Receipt Register</a>
                         <a href="{{ route('payment.register') }}">Payment Register</a>
                         <a href="{{ route('report.receipt_detail_tds') }}">Receipt Detail/TDS Report</a>
-=======
-                        @if($user->hasPermission('report.bilty_register'))
-                            <div class="has-sub">
-                                <a href="{{ route('report.bilty_register') }}">C.N &nbsp;&#9658;</a>
-                                <div class="sub-menu">
-                                    <a href="{{ route('report.bilty_register') }}">C.N Register</a>
-                                    @if($user->hasPermission('report.party_bill_register'))
-                                        <a href="#">Party Bill Register</a>
-                                    @endif
-                                </div>
-                            </div>
-                        @endif
-                        @if($user->hasPermission('report.receipt_register'))
-                            <a href="#">Receipt Register</a>
-                        @endif
-                        @if($user->hasPermission('report.payment_register'))
-                            <a href="#">Payment Register</a>
-                        @endif
-                        @if($user->hasPermission('report.tds_report'))
-                            <a href="#">Receipt Detail/TDS Report</a>
-                        @endif
->>>>>>> e3c606eb1f2b742ae4f588713daa92aa2f99fc73
                     </div>
                 </li>
                 @endif
