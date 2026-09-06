@@ -7,6 +7,9 @@ use App\Http\Controllers\BiltyController;
 use App\Http\Controllers\AccountLedgerController;
 use App\Http\Controllers\GeneralMasterController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\PaymentController;
 
 // Auth Routes
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
@@ -24,9 +27,54 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/bilty/lookup/{bilty_no}', [BiltyController::class, 'lookup'])->name('bilty.lookup');
     Route::post('/bilty/update/{id}', [BiltyController::class, 'update'])->name('bilty.update');
 
-    // Bilty Register Report
+    // Invoice / Party Bill Routes
+    Route::get('/invoice/create', [InvoiceController::class, 'create'])->name('invoice.create');
+    Route::get('/invoice/lookup/{invoice_no}', [InvoiceController::class, 'lookup'])->name('invoice.lookup');
+    Route::get('/invoice/edit/{id}', [InvoiceController::class, 'edit'])->name('invoice.edit');
+    Route::get('/invoice/month-parties', [InvoiceController::class, 'getMonthParties'])->name('invoice.month_parties');
+    Route::get('/invoice/pending-bilties', [InvoiceController::class, 'getPendingBilties'])->name('invoice.pending_bilties');
+    Route::post('/invoice/store', [InvoiceController::class, 'store'])->name('invoice.store');
+    Route::put('/invoice/update/{id}', [InvoiceController::class, 'update'])->name('invoice.update');
+    Route::post('/invoice/cancel/{id}', [InvoiceController::class, 'cancel'])->name('invoice.cancel');
+    Route::delete('/invoice/destroy/{id}', [InvoiceController::class, 'destroy'])->name('invoice.destroy');
+    Route::post('/invoice/preview', [InvoiceController::class, 'preview'])->name('invoice.preview');
+    Route::get('/invoice/print/{id}', [InvoiceController::class, 'print'])->name('invoice.print');
+    Route::get('/invoice/register', [InvoiceController::class, 'register'])->name('invoice.register');
+    Route::get('/invoice/register/export', [InvoiceController::class, 'exportExcel'])->name('invoice.register.export');
+
+    // Receipt / Payment Acceptance Routes
+    Route::get('/receipt/create', [ReceiptController::class, 'create'])->name('receipt.create');
+    Route::get('/receipt/pending-invoices', [ReceiptController::class, 'getPendingInvoices'])->name('receipt.pending_invoices');
+    Route::post('/receipt/store', [ReceiptController::class, 'store'])->name('receipt.store');
+    Route::get('/receipt/edit/{id}', [ReceiptController::class, 'edit'])->name('receipt.edit');
+    Route::put('/receipt/update/{id}', [ReceiptController::class, 'update'])->name('receipt.update');
+    Route::post('/receipt/cancel/{id}', [ReceiptController::class, 'cancel'])->name('receipt.cancel');
+    Route::delete('/receipt/destroy/{id}', [ReceiptController::class, 'destroy'])->name('receipt.destroy');
+    Route::get('/receipt/print/{id}', [ReceiptController::class, 'print'])->name('receipt.print');
+    Route::get('/receipt/register', [ReceiptController::class, 'register'])->name('receipt.register');
+    Route::get('/receipt/register/export', [ReceiptController::class, 'exportExcel'])->name('receipt.register.export');
+
+    // Payment Voucher & Payment Register Routes
+    Route::get('/payment/create', [PaymentController::class, 'create'])->name('payment.create');
+    Route::get('/payment/account-details', [PaymentController::class, 'getAccountDetails'])->name('payment.account_details');
+    Route::post('/payment/store', [PaymentController::class, 'store'])->name('payment.store');
+    Route::get('/payment/edit/{id}', [PaymentController::class, 'edit'])->name('payment.edit');
+    Route::put('/payment/update/{id}', [PaymentController::class, 'update'])->name('payment.update');
+    Route::post('/payment/cancel/{id}', [PaymentController::class, 'cancel'])->name('payment.cancel');
+    Route::delete('/payment/destroy/{id}', [PaymentController::class, 'destroy'])->name('payment.destroy');
+    Route::get('/payment/print/{id}', [PaymentController::class, 'print'])->name('payment.print');
+    Route::get('/payment/register', [PaymentController::class, 'register'])->name('payment.register');
+    Route::get('/payment/register/export', [PaymentController::class, 'exportExcel'])->name('payment.register.export');
+
+    // Reports
     Route::get('/report/bilty-register', [ReportController::class, 'biltyRegister'])->name('report.bilty_register');
     Route::get('/report/bilty-register/export', [ReportController::class, 'exportExcel'])->name('report.bilty_register.export');
+    Route::get('/report/receipt-detail-tds', [ReceiptController::class, 'receiptDetailTdsReport'])->name('report.receipt_detail_tds');
+    Route::get('/report/receipt-detail-tds/export', [ReceiptController::class, 'exportReceiptDetailTdsExcel'])->name('report.receipt_detail_tds.export');
+    Route::get('/account/reports/sundry-creditors', [ReportController::class, 'sundryCreditorsSummary'])->name('report.sundry_creditors');
+    Route::get('/account/reports/sundry-creditors/export', [ReportController::class, 'exportSundryCreditorsExcel'])->name('report.sundry_creditors.export');
+    Route::get('/account/reports/sundry-debtors', [ReportController::class, 'sundryDebtorsSummary'])->name('report.sundry_debtors');
+    Route::get('/account/reports/sundry-debtors/export', [ReportController::class, 'exportSundryDebtorsExcel'])->name('report.sundry_debtors.export');
 
     // Account Ledger
     Route::get('/account/ledger', [AccountLedgerController::class, 'index'])->name('account.ledger');

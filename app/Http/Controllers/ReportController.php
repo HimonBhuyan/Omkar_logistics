@@ -472,4 +472,221 @@ class ReportController extends Controller
             'Pragma' => 'public',
         ]);
     }
+
+    /**
+     * Sundry Creditors Ledger Summary Report.
+     */
+    public function sundryCreditorsSummary(Request $request)
+    {
+        return $this->getLedgerSummary($request, 'Creditors', 'Sundry Creditors Ledger Summery');
+    }
+
+    /**
+     * Sundry Debtors Ledger Summary Report.
+     */
+    public function sundryDebtorsSummary(Request $request)
+    {
+        return $this->getLedgerSummary($request, 'Debtors', 'Sundry Debtors Ledger Summery');
+    }
+
+    /**
+     * Helper to compute and return Ledger Summary.
+     */
+    private function getLedgerSummary(Request $request, string $groupType, string $reportTitle)
+    {
+        $fromDate = $request->input('from_date', '2026-01-01');
+        $toDate = $request->input('to_date', date('Y-m-d'));
+        $series = $request->input('series', '');
+        $accountRange = $request->input('accounts', 'A To Z');
+
+        // Query accounts matching group
+        $query = AccountLedger::where(function($q) use ($groupType) {
+            $q->where('under_group', 'like', '%' . $groupType . '%');
+        });
+
+        if ($request->filled('search_account')) {
+            $query->where('ledger_name', 'like', '%' . trim($request->search_account) . '%');
+        }
+
+        $accounts = $query->orderBy('ledger_name', 'asc')->get();
+
+        $records = [];
+        $totalDr = 0;
+        $totalCr = 0;
+
+        foreach ($accounts as $acc) {
+            $opening = (float)($acc->opening ?? 0);
+            
+            // Payments
+            $payments = \App\Models\Payment::where(function($q) use ($acc) {
+                $q->where('account_id', $acc->id)
+                  ->orWhere('account_name', $acc->ledger_name);
+            })->where(function($q) {
+                $q->whereNull('status')->orWhere('status', '!=', 'cancelled');
+            });
+            if ($fromDate) $payments->whereDate('payment_date', '>=', $fromDate);
+            if ($toDate) $payments->whereDate('payment_date', '<=', $toDate);
+            $payTotal = (float)$payments->sum('total_amount');
+
+            // Invoices
+            $invoices = \App\Models\Invoice::where(function($q) use ($acc) {
+                $q->where('account_id', $acc->id)
+                  ->orWhere('account_name', $acc->ledger_name);
+            })->where(function($q) {
+                $q->whereNull('status')->orWhere('status', '!=', 'cancelled');
+            });
+            if ($fromDate) $invoices->whereDate('invoice_date', '>=', $fromDate);
+            if ($toDate) $invoices->whereDate('invoice_date', '<=', $toDate);
+            $invTotal = (float)$invoices->sum('total_amount');
+
+            // Receipts
+            $receipts = \App\Models\Receipt::where(function($q) use ($acc) {
+                $q->where('account_id', $acc->id)
+                  ->orWhere('account_name', $acc->ledger_name);
+            })->where(function($q) {
+                $q->whereNull('status')->orWhere('status', '!=', 'cancelled');
+            });
+            if ($fromDate) $receipts->whereDate('receipt_date', '>=', $fromDate);
+            if ($toDate) $receipts->whereDate('receipt_date', '<=', $toDate);
+            $recTotal = (float)$receipts->sum('receipt_amount');
+
+            if ($groupType === 'Creditors') {
+                $netBal = $opening + $invTotal - $payTotal;
+            } else {
+                $netBal = $opening + $invTotal - $recTotal;
+            }
+
+            $type = ($netBal >= 0) ? 'Dr.' : 'Cr.';
+            $absAmount = abs($netBal);
+
+            if ($type === 'Dr.') {
+                $totalDr += $absAmount;
+            } else {
+                $totalCr += $absAmount;
+            }
+
+            $records[] = [
+                'id' => $acc->id,
+                'code' => $acc->code,
+                'name' => $acc->ledger_name,
+                'group' => $acc->under_group,
+                'balance' => $absAmount,
+                'balance_formatted' => number_format($absAmount, 2, '.', '') . ' ' . $type,
+                'type' => $type,
+            ];
+        }
+
+        $netTotal = $totalDr - $totalCr;
+        $totalType = ($netTotal >= 0) ? 'Dr.' : 'Cr.';
+        $totalFormatted = number_format(abs($netTotal), 2, '.', '') . ' ' . $totalType;
+
+        if ($request->get('export') === 'excel') {
+            return $this->exportLedgerSummaryExcel($records, $reportTitle, $fromDate, $toDate, $totalFormatted);
+        }
+
+        return view('account.sundry_creditors', compact(
+            'records',
+            'reportTitle',
+            'groupType',
+            'fromDate',
+            'toDate',
+            'series',
+            'accountRange',
+            'totalFormatted',
+            'totalDr',
+            'totalCr'
+        ));
+    }
+
+    /**
+     * Export Ledger Summary to Excel (XLSX).
+     */
+    private function exportLedgerSummaryExcel(array $records, string $reportTitle, string $fromDate, string $toDate, string $totalFormatted)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Ledger Summary');
+
+        // Company Header
+        $sheet->setCellValue('A1', 'OMKAAR LOGISTICS');
+        $sheet->mergeCells('A1:C1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14)->getColor()->setRGB('8B0000');
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        $sheet->setCellValue('A2', $reportTitle . " (From: {$fromDate} To: {$toDate})");
+        $sheet->mergeCells('A2:C2');
+        $sheet->getStyle('A2')->getFont()->setSize(10)->setItalic(true);
+        $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Column Headers
+        $sheet->setCellValue('A3', 'Srno.');
+        $sheet->setCellValue('B3', 'Account Name');
+        $sheet->setCellValue('C3', 'Balance');
+
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => '000000'], 'size' => 10],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'E4E2DE'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '808080']],
+            ],
+        ];
+        $sheet->getStyle('A3:C3')->applyFromArray($headerStyle);
+        $sheet->getStyle('B3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $sheet->getStyle('C3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $sheet->getRowDimension(3)->setRowHeight(22);
+
+        $rowNum = 4;
+        $sr = 1;
+        foreach ($records as $r) {
+            $sheet->setCellValue('A' . $rowNum, $sr++);
+            $sheet->setCellValue('B' . $rowNum, $r['name']);
+            $sheet->setCellValue('C' . $rowNum, $r['balance_formatted']);
+
+            $sheet->getStyle('A' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('B' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            $sheet->getStyle('C' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+            $sheet->getStyle('A' . $rowNum . ':C' . $rowNum)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->getColor()->setRGB('D0D0D0');
+            $rowNum++;
+        }
+
+        // Totals Row
+        $sheet->setCellValue('A' . $rowNum, 'Total');
+        $sheet->mergeCells('A' . $rowNum . ':B' . $rowNum);
+        $sheet->setCellValue('C' . $rowNum, $totalFormatted);
+
+        $totalStyle = [
+            'font' => ['bold' => true, 'size' => 10],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'FEDBDB'],
+            ],
+            'borders' => [
+                'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '808080']],
+            ],
+        ];
+        $sheet->getStyle('A' . $rowNum . ':C' . $rowNum)->applyFromArray($totalStyle);
+        $sheet->getStyle('A' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $sheet->getStyle('C' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+        $sheet->getColumnDimension('A')->setWidth(10);
+        $sheet->getColumnDimension('B')->setWidth(50);
+        $sheet->getColumnDimension('C')->setWidth(25);
+
+        $fileName = str_replace(' ', '_', $reportTitle) . '_' . date('Ymd_His') . '.xlsx';
+        $writer = new Xlsx($spreadsheet);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $fileName . '"');
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
+        exit;
+    }
 }

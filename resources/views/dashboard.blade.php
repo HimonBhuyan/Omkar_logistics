@@ -147,27 +147,38 @@
             position: absolute;
             left: 100%;
             top: 0;
-            background: #fff;
+            background: #c5ddf4;
             border: 1px solid #7da9d4;
-            min-width: 180px;
+            min-width: 245px;
             z-index: 10000;
-            padding: 2px 0;
-            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
+            padding: 0;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
         }
 
-        .dropdown-menu .has-sub:hover .sub-menu {
+        .dropdown-menu .has-sub:hover > .sub-menu {
             display: block;
         }
 
         .dropdown-menu .sub-menu a {
             background: #c5ddf4;
             border-bottom: 1px solid #a8c8e8;
-            color: #222;
+            color: #000080;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 5px 14px;
+            white-space: nowrap;
         }
 
         .dropdown-menu .sub-menu a:hover {
-            background: #4a90d4;
-            color: #fff;
+            background: #003087;
+            color: #ffffff;
+        }
+
+        .sub-divider {
+            height: 1px;
+            background: #ffffff;
+            border-bottom: 1px solid #7da9d4;
+            margin: 0;
         }
 
         /* Active highlighted items */
@@ -232,9 +243,9 @@
                 <a href="#">Transaction</a>
                 <div class="dropdown-menu">
                     <a href="{{ route('bilty.create') }}" target="_blank" class="highlighted">C.N Book</a>
-                    <a href="#">Receipt</a>
-                    <a href="#">Payment</a>
-                    <a href="#">Party Bill</a>
+                    <a href="{{ route('receipt.create') }}" target="_blank">Receipt</a>
+                    <a href="{{ route('payment.create') }}" target="_blank">Payment</a>
+                    <a href="{{ route('invoice.create') }}" target="_blank">Invoice</a>
                 </div>
             </div>
 
@@ -247,7 +258,25 @@
                     <a href="#">Payment &amp; Expenses</a>
                     <a href="#">Voucher</a>
                     <a href="#">Deposit in Bank</a>
-                    <a href="#">Reports &nbsp;&#9658;</a>
+                    <div class="has-sub">
+                        <a href="#"><span>Reports</span> <span>&#9658;</span></a>
+                        <div class="sub-menu">
+                            <a href="#">Day Book</a>
+                            <a href="#">Cash Book</a>
+                            <a href="#">Bank Book</a>
+                            <div class="sub-divider"></div>
+                            <a href="#">Ledger Book</a>
+                            <a href="#">Ledger Book Summary</a>
+                            <div class="sub-divider"></div>
+                            <a href="{{ route('report.sundry_creditors') }}">Sundry Creditors Ledger Summary</a>
+                            <a href="{{ route('report.sundry_debtors') }}">Sundry Debtor Ledger Summary</a>
+                            <div class="sub-divider"></div>
+                            <a href="#">Trial Balance</a>
+                            <a href="#">Trading Account</a>
+                            <a href="#">Profit &amp; Loss A/C</a>
+                            <a href="#">Balance Sheet</a>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -259,12 +288,12 @@
                         <a href="{{ route('report.bilty_register') }}">C.N &nbsp;&#9658;</a>
                         <div class="sub-menu">
                             <a href="{{ route('report.bilty_register') }}">C.N Register</a>
-                            <a href="#">Party Bill Register</a>
+                            <a href="{{ route('invoice.register') }}">Invoice Register</a>
                         </div>
                     </div>
-                    <a href="#">Receipt Register</a>
-                    <a href="#">Payment Register</a>
-                    <a href="#">Receipt Detail/TDS Report</a>
+                    <a href="{{ route('receipt.register') }}">Receipt Register</a>
+                    <a href="{{ route('payment.register') }}">Payment Register</a>
+                    <a href="{{ route('report.receipt_detail_tds') }}">Receipt Detail/TDS Report</a>
                 </div>
             </div>
 
