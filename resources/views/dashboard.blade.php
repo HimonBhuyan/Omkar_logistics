@@ -233,16 +233,16 @@
             </span>
             <form action="{{ route('financial-year.switch') }}" method="POST" style="display:inline-block; margin:0;">
                 @csrf
-                <span style="background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:4px; font-weight:bold; font-size:11px; color:#fff;">
-                    FY:
-                    <select name="financial_year" onchange="this.form.submit()" style="background:transparent; color:#fff; border:none; font-weight:bold; font-size:11px; cursor:pointer; outline:none;">
+                <span style="background:#003087; color:#ffffff; padding:2px 8px; border-radius:3px; font-weight:600; font-size:11px; display:inline-flex; align-items:center; gap:4px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">
+                    <span style="color:#ffffff; font-weight:700;">FY:</span>
+                    <select name="financial_year" onchange="this.form.submit()" style="background:#003087; color:#ffffff; border:none; font-weight:700; font-size:11px; cursor:pointer; outline:none; padding:1px 2px;">
                         @php
                             $allFinYears = \App\Models\FinancialYear::all();
                             $currentFy = session('financial_year', '2026-2027');
                         @endphp
-                        <option value="ALL" {{ $currentFy === 'ALL' ? 'selected' : '' }} style="color:#000;">ALL (All Years)</option>
+                        <option value="ALL" {{ $currentFy === 'ALL' ? 'selected' : '' }} style="background:#ffffff; color:#000000;">ALL (All Years)</option>
                         @foreach($allFinYears as $fy)
-                            <option value="{{ $fy->year_string }}" {{ $currentFy === $fy->year_string ? 'selected' : '' }} style="color:#000;">{{ $fy->year_string }}</option>
+                            <option value="{{ $fy->year_string }}" {{ $currentFy === $fy->year_string ? 'selected' : '' }} style="background:#ffffff; color:#000000;">{{ $fy->year_string }}</option>
                         @endforeach
                     </select>
                 </span>

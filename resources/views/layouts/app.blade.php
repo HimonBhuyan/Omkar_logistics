@@ -720,9 +720,9 @@
                                     $allFinYears = \App\Models\FinancialYear::all();
                                     $currentFy = session('financial_year', '2026-2027');
                                 @endphp
-                                <option value="ALL" {{ $currentFy === 'ALL' ? 'selected' : '' }} style="color:#000;">ALL (All Years)</option>
+                                <option value="ALL" {{ $currentFy === 'ALL' ? 'selected' : '' }} style="background:#ffffff; color:#000000;">ALL (All Years)</option>
                                 @foreach($allFinYears as $fy)
-                                    <option value="{{ $fy->year_string }}" {{ $currentFy === $fy->year_string ? 'selected' : '' }} style="color:#000;">{{ $fy->year_string }}</option>
+                                    <option value="{{ $fy->year_string }}" {{ $currentFy === $fy->year_string ? 'selected' : '' }} style="background:#ffffff; color:#000000;">{{ $fy->year_string }}</option>
                                 @endforeach
                             </select>
                         </span>
