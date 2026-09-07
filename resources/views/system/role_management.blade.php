@@ -243,7 +243,7 @@
             <div style="display:flex; gap:15px;">
                 <div class="form-group-custom" style="flex:1;">
                     <label for="name">Role Name <span style="color:red;">*</span></label>
-                    <input type="text" name="name" id="name" value="{{ old('name', $selected->name) }}" required maxlength="50" placeholder="e.g. MANAGER, OPERATOR, ACCOUNTANT" {{ $isSystemRole ? 'readonly style=background-color:#f0f0f0;' : '' }} style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+                    <input type="text" name="name" id="name" value="{{ old('name', $selected->name) }}" required maxlength="50" placeholder="MANAGER, OPERATOR, ACCOUNTANT" {{ $isSystemRole ? 'readonly style=background-color:#f0f0f0;' : '' }} style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
                 </div>
                 <div class="form-group-custom" style="flex:2;">
                     <label for="description">Description</label>

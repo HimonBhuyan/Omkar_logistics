@@ -322,10 +322,18 @@
             <div class="menu-item {{ $isTransactionActive ? 'active' : '' }}">
                 <a href="#">Transaction</a>
                     <div class="dropdown-menu">
-                        <a href="{{ Route::has('bilty.create') ? route('bilty.create') : '#' }}" target="_blank" class="highlighted {{ $isCnBookActive ? 'active' : '' }}">C.N Book</a>
-                        <a href="{{ Route::has('receipt.create') ? route('receipt.create') : '#' }}" target="_blank" class="{{ $isReceiptActive ? 'active' : '' }}">Receipt</a>
-                        <a href="{{ Route::has('payment.create') ? route('payment.create') : '#' }}" target="_blank" class="{{ $isPaymentActive ? 'active' : '' }}">Payment</a>
-                        <a href="{{ Route::has('invoice.create') ? route('invoice.create') : '#' }}" target="_blank" class="{{ $isInvoiceActive ? 'active' : '' }}">Invoice</a>
+                        @if($user->hasPermission('transaction.cn_book'))
+                            <a href="{{ Route::has('bilty.create') ? route('bilty.create') : '#' }}" target="_blank" class="highlighted {{ $isCnBookActive ? 'active' : '' }}">C.N Book</a>
+                        @endif
+                        @if($user->hasPermission('transaction.receipt'))
+                            <a href="{{ Route::has('receipt.create') ? route('receipt.create') : '#' }}" target="_blank" class="{{ $isReceiptActive ? 'active' : '' }}">Receipt</a>
+                        @endif
+                        @if($user->hasPermission('transaction.payment'))
+                            <a href="{{ Route::has('payment.create') ? route('payment.create') : '#' }}" target="_blank" class="{{ $isPaymentActive ? 'active' : '' }}">Payment</a>
+                        @endif
+                        @if($user->hasPermission('transaction.party_bill'))
+                            <a href="{{ Route::has('invoice.create') ? route('invoice.create') : '#' }}" target="_blank" class="{{ $isInvoiceActive ? 'active' : '' }}">Invoice</a>
+                        @endif
                     </div>
             </div>
             @endif
@@ -335,30 +343,42 @@
             <div class="menu-item {{ $isAccountActive ? 'active' : '' }}">
                 <a href="#">Account</a>
                 <div class="dropdown-menu">
-                    <a href="#">Group</a>
-                    <a href="{{ Route::has('account.ledger') ? route('account.ledger') : '#' }}" class="{{ $isAccountLedgerActive ? 'active' : '' }}">Account Ledger</a>
-                    <a href="#">Payment &amp; Expenses</a>
-                    <a href="#">Voucher</a>
-                    <a href="#">Deposit in Bank</a>
-                    <div class="has-sub">
-                        <a href="#" class="{{ $isAccountReportFlyoutActive ? 'active' : '' }}"><span>Reports</span> <span>&#9658;</span></a>
-                        <div class="sub-menu">
-                            <a href="#">Day Book</a>
-                            <a href="#">Cash Book</a>
-                            <a href="#">Bank Book</a>
-                            <div class="sub-divider"></div>
-                            <a href="#">Ledger Book</a>
-                            <a href="#">Ledger Book Summary</a>
-                            <div class="sub-divider"></div>
-                            <a href="{{ Route::has('report.sundry_creditors') ? route('report.sundry_creditors') : '#' }}" class="{{ $isSundryCreditorsActive ? 'active' : '' }}">Sundry Creditors Ledger Summary</a>
-                            <a href="{{ Route::has('report.sundry_debtors') ? route('report.sundry_debtors') : '#' }}" class="{{ $isSundryDebtorsActive ? 'active' : '' }}">Sundry Debtor Ledger Summary</a>
-                            <div class="sub-divider"></div>
-                            <a href="#">Trial Balance</a>
-                            <a href="#">Trading Account</a>
-                            <a href="#">Profit &amp; Loss A/C</a>
-                            <a href="#">Balance Sheet</a>
+                    @if($user->hasPermission('account.group'))
+                        <a href="#">Group</a>
+                    @endif
+                    @if($user->hasPermission('account.ledger'))
+                        <a href="{{ Route::has('account.ledger') ? route('account.ledger') : '#' }}" class="{{ $isAccountLedgerActive ? 'active' : '' }}">Account Ledger</a>
+                    @endif
+                    @if($user->hasPermission('account.payment_expenses'))
+                        <a href="#">Payment &amp; Expenses</a>
+                    @endif
+                    @if($user->hasPermission('account.voucher'))
+                        <a href="#">Voucher</a>
+                    @endif
+                    @if($user->hasPermission('account.deposit_bank'))
+                        <a href="#">Deposit in Bank</a>
+                    @endif
+                    @if($user->hasPermission('account.reports'))
+                        <div class="has-sub">
+                            <a href="#" class="{{ $isAccountReportFlyoutActive ? 'active' : '' }}"><span>Reports</span> <span>&#9658;</span></a>
+                            <div class="sub-menu">
+                                <a href="#">Day Book</a>
+                                <a href="#">Cash Book</a>
+                                <a href="#">Bank Book</a>
+                                <div class="sub-divider"></div>
+                                <a href="#">Ledger Book</a>
+                                <a href="#">Ledger Book Summary</a>
+                                <div class="sub-divider"></div>
+                                <a href="{{ Route::has('report.sundry_creditors') ? route('report.sundry_creditors') : '#' }}" class="{{ $isSundryCreditorsActive ? 'active' : '' }}">Sundry Creditors Ledger Summary</a>
+                                <a href="{{ Route::has('report.sundry_debtors') ? route('report.sundry_debtors') : '#' }}" class="{{ $isSundryDebtorsActive ? 'active' : '' }}">Sundry Debtor Ledger Summary</a>
+                                <div class="sub-divider"></div>
+                                <a href="#">Trial Balance</a>
+                                <a href="#">Trading Account</a>
+                                <a href="#">Profit &amp; Loss A/C</a>
+                                <a href="#">Balance Sheet</a>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
             </div>
             @endif
@@ -368,16 +388,28 @@
             <div class="menu-item {{ $isReportActive ? 'active' : '' }}">
                 <a href="#">Report</a>
                 <div class="dropdown-menu">
-                    <div class="has-sub">
-                        <a href="{{ Route::has('report.bilty_register') ? route('report.bilty_register') : '#' }}" class="{{ $isCnReportFlyoutActive ? 'active' : '' }}">C.N &nbsp;&#9658;</a>
-                        <div class="sub-menu">
-                            <a href="{{ Route::has('report.bilty_register') ? route('report.bilty_register') : '#' }}" class="{{ $isBiltyRegisterActive ? 'active' : '' }}">C.N Register</a>
-                            <a href="{{ Route::has('invoice.register') ? route('invoice.register') : '#' }}" class="{{ $isInvoiceRegisterActive ? 'active' : '' }}">Invoice Register</a>
+                    @if($user->hasPermission('report.bilty_register') || $user->hasPermission('report.party_bill_register'))
+                        <div class="has-sub">
+                            <a href="{{ Route::has('report.bilty_register') ? route('report.bilty_register') : '#' }}" class="{{ $isCnReportFlyoutActive ? 'active' : '' }}">C.N &nbsp;&#9658;</a>
+                            <div class="sub-menu">
+                                @if($user->hasPermission('report.bilty_register'))
+                                    <a href="{{ Route::has('report.bilty_register') ? route('report.bilty_register') : '#' }}" class="{{ $isBiltyRegisterActive ? 'active' : '' }}">C.N Register</a>
+                                @endif
+                                @if($user->hasPermission('report.party_bill_register'))
+                                    <a href="{{ Route::has('invoice.register') ? route('invoice.register') : '#' }}" class="{{ $isInvoiceRegisterActive ? 'active' : '' }}">Invoice Register</a>
+                                @endif
+                            </div>
                         </div>
-                    </div>
-                    <a href="{{ Route::has('receipt.register') ? route('receipt.register') : '#' }}" class="{{ $isReceiptRegisterActive ? 'active' : '' }}">Receipt Register</a>
-                    <a href="{{ Route::has('payment.register') ? route('payment.register') : '#' }}" class="{{ $isPaymentRegisterActive ? 'active' : '' }}">Payment Register</a>
-                    <a href="{{ Route::has('report.receipt_detail_tds') ? route('report.receipt_detail_tds') : '#' }}" class="{{ $isReceiptTdsActive ? 'active' : '' }}">Receipt Detail/TDS Report</a>
+                    @endif
+                    @if($user->hasPermission('report.receipt_register'))
+                        <a href="{{ Route::has('receipt.register') ? route('receipt.register') : '#' }}" class="{{ $isReceiptRegisterActive ? 'active' : '' }}">Receipt Register</a>
+                    @endif
+                    @if($user->hasPermission('report.payment_register'))
+                        <a href="{{ Route::has('payment.register') ? route('payment.register') : '#' }}" class="{{ $isPaymentRegisterActive ? 'active' : '' }}">Payment Register</a>
+                    @endif
+                    @if($user->hasPermission('report.tds_report'))
+                        <a href="{{ Route::has('report.receipt_detail_tds') ? route('report.receipt_detail_tds') : '#' }}" class="{{ $isReceiptTdsActive ? 'active' : '' }}">Receipt Detail/TDS Report</a>
+                    @endif
                 </div>
             </div>
             @endif
@@ -396,35 +428,37 @@
                             </div>
                         </div>
                     @endif
-                    <div class="has-sub">
-                        <a href="#" class="{{ $isGeneralMasterFlyoutActive ? 'active' : '' }}">General &nbsp;&#9658;</a>
-                        <div class="sub-menu">
-                            @if($user->hasPermission('master.series'))
-                                <a href="{{ route('master.series') }}" class="{{ $isSeriesActive ? 'active' : '' }}">Series</a>
-                            @endif
-                            @if($user->hasPermission('master.measurement_unit'))
-                                <a href="{{ route('master.measurement-unit') }}" class="{{ $isUnitActive ? 'active' : '' }}">Measurement Unit</a>
-                            @endif
-                            @if($user->hasPermission('master.shipping_status'))
-                                <a href="{{ route('master.shipping-status') }}" class="{{ $isShippingActive ? 'active' : '' }}">Shipping Status</a>
-                            @endif
-                            @if($user->hasPermission('master.transport'))
-                                <a href="#">Transport</a>
-                            @endif
-                            @if($user->hasPermission('master.country'))
-                                <a href="{{ route('master.country') }}" class="{{ $isCountryActive ? 'active' : '' }}">Country</a>
-                            @endif
-                            @if($user->hasPermission('master.state'))
-                                <a href="{{ route('master.state') }}" class="{{ $isStateActive ? 'active' : '' }}">State</a>
-                            @endif
-                            @if($user->hasPermission('master.city'))
-                                <a href="{{ route('master.city') }}" class="{{ $isCityActive ? 'active' : '' }}">City</a>
-                            @endif
-                            @if($user->hasPermission('master.currency'))
-                                <a href="#">Currency</a>
-                            @endif
+                    @if($user->hasPermission('master.series') || $user->hasPermission('master.measurement_unit') || $user->hasPermission('master.shipping_status') || $user->hasPermission('master.transport') || $user->hasPermission('master.country') || $user->hasPermission('master.state') || $user->hasPermission('master.city') || $user->hasPermission('master.currency'))
+                        <div class="has-sub">
+                            <a href="#" class="{{ $isGeneralMasterFlyoutActive ? 'active' : '' }}">General &nbsp;&#9658;</a>
+                            <div class="sub-menu">
+                                @if($user->hasPermission('master.series'))
+                                    <a href="{{ route('master.series') }}" class="{{ $isSeriesActive ? 'active' : '' }}">Series</a>
+                                @endif
+                                @if($user->hasPermission('master.measurement_unit'))
+                                    <a href="{{ route('master.measurement-unit') }}" class="{{ $isUnitActive ? 'active' : '' }}">Measurement Unit</a>
+                                @endif
+                                @if($user->hasPermission('master.shipping_status'))
+                                    <a href="{{ route('master.shipping-status') }}" class="{{ $isShippingActive ? 'active' : '' }}">Shipping Status</a>
+                                @endif
+                                @if($user->hasPermission('master.transport'))
+                                    <a href="#">Transport</a>
+                                @endif
+                                @if($user->hasPermission('master.country'))
+                                    <a href="{{ route('master.country') }}" class="{{ $isCountryActive ? 'active' : '' }}">Country</a>
+                                @endif
+                                @if($user->hasPermission('master.state'))
+                                    <a href="{{ route('master.state') }}" class="{{ $isStateActive ? 'active' : '' }}">State</a>
+                                @endif
+                                @if($user->hasPermission('master.city'))
+                                    <a href="{{ route('master.city') }}" class="{{ $isCityActive ? 'active' : '' }}">City</a>
+                                @endif
+                                @if($user->hasPermission('master.currency'))
+                                    <a href="#">Currency</a>
+                                @endif
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
             </div>
             @endif

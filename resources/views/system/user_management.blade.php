@@ -283,13 +283,13 @@
                 <!-- 1. Full Name first -->
                 <div class="form-group-custom">
                     <label for="name">Full Name <span style="color:red;">*</span></label>
-                    <input type="text" name="name" id="name" value="{{ old('name', $selected->name) }}" required maxlength="100" placeholder="e.g. John Doe">
+                    <input type="text" name="name" id="name" value="{{ old('name', $selected->name) }}" required maxlength="100" placeholder="Full Name">
                 </div>
 
                 <!-- 2. Username second with smart suggestions (Create Only) -->
                 <div class="form-group-custom">
                     <label for="username">Username <span style="color:red;">*</span></label>
-                    <input type="text" name="username" id="username" value="{{ old('username', $selected->username) }}" required maxlength="50" placeholder="e.g. johndoe" {{ $selected->id ? 'readonly style=background-color:#f0f0f0;' : '' }}>
+                    <input type="text" name="username" id="username" value="{{ old('username', $selected->username) }}" required maxlength="50" placeholder="Username" class="no-uppercase" data-case="sensitive" style="text-transform: none !important; {{ $selected->id ? 'background-color:#f0f0f0;' : '' }}" {{ $selected->id ? 'readonly' : '' }}>
                     @if($selected->id)
                         <small style="color:#666; font-size:10px; display:block; margin-top:2px;">🔒 Username cannot be changed once created.</small>
                     @else
@@ -301,19 +301,25 @@
                 <!-- 3. Phone Number -->
                 <div class="form-group-custom">
                     <label for="phone_number">Phone Number</label>
-                    <input type="text" name="phone_number" id="phone_number" value="{{ old('phone_number', $selected->phone_number) }}" maxlength="20" placeholder="e.g. +91 9876543210">
+                    <input type="text" name="phone_number" id="phone_number" value="{{ old('phone_number', $selected->phone_number) }}" maxlength="20" placeholder="Phone Number">
                 </div>
 
                 <!-- 4. Email Address -->
                 <div class="form-group-custom">
                     <label for="email">Email Address</label>
-                    <input type="email" name="email" id="email" value="{{ old('email', $selected->email) }}" maxlength="100" placeholder="e.g. user@omkaarlogistics.com">
+                    <input type="email" name="email" id="email" value="{{ old('email', $selected->email) }}" maxlength="100" placeholder="Email Address" class="no-uppercase" data-case="sensitive" style="text-transform: none !important;">
                 </div>
 
                 <!-- 5. Password -->
                 <div class="form-group-custom" style="grid-column: span 2;">
                     <label for="password">Password {{ $selected->id ? '(Leave blank to keep unchanged)' : '*' }}</label>
-                    <input type="password" name="password" id="password" {{ $selected->id ? '' : 'required' }} minlength="4" placeholder="••••••••">
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" name="password" id="password" class="no-uppercase" data-case="sensitive" style="text-transform: none !important; width: 100%; padding-right: 36px;" {{ $selected->id ? '' : 'required' }} minlength="4" placeholder="••••••••">
+                        <button type="button" id="toggleUserPasswordBtn" title="Toggle password visibility" style="position: absolute; right: 8px; background: transparent; border: none; cursor: pointer; color: #555; display: flex; align-items: center; padding: 4px;">
+                            <svg id="userEyeOpen" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg id="userEyeClosed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -511,7 +517,7 @@
         if (currentUserId !== null) return;
         const usernameInput = document.getElementById('username');
         if (usernameInput) {
-            usernameInput.value = val;
+            usernameInput.value = val.toLowerCase();
             usernameInput.dataset.autoFilled = 'false';
             validateUsernameUniqueness();
         }
@@ -547,7 +553,7 @@
                 if (usernameInput && (!usernameInput.value.trim() || usernameInput.dataset.autoFilled === 'true')) {
                     const suggestions = generateUsernameSuggestions(this.value);
                     if (suggestions.length > 0) {
-                        usernameInput.value = suggestions[0];
+                        usernameInput.value = suggestions[0].toLowerCase();
                         usernameInput.dataset.autoFilled = 'true';
                         validateUsernameUniqueness();
                     }
@@ -565,6 +571,25 @@
 
         if (currentUserId === null) {
             updateUsernameSuggestions();
+        }
+
+        const userPasswordInput = document.getElementById('password');
+        const userToggleBtn = document.getElementById('toggleUserPasswordBtn');
+        const userEyeOpen = document.getElementById('userEyeOpen');
+        const userEyeClosed = document.getElementById('userEyeClosed');
+
+        if (userToggleBtn && userPasswordInput) {
+            userToggleBtn.addEventListener('click', function() {
+                if (userPasswordInput.type === 'password') {
+                    userPasswordInput.type = 'text';
+                    userEyeOpen.style.display = 'none';
+                    userEyeClosed.style.display = 'block';
+                } else {
+                    userPasswordInput.type = 'password';
+                    userEyeOpen.style.display = 'block';
+                    userEyeClosed.style.display = 'none';
+                }
+            });
         }
     });
 </script>
