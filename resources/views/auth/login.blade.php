@@ -104,7 +104,7 @@
             -webkit-backdrop-filter: blur(28px);
             border-radius: 18px;
             border: 1px solid var(--border-glass);
-            box-shadow: 
+            box-shadow:
                 0 30px 80px rgba(0, 0, 0, 0.7),
                 0 0 0 1px rgba(255, 255, 255, 0.08),
                 0 0 40px rgba(227, 0, 27, 0.12);
@@ -198,7 +198,7 @@
             background: #ffffff;
             padding: 12px 16px;
             border-radius: 12px;
-            box-shadow: 
+            box-shadow:
                 0 12px 30px rgba(0, 0, 0, 0.4),
                 0 0 0 1px rgba(255, 255, 255, 0.9);
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -207,7 +207,7 @@
 
         .logo-card:hover {
             transform: translateY(-4px) scale(1.03);
-            box-shadow: 
+            box-shadow:
                 0 18px 40px rgba(227, 0, 27, 0.25),
                 0 0 0 2px rgba(227, 0, 27, 0.4);
         }
@@ -573,7 +573,7 @@
             <!-- Right Side: Login Form -->
             <form action="{{ route('login.post') }}" method="POST" class="form-section" id="loginForm">
                 @csrf
-                
+
                 <div class="form-header-text">
                     <h2>Welcome Back</h2>
                     <p>Enter your credentials to access the ERP dashboard</p>
@@ -618,7 +618,7 @@
                         <span class="input-icon">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                         </span>
-                        <input type="text" name="username" id="username" class="form-input" placeholder="Enter username (e.g. ADMIN)" value="{{ old('username') }}" required autofocus autocomplete="username">
+                        <input type="text" name="username" id="username" class="form-input" placeholder="Enter username" value="{{ old('username') }}" required autofocus autocomplete="username">
                     </div>
                 </div>
 

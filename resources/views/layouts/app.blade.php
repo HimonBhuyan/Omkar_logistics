@@ -963,7 +963,6 @@
         </nav>
         @endauth
     </div>
-    </div>
 
     <!-- Floating Toast Notification Overlay -->
     <div id="toast-container">

@@ -240,15 +240,17 @@
                             $allFinYears = \App\Models\FinancialYear::all();
                             $currentFy = session('financial_year', '2026-2027');
                         @endphp
-    <div class="title-bar">
-        <div>
-            <span class="app-title">{{ session('company_name', 'OMKAAR LOGISTICS') }}</span>
-            <span style="margin: 0 8px; color: #aaa;">|</span>
-            <span style="color: #003087; font-weight: 600;">FY: {{ session('financial_year', '2026-2027') }}</span>
+                        <option value="ALL" {{ $currentFy === 'ALL' ? 'selected' : '' }} style="background:#ffffff; color:#000000;">ALL (All Years)</option>
+                        @foreach($allFinYears as $fy)
+                            <option value="{{ $fy->year_string }}" {{ $currentFy === $fy->year_string ? 'selected' : '' }} style="background:#ffffff; color:#000000;">{{ $fy->year_string }}</option>
+                        @endforeach
+                    </select>
+                </span>
+            </form>
         </div>
         <div>
             <span class="version">Version :10.10.1005</span>
-            <span class="user-badge" style="margin-left:10px;">{{ strtoupper(auth()->user()->username ?? 'USER') }}</span>
+            <span class="user-badge" style="margin-left:10px;">{{ strtoupper(auth()->user()->name ?? 'USER') }}</span>
         </div>
     </div>
 
