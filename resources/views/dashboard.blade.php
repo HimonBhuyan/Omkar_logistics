@@ -240,13 +240,11 @@
                             $allFinYears = \App\Models\FinancialYear::all();
                             $currentFy = session('financial_year', '2026-2027');
                         @endphp
-                        <option value="ALL" {{ $currentFy === 'ALL' ? 'selected' : '' }} style="background:#ffffff; color:#000000;">ALL (All Years)</option>
-                        @foreach($allFinYears as $fy)
-                            <option value="{{ $fy->year_string }}" {{ $currentFy === $fy->year_string ? 'selected' : '' }} style="background:#ffffff; color:#000000;">{{ $fy->year_string }}</option>
-                        @endforeach
-                    </select>
-                </span>
-            </form>
+    <div class="title-bar">
+        <div>
+            <span class="app-title">{{ session('company_name', 'OMKAAR LOGISTICS') }}</span>
+            <span style="margin: 0 8px; color: #aaa;">|</span>
+            <span style="color: #003087; font-weight: 600;">FY: {{ session('financial_year', '2026-2027') }}</span>
         </div>
         <div>
             <span class="version">Version :10.10.1005</span>
@@ -262,6 +260,55 @@
         $canMaster = $user->hasPermission('master.item') || $user->hasPermission('master.measurement_unit') || $user->hasPermission('master.series') || $user->hasPermission('master.transport') || $user->hasPermission('master.country') || $user->hasPermission('master.state') || $user->hasPermission('master.city') || $user->hasPermission('master.currency');
         $canTools = $user->hasPermission('tools.backup') || $user->hasPermission('tools.restore') || $user->hasPermission('tools.settings');
         $canSystem = $user->hasPermission('system.change_password') || $user->hasPermission('system.user_management') || $user->hasPermission('system.role_management');
+
+        // 1. Transaction Sub-Tabs Active States
+        $isCnBookActive = request()->routeIs('bilty.create', 'bilty.store', 'bilty.edit') || (request()->is('bilty*') && !request()->routeIs('report.bilty_register*'));
+        $isReceiptActive = request()->routeIs('receipt.create', 'receipt.edit', 'receipt.store') || (request()->is('receipt*') && !request()->routeIs('receipt.register*') && !request()->routeIs('report.receipt_detail_tds*'));
+        $isPaymentActive = request()->routeIs('payment.create', 'payment.edit', 'payment.store') || (request()->is('payment*') && !request()->routeIs('payment.register*'));
+        $isInvoiceActive = request()->routeIs('invoice.create', 'invoice.edit', 'invoice.store') || (request()->is('invoice*') && !request()->routeIs('invoice.register*'));
+
+        $isTransactionActive = $isCnBookActive || $isReceiptActive || $isPaymentActive || $isInvoiceActive;
+
+        // 2. Account Sub-Tabs Active States
+        $isAccountLedgerActive = request()->routeIs('account.ledger*') || request()->is('account/ledger*');
+        $isSundryCreditorsActive = request()->routeIs('report.sundry_creditors*') || request()->is('account/reports/sundry-creditors*');
+        $isSundryDebtorsActive = request()->routeIs('report.sundry_debtors*') || request()->is('account/reports/sundry-debtors*');
+        $isAccountReportFlyoutActive = $isSundryCreditorsActive || $isSundryDebtorsActive;
+
+        $isAccountActive = $isAccountLedgerActive || $isAccountReportFlyoutActive || (request()->is('account*') && !request()->is('account/reports/sundry*'));
+
+        // 3. Report Sub-Tabs Active States
+        $isBiltyRegisterActive = request()->routeIs('report.bilty_register*') || request()->is('report/bilty-register*');
+        $isInvoiceRegisterActive = request()->routeIs('invoice.register*') || request()->is('invoice/register*');
+        $isCnReportFlyoutActive = $isBiltyRegisterActive || $isInvoiceRegisterActive;
+
+        $isReceiptRegisterActive = request()->routeIs('receipt.register*') || request()->is('receipt/register*');
+        $isPaymentRegisterActive = request()->routeIs('payment.register*') || request()->is('payment/register*');
+        $isReceiptTdsActive = request()->routeIs('report.receipt_detail_tds*') || request()->is('report/receipt-detail-tds*');
+
+        $isReportActive = $isCnReportFlyoutActive || $isReceiptRegisterActive || $isPaymentRegisterActive || $isReceiptTdsActive || request()->is('report*');
+
+        // 4. Master Sub-Tabs Active States
+        $isSeriesActive = request()->routeIs('master.series*') || request()->is('master/series*');
+        $isUnitActive = request()->routeIs('master.measurement-unit*') || request()->is('master/measurement-unit*');
+        $isShippingActive = request()->routeIs('master.shipping-status*') || request()->is('master/shipping-status*');
+        $isCountryActive = request()->routeIs('master.country*') || request()->is('master/country*');
+        $isStateActive = request()->routeIs('master.state*') || request()->is('master/state*');
+        $isCityActive = request()->routeIs('master.city*') || request()->is('master/city*');
+
+        $isGeneralMasterFlyoutActive = $isSeriesActive || $isUnitActive || $isShippingActive || $isCountryActive || $isStateActive || $isCityActive;
+
+        $isMasterActive = $isGeneralMasterFlyoutActive || request()->routeIs('master.*') || request()->is('master*');
+
+        // 5. Tools Sub-Tabs Active States
+        $isToolsActive = request()->routeIs('tools.*') || request()->is('tools*');
+
+        // 6. System Sub-Tabs Active States
+        $isUserMgmtActive = request()->routeIs('system.user*') || request()->is('system/users*');
+        $isRoleMgmtActive = request()->routeIs('system.role*') || request()->is('system/roles*');
+        $isChangePasswordActive = request()->routeIs('system.change_password*') || request()->is('system/change-password*');
+
+        $isSystemActive = $isUserMgmtActive || $isRoleMgmtActive || $isChangePasswordActive || request()->routeIs('system.*') || request()->is('system*');
     @endphp
 
     <!-- Menu Bar -->
@@ -270,29 +317,29 @@
         <div style="display: flex; align-items: center;">
             <!-- Transaction -->
             @if($canTransaction)
-            <div class="menu-item">
+            <div class="menu-item {{ $isTransactionActive ? 'active' : '' }}">
                 <a href="#">Transaction</a>
                     <div class="dropdown-menu">
-                        <a href="{{ route('bilty.create') }}" target="_blank" class="highlighted">C.N Book</a>
-                        <a href="{{ route('receipt.create') }}" target="_blank">Receipt</a>
-                        <a href="{{ route('payment.create') }}" target="_blank">Payment</a>
-                        <a href="{{ route('invoice.create') }}" target="_blank">Invoice</a>
+                        <a href="{{ Route::has('bilty.create') ? route('bilty.create') : '#' }}" target="_blank" class="highlighted {{ $isCnBookActive ? 'active' : '' }}">C.N Book</a>
+                        <a href="{{ Route::has('receipt.create') ? route('receipt.create') : '#' }}" target="_blank" class="{{ $isReceiptActive ? 'active' : '' }}">Receipt</a>
+                        <a href="{{ Route::has('payment.create') ? route('payment.create') : '#' }}" target="_blank" class="{{ $isPaymentActive ? 'active' : '' }}">Payment</a>
+                        <a href="{{ Route::has('invoice.create') ? route('invoice.create') : '#' }}" target="_blank" class="{{ $isInvoiceActive ? 'active' : '' }}">Invoice</a>
                     </div>
             </div>
             @endif
 
             <!-- Account -->
             @if($canAccount)
-            <div class="menu-item">
+            <div class="menu-item {{ $isAccountActive ? 'active' : '' }}">
                 <a href="#">Account</a>
                 <div class="dropdown-menu">
                     <a href="#">Group</a>
-                    <a href="{{ route('account.ledger') }}">Account Ledger</a>
+                    <a href="{{ Route::has('account.ledger') ? route('account.ledger') : '#' }}" class="{{ $isAccountLedgerActive ? 'active' : '' }}">Account Ledger</a>
                     <a href="#">Payment &amp; Expenses</a>
                     <a href="#">Voucher</a>
                     <a href="#">Deposit in Bank</a>
                     <div class="has-sub">
-                        <a href="#"><span>Reports</span> <span>&#9658;</span></a>
+                        <a href="#" class="{{ $isAccountReportFlyoutActive ? 'active' : '' }}"><span>Reports</span> <span>&#9658;</span></a>
                         <div class="sub-menu">
                             <a href="#">Day Book</a>
                             <a href="#">Cash Book</a>
@@ -301,8 +348,8 @@
                             <a href="#">Ledger Book</a>
                             <a href="#">Ledger Book Summary</a>
                             <div class="sub-divider"></div>
-                            <a href="{{ route('report.sundry_creditors') }}">Sundry Creditors Ledger Summary</a>
-                            <a href="{{ route('report.sundry_debtors') }}">Sundry Debtor Ledger Summary</a>
+                            <a href="{{ Route::has('report.sundry_creditors') ? route('report.sundry_creditors') : '#' }}" class="{{ $isSundryCreditorsActive ? 'active' : '' }}">Sundry Creditors Ledger Summary</a>
+                            <a href="{{ Route::has('report.sundry_debtors') ? route('report.sundry_debtors') : '#' }}" class="{{ $isSundryDebtorsActive ? 'active' : '' }}">Sundry Debtor Ledger Summary</a>
                             <div class="sub-divider"></div>
                             <a href="#">Trial Balance</a>
                             <a href="#">Trading Account</a>
@@ -316,26 +363,26 @@
 
             <!-- Report -->
             @if($canReport)
-            <div class="menu-item">
+            <div class="menu-item {{ $isReportActive ? 'active' : '' }}">
                 <a href="#">Report</a>
                 <div class="dropdown-menu">
                     <div class="has-sub">
-                        <a href="{{ route('report.bilty_register') }}">C.N &nbsp;&#9658;</a>
+                        <a href="{{ Route::has('report.bilty_register') ? route('report.bilty_register') : '#' }}" class="{{ $isCnReportFlyoutActive ? 'active' : '' }}">C.N &nbsp;&#9658;</a>
                         <div class="sub-menu">
-                            <a href="{{ route('report.bilty_register') }}">C.N Register</a>
-                            <a href="{{ route('invoice.register') }}">Invoice Register</a>
+                            <a href="{{ Route::has('report.bilty_register') ? route('report.bilty_register') : '#' }}" class="{{ $isBiltyRegisterActive ? 'active' : '' }}">C.N Register</a>
+                            <a href="{{ Route::has('invoice.register') ? route('invoice.register') : '#' }}" class="{{ $isInvoiceRegisterActive ? 'active' : '' }}">Invoice Register</a>
                         </div>
                     </div>
-                    <a href="{{ route('receipt.register') }}">Receipt Register</a>
-                    <a href="{{ route('payment.register') }}">Payment Register</a>
-                    <a href="{{ route('report.receipt_detail_tds') }}">Receipt Detail/TDS Report</a>
+                    <a href="{{ Route::has('receipt.register') ? route('receipt.register') : '#' }}" class="{{ $isReceiptRegisterActive ? 'active' : '' }}">Receipt Register</a>
+                    <a href="{{ Route::has('payment.register') ? route('payment.register') : '#' }}" class="{{ $isPaymentRegisterActive ? 'active' : '' }}">Payment Register</a>
+                    <a href="{{ Route::has('report.receipt_detail_tds') ? route('report.receipt_detail_tds') : '#' }}" class="{{ $isReceiptTdsActive ? 'active' : '' }}">Receipt Detail/TDS Report</a>
                 </div>
             </div>
             @endif
 
             <!-- Master -->
             @if($canMaster)
-            <div class="menu-item">
+            <div class="menu-item {{ $isMasterActive ? 'active' : '' }}">
                 <a href="#">Master</a>
                 <div class="dropdown-menu">
                     @if($user->hasPermission('master.item'))
@@ -348,25 +395,28 @@
                         </div>
                     @endif
                     <div class="has-sub">
-                        <a href="#">General &nbsp;&#9658;</a>
+                        <a href="#" class="{{ $isGeneralMasterFlyoutActive ? 'active' : '' }}">General &nbsp;&#9658;</a>
                         <div class="sub-menu">
                             @if($user->hasPermission('master.series'))
-                                <a href="{{ route('master.series') }}">Series</a>
+                                <a href="{{ route('master.series') }}" class="{{ $isSeriesActive ? 'active' : '' }}">Series</a>
                             @endif
                             @if($user->hasPermission('master.measurement_unit'))
-                                <a href="{{ route('master.measurement-unit') }}">Measurement Unit</a>
+                                <a href="{{ route('master.measurement-unit') }}" class="{{ $isUnitActive ? 'active' : '' }}">Measurement Unit</a>
+                            @endif
+                            @if($user->hasPermission('master.shipping_status'))
+                                <a href="{{ route('master.shipping-status') }}" class="{{ $isShippingActive ? 'active' : '' }}">Shipping Status</a>
                             @endif
                             @if($user->hasPermission('master.transport'))
                                 <a href="#">Transport</a>
                             @endif
                             @if($user->hasPermission('master.country'))
-                                <a href="{{ route('master.country') }}">Country</a>
+                                <a href="{{ route('master.country') }}" class="{{ $isCountryActive ? 'active' : '' }}">Country</a>
                             @endif
                             @if($user->hasPermission('master.state'))
-                                <a href="{{ route('master.state') }}">State</a>
+                                <a href="{{ route('master.state') }}" class="{{ $isStateActive ? 'active' : '' }}">State</a>
                             @endif
                             @if($user->hasPermission('master.city'))
-                                <a href="{{ route('master.city') }}">City</a>
+                                <a href="{{ route('master.city') }}" class="{{ $isCityActive ? 'active' : '' }}">City</a>
                             @endif
                             @if($user->hasPermission('master.currency'))
                                 <a href="#">Currency</a>
@@ -379,7 +429,7 @@
 
             <!-- Tools -->
             @if($canTools)
-            <div class="menu-item">
+            <div class="menu-item {{ $isToolsActive ? 'active' : '' }}">
                 <a href="#">Tools</a>
                 <div class="dropdown-menu">
                     @if($user->hasPermission('tools.backup'))
@@ -397,17 +447,17 @@
 
             <!-- System -->
             @if($canSystem)
-            <div class="menu-item">
+            <div class="menu-item {{ $isSystemActive ? 'active' : '' }}">
                 <a href="#">System</a>
                 <div class="dropdown-menu">
                     @if($user->hasPermission('system.user_management'))
-                        <a href="{{ route('system.user') }}">User Management</a>
+                        <a href="{{ route('system.user') }}" class="{{ $isUserMgmtActive ? 'active' : '' }}">User Management</a>
                     @endif
                     @if($user->hasPermission('system.role_management'))
-                        <a href="{{ route('system.role') }}">Role Management</a>
+                        <a href="{{ route('system.role') }}" class="{{ $isRoleMgmtActive ? 'active' : '' }}">Role Management</a>
                     @endif
                     @if($user->hasPermission('system.change_password'))
-                        <a href="{{ route('system.change_password') }}">Change Password</a>
+                        <a href="{{ route('system.change_password') }}" class="{{ $isChangePasswordActive ? 'active' : '' }}">Change Password</a>
                     @endif
                 </div>
             </div>
