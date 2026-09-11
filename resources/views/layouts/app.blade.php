@@ -78,11 +78,11 @@
 
         /* Global High-Contrast Tables with UPPERCASE Headers */
         table th, .table th, .bilty-grid th, .party-bill-table th, .register-table th, .ledger-table th, .grid-table th, .report-table th, .register-data-table th, .receipt-grid-table th, .series-table th {
-            color: #0f172a !important;
+            color: #000000 !important;
             font-weight: 700 !important;
             font-size: 13px !important;
-            background-color: #e2e8f0;
-            border-color: #94a3b8 !important;
+            background-color: #cbd5e1 !important;
+            border-color: #64748b !important;
             text-transform: uppercase !important;
             letter-spacing: 0.3px;
         }
@@ -98,11 +98,11 @@
         .master-wrapper, .ledger-wrapper {
             font-size: 13px !important;
         }
-        .master-list-header, .ledger-title-bar, .master-title-bar, .party-bill-header-bar, .receipt-title-bar, .payment-title-bar, .report-header-bar, .register-header-red, .section-title, .f-section-title, .bilty-header-bar {
+        .master-list-header, .ledger-title-bar, .master-title-bar, .party-bill-header-bar, .receipt-title-bar, .payment-title-bar, .report-header-bar, .register-header-red, .register-title-bar, .section-title, .f-section-title, .bilty-header-bar, .card-header-bar {
             font-size: 14.5px !important;
             font-weight: 700 !important;
             text-transform: uppercase !important;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.5px !important;
         }
         .master-list-search input {
             font-size: 13px !important;
@@ -122,6 +122,11 @@
             color: #0f172a !important;
             text-transform: uppercase !important;
             letter-spacing: 0.3px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .filter-group, .ctrl-group, .ctrl-item {
+            min-width: 0;
         }
         .f-row input, .f-row select, .f-row textarea, .form-row input, .form-row select, .ctrl-group input, .ctrl-group select, .filter-group input, .filter-group select, .ctrl-item input, .ctrl-item select {
             font-size: 13px !important;
@@ -198,20 +203,22 @@
 
         .header-logo h1 {
             font-size: 21px;
-            font-weight: 800;
+            font-weight: 700;
             letter-spacing: 1px;
             display: flex;
             flex-direction: column;
             line-height: 1.1;
             z-index: 1;
+            text-transform: uppercase;
         }
 
         .header-logo h1 .subtitle {
             font-size: 11px;
-            font-weight: 500;
+            font-weight: 600;
             color: #ff99aa;
             letter-spacing: 2px;
             margin-top: 2px;
+            text-transform: uppercase;
         }
 
         .header-info {
@@ -223,20 +230,52 @@
         }
 
         .badge {
-            background: rgba(255, 255, 255, 0.18);
-            padding: 5px 12px;
+            background: #003087;
+            padding: 4px 12px;
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            color: #ffffff;
+            border: 1.5px solid rgba(255, 255, 255, 0.6);
+            color: #ffffff !important;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
 
         .badge-active {
-            border-color: #ff6b81;
-            color: #fff;
-            background: rgba(233, 69, 96, 0.35);
+            border-color: #ffffff;
+            color: #ffffff !important;
+            background: #e94560 !important;
             font-weight: 700;
+        }
+
+        .header-info .badge,
+        .header-info .badge-active,
+        .header-info .badge strong {
+            color: #ffffff !important;
+        }
+
+        .header-info select,
+        .header-info .badge select,
+        .header-info .badge-active select,
+        select#financial_year_select {
+            color: #ffffff !important;
+            background: transparent !important;
+            border: none !important;
+            font-weight: 700 !important;
+            font-size: 13px !important;
+            cursor: pointer !important;
+            outline: none !important;
+            box-shadow: none !important;
+            padding: 0 4px !important;
+        }
+
+        .header-info select option,
+        .header-info .badge select option,
+        .header-info .badge-active select option,
+        select#financial_year_select option {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            font-weight: 600 !important;
+            font-size: 13px !important;
         }
 
         .user-dropdown {
@@ -251,6 +290,8 @@
             box-shadow: 0 2px 8px rgba(233, 69, 96, 0.3);
             border: none;
             cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .user-dropdown:hover {
@@ -278,19 +319,22 @@
         .menu-link {
             display: block;
             padding: 10px 18px;
-            color: #0f172a;
+            color: #000000;
             text-decoration: none;
             font-size: 14px;
             font-weight: 600;
             transition: all 0.15s ease;
             white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .menu-link:hover,
         .menu-item:hover .menu-link,
         .menu-item.active .menu-link {
             background: #003087;
-            color: #fff;
+            color: #ffffff;
+            font-weight: 700;
         }
 
         /* Dropdown - Windows legacy style */
@@ -300,7 +344,7 @@
             top: 100%;
             left: 0;
             background: #fff;
-            border: 1px solid #7da9d4;
+            border: 2px solid #7da9d4;
             border-top: none;
             min-width: 190px;
             z-index: 9999;
@@ -315,9 +359,9 @@
         .dropdown a {
             display: block;
             padding: 7px 18px;
-            font-size: 13.5px;
+            font-size: 13px;
             font-weight: 600;
-            color: #0f172a;
+            color: #000080;
             text-decoration: none;
             background: #c5ddf4;
             border-bottom: 1px solid #a8c8e8;
@@ -330,14 +374,14 @@
 
         .dropdown a:hover {
             background: #003087;
-            color: #fff;
+            color: #ffffff;
         }
 
         .dropdown a.active,
         .sub-menu a.active {
             background: #003087 !important;
             color: #ffffff !important;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         /* Sub-dropdown styling (flyout to the right) */
@@ -353,7 +397,7 @@
             left: 100%;
             top: 0;
             background: #c5ddf4;
-            border: 1px solid #7da9d4;
+            border: 2px solid #7da9d4;
             min-width: 255px;
             z-index: 10000;
             padding: 0;
@@ -372,9 +416,9 @@
             background: #c5ddf4;
             border-bottom: 1px solid #a8c8e8;
             color: #000080;
-            font-weight: 700;
-            font-size: 13.5px;
-            padding: 7px 16px;
+            font-weight: 600;
+            font-size: 12.5px;
+            padding: 6px 16px;
             white-space: nowrap;
         }
 
@@ -392,12 +436,13 @@
 
         .dropdown a.highlighted {
             background: #c5ddf4;
-            color: #222;
+            color: #000080;
+            font-weight: 600;
         }
 
         .dropdown a.highlighted:hover {
-            background: #4a90d4;
-            color: #fff;
+            background: #003087;
+            color: #ffffff;
         }
 
         /* Main Content Grid */
@@ -410,7 +455,7 @@
             box-sizing: border-box;
         }
 
-        /* Floating Auto-dismiss Toast Notifications */
+        /* Floating Auto-dismiss Toast Notifications & Alert Banners */
         #toast-container {
             position: fixed;
             top: 75px;
@@ -424,9 +469,11 @@
 
         .toast-badge {
             pointer-events: auto;
+            position: relative;
+            overflow: hidden;
             min-width: 280px;
-            max-width: 420px;
-            padding: 12px 18px;
+            max-width: 440px;
+            padding: 12px 18px 16px 18px;
             border-radius: 8px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
             font-size: 13.5px;
@@ -435,11 +482,12 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            animation: toastSlideIn 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            animation: toastSlideIn 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            transition: all 0.5s ease;
         }
 
         .toast-badge.toast-exit {
-            animation: toastSlideOut 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            animation: toastSlideOut 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
 
         @keyframes toastSlideIn {
@@ -474,15 +522,59 @@
             background: transparent;
             border: none;
             color: currentColor;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             opacity: 0.8;
             padding: 0 4px;
+            line-height: 1;
         }
 
         .toast-close:hover {
             opacity: 1;
+        }
+
+        /* In-Page Auto-Dismiss Alert Banners with 5-Second Timeline */
+        .auto-dismiss-alert {
+            position: relative;
+            overflow: hidden;
+            transition: opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease;
+        }
+
+        .auto-dismiss-alert.alert-closing {
+            opacity: 0 !important;
+            transform: translateY(-12px) !important;
+            max-height: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            border-width: 0 !important;
+        }
+
+        .alert-timeline-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: #059669;
+            width: 100%;
+            animation: alertTimelineShrink 5s linear forwards;
+        }
+
+        .toast-timeline-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3.5px;
+            background: rgba(255, 255, 255, 0.75);
+            width: 100%;
+            animation: alertTimelineShrink 5s linear forwards;
+        }
+
+        @keyframes alertTimelineShrink {
+            from { width: 100%; }
+            to { width: 0%; }
         }
 
         /* Footer */
@@ -832,16 +924,16 @@
                 @auth
                     <form action="{{ route('financial-year.switch') }}" method="POST" style="display:inline-block; margin:0;">
                         @csrf
-                        <span class="badge badge-active" style="display:inline-flex; align-items:center; gap:4px;">
-                            FY:
-                            <select name="financial_year" onchange="this.form.submit()" style="background:transparent; color:#fff; border:none; font-weight:bold; font-size:11px; cursor:pointer; outline:none;">
+                        <span class="badge badge-active" style="display:inline-flex; align-items:center; gap:6px; color:#ffffff !important; font-weight:700;">
+                            <span style="color:#ffffff !important; font-weight:700;">FY:</span>
+                            <select name="financial_year" id="financial_year_select" onchange="this.form.submit()" style="background:transparent !important; color:#ffffff !important; border:none !important; font-weight:700 !important; font-size:13px !important; cursor:pointer; outline:none; box-shadow:none !important;">
                                 @php
                                     $allFinYears = \App\Models\FinancialYear::all();
                                     $currentFy = session('financial_year', '2026-2027');
                                 @endphp
-                                <option value="ALL" {{ $currentFy === 'ALL' ? 'selected' : '' }} style="background:#ffffff; color:#000000;">ALL (All Years)</option>
+                                <option value="ALL" {{ $currentFy === 'ALL' ? 'selected' : '' }} style="background:#ffffff; color:#0f172a;">ALL (All Years)</option>
                                 @foreach($allFinYears as $fy)
-                                    <option value="{{ $fy->year_string }}" {{ $currentFy === $fy->year_string ? 'selected' : '' }} style="background:#ffffff; color:#000000;">{{ $fy->year_string }}</option>
+                                    <option value="{{ $fy->year_string }}" {{ $currentFy === $fy->year_string ? 'selected' : '' }} style="background:#ffffff; color:#0f172a;">{{ $fy->year_string }}</option>
                                 @endforeach
                             </select>
                         </span>
@@ -1122,6 +1214,7 @@
                     @endif
                 </div>
                 <button class="toast-close" onclick="dismissToast(this.closest('.toast-badge'))">&times;</button>
+                <div class="toast-timeline-bar"></div>
             </div>
         @endif
 
@@ -1132,6 +1225,7 @@
                     <span>{{ session('error') }}</span>
                 </div>
                 <button class="toast-close" onclick="dismissToast(this.closest('.toast-badge'))">&times;</button>
+                <div class="toast-timeline-bar" style="background:#fca5a5;"></div>
             </div>
         @endif
 
@@ -1142,6 +1236,7 @@
                     <span>{{ session('info') }}</span>
                 </div>
                 <button class="toast-close" onclick="dismissToast(this.closest('.toast-badge'))">&times;</button>
+                <div class="toast-timeline-bar" style="background:#93c5fd;"></div>
             </div>
         @endif
     </div>
@@ -1156,7 +1251,45 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Global dismiss helper function for toasts and alert banners
+        function dismissToast(el) {
+            if (!el) return;
+            el.classList.add('toast-exit', 'alert-closing');
+            setTimeout(function() {
+                if (el && el.parentNode) {
+                    el.remove();
+                }
+            }, 500);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Function to auto-dismiss alert elements with 5-second countdown
+            function initAutoDismiss(el, delay = 5000) {
+                if (!el || el.dataset.dismissInitialized) return;
+                el.dataset.dismissInitialized = 'true';
+
+                // Ensure timeline progress bar exists
+                if (!el.querySelector('.alert-timeline-bar') && !el.querySelector('.toast-timeline-bar')) {
+                    const bar = document.createElement('div');
+                    bar.className = el.classList.contains('toast-badge') ? 'toast-timeline-bar' : 'alert-timeline-bar';
+                    el.appendChild(bar);
+                }
+
+                setTimeout(function() {
+                    dismissToast(el);
+                }, delay);
+            }
+
+            // Auto-dismiss all floating toast notifications
+            document.querySelectorAll('.toast-badge').forEach(function(toast) {
+                initAutoDismiss(toast, 5000);
+            });
+
+            // Auto-dismiss in-page banner alerts and master form alert boxes
+            document.querySelectorAll('.auto-dismiss-alert, div[style*="background:#e8f5e9"], div[style*="background:#d1fae5"], div[style*="background:#ffebee"]').forEach(function(alertEl) {
+                initAutoDismiss(alertEl, 5000);
+            });
+
             @if (session('error'))
                 Swal.fire({
                     icon: 'error',

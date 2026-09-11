@@ -19,10 +19,12 @@
         color: white;
         padding: 12px 20px;
         font-weight: 700;
-        font-size: 15px;
+        font-size: 14.5px;
         display: flex;
         align-items: center;
         gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
     }
 
     .card-body-content {

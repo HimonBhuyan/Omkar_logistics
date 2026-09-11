@@ -27,40 +27,46 @@
 
         /* ── Title Bar ── */
         .title-bar {
-            background: #f0f0f0;
-            border-bottom: 1px solid #ccc;
-            padding: 4px 10px;
+            background: #e2e8f0;
+            border-bottom: 2px solid #94a3b8;
+            padding: 5px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
-            color: #333;
+            font-size: 13px;
+            color: #0f172a;
             user-select: none;
         }
 
         .title-bar .app-title {
-            font-weight: 600;
-            letter-spacing: 0.3px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #000000;
+            font-size: 14px;
+            text-transform: uppercase;
         }
 
         .title-bar .version {
-            color: #666;
+            color: #000000;
+            font-weight: 600;
+            font-size: 12px;
         }
 
         .title-bar .user-badge {
             background: #003087;
-            color: #fff;
-            font-size: 11px;
-            font-weight: 600;
+            color: #ffffff;
+            font-size: 11.5px;
+            font-weight: 700;
             padding: 2px 10px;
-            border-radius: 2px;
-            letter-spacing: 1px;
+            border-radius: 3px;
+            letter-spacing: 0.8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
         /* ── Menu Bar ── */
         .menu-bar {
-            background: #f5f5f5;
-            border-bottom: 2px solid #ddd;
+            background: #f1f5f9;
+            border-bottom: 2px solid #94a3b8;
             display: flex;
             align-items: stretch;
             padding: 0;
@@ -74,22 +80,25 @@
 
         .menu-item>a {
             display: block;
-            padding: 6px 16px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #222;
+            padding: 7px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #000000;
             text-decoration: none;
             cursor: pointer;
             white-space: nowrap;
             border: 1px solid transparent;
             transition: background 0.1s;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .menu-item>a:hover,
         .menu-item.active>a {
             background: #003087;
-            color: #fff;
+            color: #ffffff;
             border-color: #002070;
+            font-weight: 700;
         }
 
         /* Dropdown - Windows legacy style */
@@ -99,11 +108,12 @@
             top: 100%;
             left: 0;
             background: #fff;
-            border: 1px solid #7da9d4;
+            border: 2px solid #7da9d4;
             border-top: none;
-            min-width: 180px;
+            min-width: 190px;
             z-index: 9999;
             padding: 2px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .menu-item:hover .dropdown-menu,
@@ -113,9 +123,10 @@
 
         .dropdown-menu a {
             display: block;
-            padding: 6px 18px;
+            padding: 7px 18px;
             font-size: 13px;
-            color: #222;
+            font-weight: 600;
+            color: #000080;
             text-decoration: none;
             background: #c5ddf4;
             border-bottom: 1px solid #a8c8e8;
@@ -127,8 +138,8 @@
 
         .dropdown-menu a:hover,
         .dropdown-menu a.active-item {
-            background: #4a90d4;
-            color: #fff;
+            background: #003087;
+            color: #ffffff;
         }
 
         /* Sub-dropdown styling (flyout to the right) */
@@ -148,11 +159,11 @@
             left: 100%;
             top: 0;
             background: #c5ddf4;
-            border: 1px solid #7da9d4;
-            min-width: 245px;
+            border: 2px solid #7da9d4;
+            min-width: 255px;
             z-index: 10000;
             padding: 0;
-            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.25);
         }
 
         .dropdown-menu .has-sub:hover > .sub-menu {
@@ -164,8 +175,8 @@
             border-bottom: 1px solid #a8c8e8;
             color: #000080;
             font-weight: 600;
-            font-size: 12px;
-            padding: 5px 14px;
+            font-size: 12.5px;
+            padding: 6px 16px;
             white-space: nowrap;
         }
 
@@ -184,7 +195,8 @@
         /* Active highlighted items */
         .dropdown-menu a.highlighted {
             background: #c5ddf4;
-            color: #222;
+            color: #000080;
+            font-weight: 600;
         }
 
         /* ── Main Content ── */
@@ -212,11 +224,12 @@
 
         /* ── Status Bar ── */
         .status-bar {
-            background: #f0f0f0;
-            border-top: 1px solid #ccc;
-            padding: 3px 10px;
-            font-size: 11px;
-            color: #555;
+            background: #e2e8f0;
+            border-top: 2px solid #94a3b8;
+            padding: 4px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #000000;
             display: flex;
             justify-content: space-between;
         }
@@ -233,23 +246,23 @@
             </span>
             <form action="{{ route('financial-year.switch') }}" method="POST" style="display:inline-block; margin:0;">
                 @csrf
-                <span style="background:#003087; color:#ffffff; padding:2px 8px; border-radius:3px; font-weight:600; font-size:11px; display:inline-flex; align-items:center; gap:4px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">
+                <span style="background:#003087; color:#ffffff; padding:2px 8px; border-radius:3px; font-weight:700; font-size:11.5px; display:inline-flex; align-items:center; gap:5px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">
                     <span style="color:#ffffff; font-weight:700;">FY:</span>
-                    <select name="financial_year" onchange="this.form.submit()" style="background:#003087; color:#ffffff; border:none; font-weight:700; font-size:11px; cursor:pointer; outline:none; padding:1px 2px;">
+                    <select name="financial_year" onchange="this.form.submit()" style="background:#003087; color:#ffffff; border:none; font-weight:700; font-size:11.5px; cursor:pointer; outline:none; padding:1px 2px;">
                         @php
                             $allFinYears = \App\Models\FinancialYear::all();
                             $currentFy = session('financial_year', '2026-2027');
                         @endphp
-                        <option value="ALL" {{ $currentFy === 'ALL' ? 'selected' : '' }} style="background:#ffffff; color:#000000;">ALL (All Years)</option>
+                        <option value="ALL" {{ $currentFy === 'ALL' ? 'selected' : '' }} style="background:#ffffff; color:#000000; font-weight:600;">ALL (All Years)</option>
                         @foreach($allFinYears as $fy)
-                            <option value="{{ $fy->year_string }}" {{ $currentFy === $fy->year_string ? 'selected' : '' }} style="background:#ffffff; color:#000000;">{{ $fy->year_string }}</option>
+                            <option value="{{ $fy->year_string }}" {{ $currentFy === $fy->year_string ? 'selected' : '' }} style="background:#ffffff; color:#000000; font-weight:600;">{{ $fy->year_string }}</option>
                         @endforeach
                     </select>
                 </span>
             </form>
         </div>
         <div>
-            <span class="version">Version :10.10.1005</span>
+            <span class="version" style="font-weight:600; color:#000000;">Version :10.10.1005</span>
             <span class="user-badge" style="margin-left:10px;">{{ strtoupper(auth()->user()->name ?? 'USER') }}</span>
         </div>
     </div>

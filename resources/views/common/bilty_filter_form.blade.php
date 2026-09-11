@@ -30,14 +30,14 @@
             </div>
 
             @if($showDates ?? true)
-            <div class="filter-group">
-                <label for="from_date">FROM</label>
-                <input type="date" name="from_date" id="from_date" value="{{ request('from_date', date('Y-m-d')) }}">
+            <div class="filter-group" style="flex: 0 0 auto;">
+                <label for="from_date" style="min-width: unset;">FROM</label>
+                <input type="date" name="from_date" id="from_date" value="{{ request('from_date', date('Y-m-d')) }}" style="width: 130px;">
             </div>
 
-            <div class="filter-group">
-                <label for="to_date">TO</label>
-                <input type="date" name="to_date" id="to_date" value="{{ request('to_date', date('Y-m-d')) }}">
+            <div class="filter-group" style="flex: 0 0 auto;">
+                <label for="to_date" style="min-width: unset;">TO</label>
+                <input type="date" name="to_date" id="to_date" value="{{ request('to_date', date('Y-m-d')) }}" style="width: 130px;">
             </div>
             @endif
 
@@ -60,8 +60,8 @@
                 </div>
             </div>
 
-            <div class="filter-group" style="max-width: 125px;">
-                <label for="series" style="min-width: unset; font-size: 11px;">SERIES</label>
+            <div class="filter-group" style="flex: 0 0 auto;">
+                <label for="series" style="min-width: unset;">SERIES</label>
                 @php
                     if (!isset($seriesList)) {
                         try {
@@ -71,7 +71,7 @@
                         }
                     }
                 @endphp
-                <select name="series" id="series" style="width: 70px; font-size: 11px; height: 24px; border: 1px solid #7f9db9; padding: 1px 3px;">
+                <select name="series" id="series" style="width: 80px; height: 28px; font-size: 13px; border: 1.5px solid #7f9db9; padding: 2px 4px;">
                     <option value="">-- ALL --</option>
                     @foreach($seriesList as $s)
                         <option value="{{ $s->name }}" {{ request('series') == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
@@ -79,13 +79,13 @@
                 </select>
             </div>
 
-            <div class="filter-group" style="max-width: 190px;">
-                <label for="vehicle_no" style="min-width: unset; font-size: 11px;">VEHICLE NO.</label>
-                <input type="text" name="vehicle_no" id="vehicle_no" value="{{ request('vehicle_no') }}" placeholder="SEARCH VEHICLE NO." style="width: 115px; font-size: 11px;">
+            <div class="filter-group" style="flex: 0 0 auto;">
+                <label for="vehicle_no" style="min-width: unset;">VEHICLE NO.</label>
+                <input type="text" name="vehicle_no" id="vehicle_no" value="{{ request('vehicle_no') }}" placeholder="SEARCH VEHICLE NO." style="width: 135px; height: 28px; font-size: 13px;">
             </div>
 
-            <div class="filter-group" style="max-width: 175px;">
-                <label for="shipping_status_filter" style="min-width: unset; font-size: 11px;">SHIP STATUS</label>
+            <div class="filter-group" style="flex: 0 0 auto;">
+                <label for="shipping_status_filter" style="min-width: unset;">SHIP STATUS</label>
                 @php
                     try {
                         $allStatuses = \App\Models\ShippingStatus::orderBy('id')->pluck('name')->toArray();
@@ -96,7 +96,7 @@
                         $allStatuses = ['Booked', 'Shipped', 'In Transit', 'Delivered'];
                     }
                 @endphp
-                <select name="shipping_status" id="shipping_status_filter" style="height:24px; font-size:11px; border:1px solid #7f9db9; padding:2px 4px; width:100px; max-width:105px;">
+                <select name="shipping_status" id="shipping_status_filter" style="height: 28px; font-size: 13px; border: 1.5px solid #7f9db9; padding: 2px 4px; width: 105px;">
                     <option value="">-- ALL --</option>
                     @foreach($allStatuses as $st)
                         <option value="{{ $st }}" {{ request('shipping_status') == $st ? 'selected' : '' }}>{{ $st }}</option>
@@ -104,7 +104,7 @@
                 </select>
             </div>
 
-            <div style="display: flex; gap: 6px;">
+            <div style="display: flex; gap: 6px; flex: 0 0 auto; align-items: center;">
                 <button type="submit" class="btn-search">
                     🔍 SEARCH
                 </button>

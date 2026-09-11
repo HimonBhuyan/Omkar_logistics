@@ -316,7 +316,7 @@
                         <label class="form-label">CUSTOMER BILL AMT.</label>
                         <input type="number" step="0.01" name="customer_bill_amt" id="customer_bill_amt" class="form-input text-right font-bold" 
                                value="{{ old('customer_bill_amt', isset($existingPayment) && $existingPayment->customer_bill_amt ? number_format($existingPayment->customer_bill_amt, 2, '.', '') : '') }}" 
-                               style="width: 130px;" placeholder="0.00">
+                               style="width: 130px;" placeholder="0">
                     </div>
                 </div>
 
@@ -325,7 +325,7 @@
                     <label class="form-label" style="width: 50px;">PAYMENT</label>
                     <input type="number" step="0.01" name="payment_amount" id="payment_amount" class="form-input input-yellow text-right" 
                            value="{{ old('payment_amount', isset($existingPayment) ? number_format($existingPayment->payment_amount, 2, '.', '') : '') }}" 
-                           style="width: 110px;" placeholder="0.00" required>
+                           style="width: 110px;" placeholder="0" required>
 
                     <label class="form-label" style="margin-left: 10px;">DEDUCT AMOUNT :</label>
                     <input type="number" step="0.01" name="deduct_amount" id="deduct_amount" class="form-input input-readonly text-right font-bold" 

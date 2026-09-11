@@ -14,9 +14,11 @@
         color: #fff;
         padding: 6px 12px;
         font-weight: 700;
-        font-size: 14px;
+        font-size: 14.5px;
         text-align: center;
         border-bottom: 1px solid #7da9d4;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
     }
     /* Filter Bar Stacking & Autocomplete Floating Dropdown Styling */
     .filter-section {
@@ -33,8 +35,8 @@
         z-index: 20;
         overflow: visible !important;
         display: grid;
-        grid-template-columns: repeat(4, 1fr) auto;
-        gap: 10px;
+        grid-template-columns: 1fr 1fr 1fr auto auto;
+        gap: 12px;
         align-items: center;
     }
     .filter-grid:nth-of-type(2) {
@@ -42,8 +44,8 @@
         z-index: 10;
         overflow: visible !important;
         display: grid;
-        grid-template-columns: 1fr 1fr auto auto auto auto;
-        gap: 10px;
+        grid-template-columns: 1.2fr 1.2fr auto auto auto auto;
+        gap: 12px;
         align-items: center;
     }
     .filter-group {
@@ -333,6 +335,7 @@
                 <tr>
                     <th>SRNO.</th>
                     <th>STATUS</th>
+                    <th>SERIES</th>
                     <th>BILTY NO</th>
                     <th>DATE</th>
                     <th>TIME</th>
@@ -398,6 +401,7 @@
                                 <span style="background:#dcfce7; color:#15803d; border:1px solid #86efac; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; display:inline-block; white-space:nowrap;">Final</span>
                             @endif
                         </td>
+                        <td><span style="font-weight:700; color:#0f3460;">{{ $b->series ?: ($b->seriesModel?->name ?? '-') }}</span></td>
                         <td>{{ $b->bilty_no }}</td>
                         <td>{{ $b->invoice_date ? $b->invoice_date->format('d-m-Y') : '' }}</td>
                         <td>{{ $b->created_at ? $b->created_at->format('h:i A') : '' }}</td>
@@ -449,7 +453,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="33" style="text-align: center; color: #666; padding: 20px;">No Bilty records found for the selected criteria.</td>
+                        <td colspan="34" style="text-align: center; color: #666; padding: 20px;">No Bilty records found for the selected criteria.</td>
                     </tr>
                 @endforelse
             </tbody>

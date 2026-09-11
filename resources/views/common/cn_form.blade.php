@@ -213,11 +213,7 @@
                 <div class="form-group-custom" id="vehicle_input_wrapper">
                     <label for="vehicle_no_text" id="vehicle_no_label">VEHICLE NO.</label>
                     <div class="autocomplete-wrapper">
-<<<<<<< HEAD
-                        <input type="text" name="vehicle_no" id="vehicle_no_text" placeholder="E.G. AS-01-XX-1234" value="{{ old('vehicle_no') }}" autocomplete="off">
-=======
                         <input type="text" name="vehicle_no" id="vehicle_no_text" placeholder="AS-01-XX-1234" value="{{ old('vehicle_no') }}" autocomplete="off">
->>>>>>> 9f0a266937d590c5d953b1c2915a3274fc83f4e5
                         <div class="autocomplete-dropdown" id="vehicle_no_dropdown"></div>
                     </div>
                 </div>
@@ -294,7 +290,7 @@
                             <input type="text" name="items[0][invoice_no]" placeholder="INV NO">
                         </td>
                         <td>
-                            <input type="number" name="items[0][invoice_value]" class="input-invoice_value" value="" step="0.01" placeholder="0.00">
+                            <input type="number" name="items[0][invoice_value]" class="input-invoice_value" value="" step="0.01" placeholder="0">
                         </td>
                         <td>
                             <select name="items[0][unit]" class="input-unit" onchange="handleUnitChange(this)">
@@ -309,25 +305,25 @@
                             </select>
                         </td>
                         <td>
-                            <input type="number" name="items[0][qty]" class="input-qty calc-trigger" required min="0" step="0.001" value="" placeholder="0.000" style="background-color: #ffffff; color: #000; font-weight: 600;">
+                            <input type="number" name="items[0][qty]" class="input-qty calc-trigger" required min="0" step="0.001" value="" placeholder="0" style="background-color: #ffffff; color: #000; font-weight: 600;">
                         </td>
                         <td class="weight-col-cell">
-                            <input type="number" name="items[0][weight_val]" class="input-weight_val calc-trigger" step="0.001" value="" placeholder="0.000">
+                            <input type="number" name="items[0][weight_val]" class="input-weight_val calc-trigger" step="0.001" value="" placeholder="0">
                         </td>
                         <td>
-                            <input type="number" name="items[0][rate]" class="input-rate calc-trigger" required min="0.00" step="0.01" value="" placeholder="0.00" style="background-color: #ffffff; color: #000; font-weight: 600;">
+                            <input type="number" name="items[0][rate]" class="input-rate calc-trigger" required min="0.00" step="0.01" value="" placeholder="0" style="background-color: #ffffff; color: #000; font-weight: 600;">
                         </td>
                         <td>
-                            <input type="number" name="items[0][st]" class="input-st calc-trigger" value="" placeholder="0.00" step="0.01" style="min-width: 80px; text-align: right;">
+                            <input type="number" name="items[0][st]" class="input-st calc-trigger" value="" placeholder="0" step="0.01" style="min-width: 80px; text-align: right;">
                         </td>
                         <td>
-                            <input type="number" name="items[0][rc]" class="input-rc calc-trigger" value="" placeholder="0.00" step="0.01" style="min-width: 80px; text-align: right;">
+                            <input type="number" name="items[0][rc]" class="input-rc calc-trigger" value="" placeholder="0" step="0.01" style="min-width: 80px; text-align: right;">
                         </td>
                         <td>
-                            <input type="number" name="items[0][sc]" class="input-sc calc-trigger" value="" placeholder="0.00" step="0.01" style="min-width: 80px; text-align: right;">
+                            <input type="number" name="items[0][sc]" class="input-sc calc-trigger" value="" placeholder="0" step="0.01" style="min-width: 80px; text-align: right;">
                         </td>
                         <td>
-                            <input type="number" name="items[0][dd]" class="input-dd calc-trigger" value="" placeholder="0.00" step="0.01" style="min-width: 85px; text-align: right;">
+                            <input type="number" name="items[0][dd]" class="input-dd calc-trigger" value="" placeholder="0" step="0.01" style="min-width: 85px; text-align: right;">
                         </td>
                         <td>
                             <button type="button" class="btn-delete-row" onclick="removeRow(this)">&times;</button>
@@ -354,38 +350,38 @@
                     </div>
                     <div class="form-group-custom">
                         <label for="total_qty">TOTAL QTY</label>
-                        <input type="text" name="total_qty" id="total_qty" readonly value="0.000">
+                        <input type="text" name="total_qty" id="total_qty" readonly value="0">
                     </div>
                     <div class="form-group-custom">
                         <label for="gross_amount">GROSS AMT (QTY*RATE)</label>
-                        <input type="text" name="gross_amount" id="gross_amount" readonly value="0.00">
+                        <input type="text" name="gross_amount" id="gross_amount" readonly value="0">
                     </div>
                     
                     <div class="form-group-custom">
                         <label for="st_charge">TOTAL S.T.</label>
-                        <input type="text" name="st_charge" id="st_charge" readonly value="0.00">
+                        <input type="text" name="st_charge" id="st_charge" readonly value="0">
                     </div>
                     <div class="form-group-custom">
                         <label for="rc_charge">TOTAL R.C.</label>
-                        <input type="text" name="rc_charge" id="rc_charge" readonly value="0.00">
+                        <input type="text" name="rc_charge" id="rc_charge" readonly value="0">
                     </div>
                     <div class="form-group-custom">
                         <label for="sc_charge">TOTAL S.C.</label>
-                        <input type="text" name="sc_charge" id="sc_charge" readonly value="0.00">
+                        <input type="text" name="sc_charge" id="sc_charge" readonly value="0">
                     </div>
                     <div class="form-group-custom">
                         <label for="dd_charge">TOTAL D.D.</label>
-                        <input type="text" name="dd_charge" id="dd_charge" readonly value="0.00">
+                        <input type="text" name="dd_charge" id="dd_charge" readonly value="0">
                     </div>
                     
                     <div class="form-group-custom">
                         <label for="round_off">ROUND OFF</label>
-                        <input type="number" name="round_off" id="round_off" class="calc-trigger" value="0.00" step="0.01">
+                        <input type="number" name="round_off" id="round_off" class="calc-trigger" value="0" placeholder="0" step="0.01">
                     </div>
 
                     <div class="net-amount-card" style="grid-column: span 4; margin-top: 10px;">
                         <label>NET BILL AMOUNT (INR)</label>
-                        <input type="text" name="net_amount" id="net_amount" readonly value="0.00">
+                        <input type="text" name="net_amount" id="net_amount" readonly value="0">
                     </div>
                 </div>
             </div>
@@ -397,18 +393,18 @@
                 <div class="grid-fields-2">
                     <div class="form-group-custom">
                         <label for="cash_amount">CASH PAID</label>
-                        <input type="number" name="cash_amount" id="cash_amount" class="calc-trigger" value="0.00" step="0.01">
+                        <input type="number" name="cash_amount" id="cash_amount" class="calc-trigger" value="0" placeholder="0" step="0.01">
                     </div>
                     <div class="form-group-custom">
                         <label for="card_amount">CARD PAID</label>
-                        <input type="number" name="card_amount" id="card_amount" class="calc-trigger" value="0.00" step="0.01">
+                        <input type="number" name="card_amount" id="card_amount" class="calc-trigger" value="0" placeholder="0" step="0.01">
                     </div>
                 </div>
 
                 <div class="grid-fields-2">
                     <div class="form-group-custom">
                         <label for="upi_chq_amount">UPI / CHEQUE</label>
-                        <input type="number" name="upi_chq_amount" id="upi_chq_amount" class="calc-trigger" value="0.00" step="0.01">
+                        <input type="number" name="upi_chq_amount" id="upi_chq_amount" class="calc-trigger" value="0" placeholder="0" step="0.01">
                     </div>
                     <div class="form-group-custom">
                         <label for="ref_no">REF NO / CHQ NO.</label>
@@ -445,8 +441,8 @@
 
                 <div id="balanceBox" class="balance-box balance-unpaid">
                     <span>BALANCE DUE:</span>
-                    <span id="balanceText">₹ 0.00</span>
-                    <input type="hidden" name="balance_amount" id="balance_amount" value="0.00">
+                    <span id="balanceText">₹ 0</span>
+                    <input type="hidden" name="balance_amount" id="balance_amount" value="0">
                 </div>
             </div>
 

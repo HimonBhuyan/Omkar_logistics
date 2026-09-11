@@ -97,7 +97,9 @@
         align-items: center;
         justify-content: space-between;
         font-weight: 700;
-        font-size: 16px;
+        font-size: 15.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
         border-bottom: 2px solid #b32e44;
     }
 
@@ -523,37 +525,47 @@
 
 @section('content')
 @if (session('success'))
-    <div style="background:#d1fae5; border:1px solid #34d399; color:#065f46; padding:15px; border-radius:8px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
-        <div>
-            <strong>Success!</strong> {{ session('success') }}
+    <div class="auto-dismiss-alert" style="background:#d1fae5; border:1px solid #34d399; color:#065f46; padding:15px 20px; border-radius:8px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; position:relative; overflow:hidden; box-shadow:0 2px 8px rgba(16,185,129,0.15);">
+        <div style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600;">
+            <span style="font-size:16px;">✅</span>
+            <span><strong>Success!</strong> {{ session('success') }}</span>
         </div>
-        @if (session('print_id'))
-            <a href="{{ route('bilty.print', session('print_id')) }}" id="printTabTrigger" target="_blank" style="background:#059669; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:700; font-size:12px; display:flex; align-items:center; gap:6px;">
-                🖨 Print Bill (A5 Layout)
-            </a>
-            @if (session('print_immediate'))
-                <script>
-                    window.addEventListener('DOMContentLoaded', () => {
-                        const trigger = document.getElementById('printTabTrigger');
-                        if (trigger) {
-                            // Creating mock user click event bypasses standard browser popup blockers
-                            const clickEvent = new MouseEvent('click', {
-                                view: window,
-                                bubbles: true,
-                                cancelable: true
-                            });
-                            trigger.dispatchEvent(clickEvent);
-                        }
-                    });
-                </script>
+        <div style="display:flex; align-items:center; gap:12px;">
+            @if (session('print_id'))
+                <a href="{{ route('bilty.print', session('print_id')) }}" id="printTabTrigger" target="_blank" style="background:#059669; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:700; font-size:12px; display:flex; align-items:center; gap:6px;">
+                    🖨 Print Bill (A5 Layout)
+                </a>
+                @if (session('print_immediate'))
+                    <script>
+                        window.addEventListener('DOMContentLoaded', () => {
+                            const trigger = document.getElementById('printTabTrigger');
+                            if (trigger) {
+                                // Creating mock user click event bypasses standard browser popup blockers
+                                const clickEvent = new MouseEvent('click', {
+                                    view: window,
+                                    bubbles: true,
+                                    cancelable: true
+                                });
+                                trigger.dispatchEvent(clickEvent);
+                            }
+                        });
+                    </script>
+                @endif
             @endif
-        @endif
+            <button type="button" onclick="dismissToast(this.closest('.auto-dismiss-alert'))" style="background:none; border:none; color:#065f46; font-size:20px; font-weight:bold; cursor:pointer; line-height:1; padding:0 4px;" title="Dismiss">&times;</button>
+        </div>
+        <div class="alert-timeline-bar"></div>
     </div>
 @endif
 
 @if (session('error'))
-    <div style="background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:15px; border-radius:8px; margin-bottom:20px;">
-        <strong>Error!</strong> {{ session('error') }}
+    <div class="auto-dismiss-alert" style="background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:15px 20px; border-radius:8px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; position:relative; overflow:hidden;">
+        <div style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600;">
+            <span style="font-size:16px;">⚠️</span>
+            <span><strong>Error!</strong> {{ session('error') }}</span>
+        </div>
+        <button type="button" onclick="dismissToast(this.closest('.auto-dismiss-alert'))" style="background:none; border:none; color:#991b1b; font-size:20px; font-weight:bold; cursor:pointer; line-height:1; padding:0 4px;" title="Dismiss">&times;</button>
+        <div class="alert-timeline-bar" style="background:#dc2626;"></div>
     </div>
 @endif
 
@@ -651,6 +663,10 @@
         const billingWrapper = document.getElementById('billing_party_wrapper');
         const billingId = document.getElementById('billing_party_id');
         
+        if (checkedEl && checkedEl.value) {
+            sessionStorage.setItem('omkar_bilty_billing_type', checkedEl.value);
+        }
+        
         let hasData = false;
         const consignor = document.getElementById('consignor_id');
         const consignee = document.getElementById('consignee_id');
@@ -661,7 +677,7 @@
             hasData = true;
         }
 
-        const successAlert = document.querySelector('div[style*="background:#d1fae5"]');
+        const successAlert = document.querySelector('div[style*="background:#d1fae5"], .auto-dismiss-alert');
         if (successAlert) {
             hasData = true;
         }
@@ -747,7 +763,7 @@
                 <input type="text" name="items[${rowIndex}][invoice_no]" placeholder="Inv No">
             </td>
             <td>
-                <input type="number" name="items[${rowIndex}][invoice_value]" class="input-invoice_value" value="" step="0.01" placeholder="0.00">
+                <input type="number" name="items[${rowIndex}][invoice_value]" class="input-invoice_value" value="" step="0.01" placeholder="0">
             </td>
             <td>
                 <select name="items[${rowIndex}][unit]" class="input-unit" onchange="handleUnitChange(this)">
@@ -762,25 +778,25 @@
                 </select>
             </td>
             <td>
-                <input type="number" name="items[${rowIndex}][qty]" class="input-qty calc-trigger" required min="0" step="0.001" value="0">
+                <input type="number" name="items[${rowIndex}][qty]" class="input-qty calc-trigger" required min="0" step="0.001" value="" placeholder="0" style="background-color: #ffffff; color: #000; font-weight: 600;">
             </td>
             <td class="weight-col-cell">
-                <input type="number" name="items[${rowIndex}][weight_val]" class="input-weight_val calc-trigger" step="0.001" value="0">
+                <input type="number" name="items[${rowIndex}][weight_val]" class="input-weight_val calc-trigger" step="0.001" value="" placeholder="0">
             </td>
             <td>
-                <input type="number" name="items[${rowIndex}][rate]" class="input-rate calc-trigger" required min="0.00" step="0.01" value="0.00">
+                <input type="number" name="items[${rowIndex}][rate]" class="input-rate calc-trigger" required min="0.00" step="0.01" value="" placeholder="0" style="background-color: #ffffff; color: #000; font-weight: 600;">
             </td>
             <td>
-                <input type="number" name="items[${rowIndex}][st]" class="input-st calc-trigger" value="0.00" step="0.01" style="min-width: 80px; text-align: right;">
+                <input type="number" name="items[${rowIndex}][st]" class="input-st calc-trigger" value="" placeholder="0" step="0.01" style="min-width: 80px; text-align: right;">
             </td>
             <td>
-                <input type="number" name="items[${rowIndex}][rc]" class="input-rc calc-trigger" value="0.00" step="0.01" style="min-width: 80px; text-align: right;">
+                <input type="number" name="items[${rowIndex}][rc]" class="input-rc calc-trigger" value="" placeholder="0" step="0.01" style="min-width: 80px; text-align: right;">
             </td>
             <td>
-                <input type="number" name="items[${rowIndex}][sc]" class="input-sc calc-trigger" value="0.00" step="0.01" style="min-width: 80px; text-align: right;">
+                <input type="number" name="items[${rowIndex}][sc]" class="input-sc calc-trigger" value="" placeholder="0" step="0.01" style="min-width: 80px; text-align: right;">
             </td>
             <td>
-                <input type="number" name="items[${rowIndex}][dd]" class="input-dd calc-trigger" value="0.00" step="0.01" style="min-width: 85px; text-align: right;">
+                <input type="number" name="items[${rowIndex}][dd]" class="input-dd calc-trigger" value="" placeholder="0" step="0.01" style="min-width: 85px; text-align: right;">
             </td>
             <td>
                 <button type="button" class="btn-delete-row" onclick="removeRow(this)">&times;</button>
@@ -840,12 +856,12 @@
     // Recalculate all billing totals
     function calculateAll() {
         let totalPackages = 0;
-        let totalQty = 0.000;
-        let grossAmount = 0.00;
-        let totalST = 0.00;
-        let totalRC = 0.00;
-        let totalSC = 0.00;
-        let totalDD = 0.00;
+        let totalQty = 0;
+        let grossAmount = 0;
+        let totalST = 0;
+        let totalRC = 0;
+        let totalSC = 0;
+        let totalDD = 0;
 
         document.querySelectorAll('.grid-row').forEach(row => {
             const pkgs = parseInt(row.querySelector('.input-no_of_pkgs').value) || 0;
@@ -869,20 +885,20 @@
 
         // Set summary read-only fields
         document.getElementById('total_packages').value = totalPackages;
-        document.getElementById('total_qty').value = totalQty.toFixed(3);
-        document.getElementById('gross_amount').value = grossAmount.toFixed(2);
+        document.getElementById('total_qty').value = Math.abs(totalQty) < 0.0001 ? '0' : (Number.isInteger(totalQty) ? totalQty : totalQty.toFixed(3).replace(/\.?0+$/, ''));
+        document.getElementById('gross_amount').value = Math.abs(grossAmount) < 0.001 ? '0' : (Number.isInteger(grossAmount) ? grossAmount : grossAmount.toFixed(2));
         
-        document.getElementById('st_charge').value = totalST.toFixed(2);
-        document.getElementById('rc_charge').value = totalRC.toFixed(2);
-        document.getElementById('sc_charge').value = totalSC.toFixed(2);
-        document.getElementById('dd_charge').value = totalDD.toFixed(2);
+        document.getElementById('st_charge').value = Math.abs(totalST) < 0.001 ? '0' : (Number.isInteger(totalST) ? totalST : totalST.toFixed(2));
+        document.getElementById('rc_charge').value = Math.abs(totalRC) < 0.001 ? '0' : (Number.isInteger(totalRC) ? totalRC : totalRC.toFixed(2));
+        document.getElementById('sc_charge').value = Math.abs(totalSC) < 0.001 ? '0' : (Number.isInteger(totalSC) ? totalSC : totalSC.toFixed(2));
+        document.getElementById('dd_charge').value = Math.abs(totalDD) < 0.001 ? '0' : (Number.isInteger(totalDD) ? totalDD : totalDD.toFixed(2));
 
         // Read Round Off
         const roundOff = parseFloat(document.getElementById('round_off').value) || 0;
 
         // Calculate Net Amount
         const netAmount = grossAmount + totalST + totalRC + totalSC + totalDD + roundOff;
-        document.getElementById('net_amount').value = netAmount.toFixed(2);
+        document.getElementById('net_amount').value = Math.abs(netAmount) < 0.001 ? '0' : (Number.isInteger(netAmount) ? netAmount : netAmount.toFixed(2));
 
         // Calculate payments & balance
         const cash = parseFloat(document.getElementById('cash_amount').value) || 0;
@@ -890,8 +906,8 @@
         const upi = parseFloat(document.getElementById('upi_chq_amount').value) || 0;
         
         const balance = netAmount - (cash + card + upi);
-        document.getElementById('balance_amount').value = balance.toFixed(2);
-        document.getElementById('balanceText').innerText = '₹ ' + balance.toFixed(2);
+        document.getElementById('balance_amount').value = Math.abs(balance) < 0.001 ? '0' : (Number.isInteger(balance) ? balance : balance.toFixed(2));
+        document.getElementById('balanceText').innerText = Math.abs(balance) < 0.001 ? '₹ 0' : ('₹ ' + (Number.isInteger(balance) ? balance : balance.toFixed(2)));
 
         // Style balance box based on due amount
         const balanceBox = document.getElementById('balanceBox');
@@ -1180,16 +1196,7 @@
                 if (!firstInvalidEl) firstInvalidEl = document.getElementById('consignee_text');
             }
 
-            // 8. Third Party (if T.B.B.)
-            if (billingTypeEl && billingTypeEl.value === 'T.B.B.') {
-                const billingParty = document.getElementById('billing_party_id');
-                if (!billingParty || !billingParty.value) {
-                    errors.push("<strong>Third Party:</strong> Please select a Third Party for T.B.B. billing.");
-                    if (!firstInvalidEl) firstInvalidEl = document.getElementById('billing_party_text');
-                }
-            }
-
-            // 9. Items Grid
+            // 8. Items Grid
             const itemRows = document.querySelectorAll('#gridBody tr.grid-row');
             if (itemRows.length === 0) {
                 errors.push("<strong>Consignment Items:</strong> Please add at least one item row in the items table.");
@@ -1863,6 +1870,31 @@
                 window.billingPartyAuto.setValue(oldParty.id, oldParty.name);
             }
         @endif
+
+        // Auto-restore / sync Billing Type from sessionStorage across FY switches & reloads
+        const currentChecked = document.querySelector('input[name="billing_type"]:checked');
+        if (currentChecked) {
+            sessionStorage.setItem('omkar_bilty_billing_type', currentChecked.value);
+            toggleBillingParty();
+        } else {
+            const savedBillingType = sessionStorage.getItem('omkar_bilty_billing_type');
+            if (savedBillingType) {
+                const targetRadio = document.querySelector(`input[name="billing_type"][value="${savedBillingType}"]`);
+                if (targetRadio) {
+                    targetRadio.checked = true;
+                    toggleBillingParty();
+                }
+            }
+        }
+
+        document.querySelectorAll('input[name="billing_type"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    sessionStorage.setItem('omkar_bilty_billing_type', this.value);
+                    toggleBillingParty();
+                }
+            });
+        });
 
         // Enter key to move to next field script
         biltyForm.addEventListener('keydown', function(e) {

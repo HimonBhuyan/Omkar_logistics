@@ -206,7 +206,7 @@ class ReportController extends Controller
 
         // Main Title Header
         $sheet->setCellValue('A1', 'OMKAAR LOGISTICS - C.N. Bills Register');
-        $sheet->mergeCells('A1:AG1');
+        $sheet->mergeCells('A1:AH1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('0F3460'));
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
@@ -216,14 +216,15 @@ class ReportController extends Controller
             $dateInfo .= ' | Period: ' . ($request->from_date ?? 'Start') . ' to ' . ($request->to_date ?? 'End');
         }
         $sheet->setCellValue('A2', $dateInfo);
-        $sheet->mergeCells('A2:AG2');
+        $sheet->mergeCells('A2:AH2');
         $sheet->getStyle('A2')->getFont()->setItalic(true)->setSize(10)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('555555'));
         $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        // Table Column Headers (31 Columns)
+        // Table Column Headers (34 Columns)
         $headers = [
             'Srno.',
             'Status',
+            'Series',
             'BiltyNo',
             'Date',
             'Time',
@@ -286,7 +287,7 @@ class ReportController extends Controller
                 ],
             ],
         ];
-        $sheet->getStyle('A4:AG4')->applyFromArray($headerStyle);
+        $sheet->getStyle('A4:AH4')->applyFromArray($headerStyle);
         $sheet->getRowDimension(4)->setRowHeight(26);
 
         // Populate Data rows
@@ -340,64 +341,65 @@ class ReportController extends Controller
 
             $sheet->setCellValue('A' . $rowNum, $index + 1);
             $sheet->setCellValue('B' . $rowNum, $statusText);
-            $sheet->setCellValue('C' . $rowNum, $b->bilty_no);
-            $sheet->setCellValue('D' . $rowNum, $dateFormatted);
-            $sheet->setCellValue('E' . $rowNum, $timeFormatted);
-            $sheet->setCellValue('F' . $rowNum, $fromLocName);
-            $sheet->setCellValue('G' . $rowNum, $toLocName);
-            $sheet->setCellValue('H' . $rowNum, $consignorName);
-            $sheet->setCellValueExplicit('I' . $rowNum, (string) $consignorMobile, DataType::TYPE_STRING);
-            $sheet->setCellValue('J' . $rowNum, $consigneeName);
-            $sheet->setCellValueExplicit('K' . $rowNum, (string) $consigneeMobile, DataType::TYPE_STRING);
-            $sheet->setCellValue('L' . $rowNum, $billingPartyName);
-            $sheet->setCellValue('M' . $rowNum, $b->cn_no ?? '');
-            $sheet->setCellValueExplicit('N' . $rowNum, (string) ($b->eway_bill_no ?? ''), DataType::TYPE_STRING);
-            $sheet->setCellValue('O' . $rowNum, $b->vehicle_no ?? '');
-            $sheet->setCellValue('P' . $rowNum, $shippingStatusText);
-            $sheet->setCellValue('Q' . $rowNum, intval($b->total_packages));
-            $sheet->setCellValue('R' . $rowNum, $packing);
-            $sheet->setCellValue('S' . $rowNum, $description);
-            $sheet->setCellValueExplicit('T' . $rowNum, (string) $invoiceNo, DataType::TYPE_STRING);
-            $sheet->setCellValue('U' . $rowNum, $invoiceVal);
-            $sheet->setCellValue('V' . $rowNum, $unit);
-            $sheet->setCellValue('W' . $rowNum, floatval($b->total_qty));
-            $sheet->setCellValue('X' . $rowNum, $itemWeight > 0 ? $itemWeight : '');
-            $sheet->setCellValue('Y' . $rowNum, floatval($rate));
-            $sheet->setCellValue('Z' . $rowNum, $st);
-            $sheet->setCellValue('AA' . $rowNum, $rc);
-            $sheet->setCellValue('AB' . $rowNum, $sc);
-            $sheet->setCellValue('AC' . $rowNum, $dd);
-            $sheet->setCellValue('AD' . $rowNum, $rowTotal);
-            $sheet->setCellValue('AE' . $rowNum, floatval($b->net_amount));
-            $sheet->setCellValue('AF' . $rowNum, $b->billing_type ?? '-');
-            $sheet->setCellValue('AG' . $rowNum, $userName);
+            $sheet->setCellValue('C' . $rowNum, $b->series ?: ($b->seriesModel?->name ?? '-'));
+            $sheet->setCellValue('D' . $rowNum, $b->bilty_no);
+            $sheet->setCellValue('E' . $rowNum, $dateFormatted);
+            $sheet->setCellValue('F' . $rowNum, $timeFormatted);
+            $sheet->setCellValue('G' . $rowNum, $fromLocName);
+            $sheet->setCellValue('H' . $rowNum, $toLocName);
+            $sheet->setCellValue('I' . $rowNum, $consignorName);
+            $sheet->setCellValueExplicit('J' . $rowNum, (string) $consignorMobile, DataType::TYPE_STRING);
+            $sheet->setCellValue('K' . $rowNum, $consigneeName);
+            $sheet->setCellValueExplicit('L' . $rowNum, (string) $consigneeMobile, DataType::TYPE_STRING);
+            $sheet->setCellValue('M' . $rowNum, $billingPartyName);
+            $sheet->setCellValue('N' . $rowNum, $b->cn_no ?? '');
+            $sheet->setCellValueExplicit('O' . $rowNum, (string) ($b->eway_bill_no ?? ''), DataType::TYPE_STRING);
+            $sheet->setCellValue('P' . $rowNum, $b->vehicle_no ?? '');
+            $sheet->setCellValue('Q' . $rowNum, $shippingStatusText);
+            $sheet->setCellValue('R' . $rowNum, intval($b->total_packages));
+            $sheet->setCellValue('S' . $rowNum, $packing);
+            $sheet->setCellValue('T' . $rowNum, $description);
+            $sheet->setCellValueExplicit('U' . $rowNum, (string) $invoiceNo, DataType::TYPE_STRING);
+            $sheet->setCellValue('V' . $rowNum, $invoiceVal);
+            $sheet->setCellValue('W' . $rowNum, $unit);
+            $sheet->setCellValue('X' . $rowNum, floatval($b->total_qty));
+            $sheet->setCellValue('Y' . $rowNum, $itemWeight > 0 ? $itemWeight : '');
+            $sheet->setCellValue('Z' . $rowNum, floatval($rate));
+            $sheet->setCellValue('AA' . $rowNum, $st);
+            $sheet->setCellValue('AB' . $rowNum, $rc);
+            $sheet->setCellValue('AC' . $rowNum, $sc);
+            $sheet->setCellValue('AD' . $rowNum, $dd);
+            $sheet->setCellValue('AE' . $rowNum, $rowTotal);
+            $sheet->setCellValue('AF' . $rowNum, floatval($b->net_amount));
+            $sheet->setCellValue('AG' . $rowNum, $b->billing_type ?? '-');
+            $sheet->setCellValue('AH' . $rowNum, $userName);
 
             // Format numbers
-            $sheet->getStyle('C' . $rowNum)->getNumberFormat()->setFormatCode('#,##0');
-            $sheet->getStyle('Q' . $rowNum)->getNumberFormat()->setFormatCode('#,##0');
-            $sheet->getStyle('U' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
-            $sheet->getStyle('W' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.000');
+            $sheet->getStyle('D' . $rowNum)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('R' . $rowNum)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('V' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
             $sheet->getStyle('X' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.000');
-            $sheet->getStyle('Y' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
-            $sheet->getStyle('Z' . $rowNum . ':AE' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('Y' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.000');
+            $sheet->getStyle('Z' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('AA' . $rowNum . ':AF' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
 
             // Alignment
-            $sheet->getStyle('A' . $rowNum . ':E' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('I' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('K' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('M' . $rowNum . ':P' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('T' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('V' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('AE' . $rowNum . ':AF' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A' . $rowNum . ':F' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('J' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('L' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('N' . $rowNum . ':Q' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('U' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('W' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('AF' . $rowNum . ':AG' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
             // Row Borders
-            $sheet->getStyle('A' . $rowNum . ':AG' . $rowNum)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->getColor()->setRGB('E2E8F0');
+            $sheet->getStyle('A' . $rowNum . ':AH' . $rowNum)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->getColor()->setRGB('E2E8F0');
 
             // Row background: Yellow for Draft, alternating zebra striping for Final
             if (($b->status ?? 'final') === 'draft') {
-                $sheet->getStyle('A' . $rowNum . ':AG' . $rowNum)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FEF08A');
+                $sheet->getStyle('A' . $rowNum . ':AH' . $rowNum)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FEF08A');
             } elseif ($index % 2 === 1) {
-                $sheet->getStyle('A' . $rowNum . ':AG' . $rowNum)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('F8FAFC');
+                $sheet->getStyle('A' . $rowNum . ':AH' . $rowNum)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('F8FAFC');
             }
 
             // Sum totals
@@ -425,16 +427,16 @@ class ReportController extends Controller
 
         // Totals Row
         $sheet->setCellValue('A' . $rowNum, 'TOTAL:');
-        $sheet->mergeCells('A' . $rowNum . ':P' . $rowNum);
-        $sheet->setCellValue('Q' . $rowNum, $totalPkgs);
-        $sheet->setCellValue('U' . $rowNum, $totalInvVal);
-        $sheet->setCellValue('W' . $rowNum, $totalQty);
-        $sheet->setCellValue('Y' . $rowNum, $totalST);
-        $sheet->setCellValue('Z' . $rowNum, $totalRC);
-        $sheet->setCellValue('AA' . $rowNum, $totalSC);
-        $sheet->setCellValue('AB' . $rowNum, $totalDD);
-        $sheet->setCellValue('AC' . $rowNum, $totalSum);
-        $sheet->setCellValue('AD' . $rowNum, $totalNet);
+        $sheet->mergeCells('A' . $rowNum . ':Q' . $rowNum);
+        $sheet->setCellValue('R' . $rowNum, $totalPkgs);
+        $sheet->setCellValue('V' . $rowNum, $totalInvVal);
+        $sheet->setCellValue('X' . $rowNum, $totalQty);
+        $sheet->setCellValue('AA' . $rowNum, $totalST);
+        $sheet->setCellValue('AB' . $rowNum, $totalRC);
+        $sheet->setCellValue('AC' . $rowNum, $totalSC);
+        $sheet->setCellValue('AD' . $rowNum, $totalDD);
+        $sheet->setCellValue('AE' . $rowNum, $totalSum);
+        $sheet->setCellValue('AF' . $rowNum, $totalNet);
 
         $totalStyle = [
             'font' => ['bold' => true, 'size' => 11, 'color' => ['rgb' => '0F3460']],
@@ -448,12 +450,12 @@ class ReportController extends Controller
                 'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'CCCCCC']],
             ],
         ];
-        $sheet->getStyle('A' . $rowNum . ':AG' . $rowNum)->applyFromArray($totalStyle);
+        $sheet->getStyle('A' . $rowNum . ':AH' . $rowNum)->applyFromArray($totalStyle);
         $sheet->getStyle('A' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-        $sheet->getStyle('Q' . $rowNum)->getNumberFormat()->setFormatCode('#,##0');
-        $sheet->getStyle('U' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
-        $sheet->getStyle('W' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.000');
-        $sheet->getStyle('Y' . $rowNum . ':AD' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
+        $sheet->getStyle('R' . $rowNum)->getNumberFormat()->setFormatCode('#,##0');
+        $sheet->getStyle('V' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
+        $sheet->getStyle('X' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.000');
+        $sheet->getStyle('Z' . $rowNum . ':AF' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
 
         // Summary Breakdown Box
         $rowNum += 2;
@@ -481,7 +483,7 @@ class ReportController extends Controller
         $sheet->getStyle('Z' . $rowNum)->getNumberFormat()->setFormatCode('#,##0.00');
 
         // Auto-fit all columns width
-        foreach (range(1, 31) as $colIdx) {
+        foreach (range(1, 34) as $colIdx) {
             $colLetter = Coordinate::stringFromColumnIndex($colIdx);
             $sheet->getColumnDimension($colLetter)->setAutoSize(true);
         }

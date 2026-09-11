@@ -677,15 +677,15 @@
 
                     <div class="f-row">
                         <label>Gross Salary</label>
-                        <input type="number" name="points" id="gross_salary" class="form-field staff-input" placeholder="0.00" step="0.01" oninput="calculateNetSalary()" value="{{ old('points', $selected->points) }}">
+                        <input type="number" name="points" id="gross_salary" class="form-field staff-input" placeholder="0" step="0.01" oninput="calculateNetSalary()" value="{{ old('points', $selected->points) }}">
                     </div>
                     <div class="f-row">
                         <label>Deduction</label>
-                        <input type="number" name="discnt" id="deduction" class="form-field staff-input" placeholder="0.00" step="0.01" oninput="calculateNetSalary()" value="{{ old('discnt', $selected->discnt) }}">
+                        <input type="number" name="discnt" id="deduction" class="form-field staff-input" placeholder="0" step="0.01" oninput="calculateNetSalary()" value="{{ old('discnt', $selected->discnt) }}">
                     </div>
                     <div class="f-row">
                         <label>Net Salary</label>
-                        <input type="number" name="opening" id="net_salary" class="form-field staff-input" placeholder="0.00" step="0.01" readonly style="background:#e8f4fd; font-weight:bold; color:#003087;" value="{{ old('opening', $selected->opening) }}">
+                        <input type="number" name="opening" id="net_salary" class="form-field staff-input" placeholder="0" step="0.01" readonly style="background:#e8f4fd; font-weight:bold; color:#003087;" value="{{ old('opening', $selected->opening) }}">
                     </div>
                 </div>
 
@@ -768,8 +768,8 @@
         const row = document.createElement('tr');
         row.innerHTML = `
             <td><input type="text" name="series_name[]" placeholder="A"></td>
-            <td><input type="number" name="series_opening[]" step="0.01" placeholder="0.00"></td>
-            <td><input type="number" name="series_closing[]" step="0.01" placeholder="0.00"></td>
+            <td><input type="number" name="series_opening[]" step="0.01" placeholder="0"></td>
+            <td><input type="number" name="series_closing[]" step="0.01" placeholder="0"></td>
         `;
         tbody.appendChild(row);
     }

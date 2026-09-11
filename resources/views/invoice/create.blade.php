@@ -25,6 +25,10 @@
         justify-content: space-between;
         align-items: center;
         border-bottom: 2px solid #5a0000;
+        font-weight: 700;
+        font-size: 14.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
     }
 
     .header-left-group {
@@ -623,7 +627,7 @@
                                         <input type="text" class="grid-input text-center" name="items[{{ $index }}][invoice_no_ref]" value="{{ $item->invoice_no_ref }}" style="width: 72px;">
                                     </td>
                                     <td>
-                                        <input type="number" step="0.001" class="grid-input text-right" name="items[{{ $index }}][weight]" id="weight_{{ $index }}" value="{{ number_format($item->weight, 3, '.', '') }}" style="width: 58px;" oninput="onUnitCatOrRateOrPktChange({{ $index }})">
+                                        <input type="number" step="0.001" class="grid-input text-right" name="items[{{ $index }}][weight]" id="weight_{{ $index }}" value="{{ $item->weight > 0 ? (float)$item->weight : '' }}" placeholder="0" style="width: 58px;" oninput="onUnitCatOrRateOrPktChange({{ $index }})">
                                     </td>
                                     <td>
                                         @php $wType = strtoupper(trim($item->weight_type ?: 'KG')); @endphp
@@ -635,28 +639,28 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="number" step="0.01" class="grid-input text-right" name="items[{{ $index }}][rate]" id="rate_{{ $index }}" value="{{ number_format($item->rate, 2, '.', '') }}" style="width: 58px;" oninput="onRateInput({{ $index }}, this.value)">
+                                        <input type="number" step="0.01" class="grid-input text-right" name="items[{{ $index }}][rate]" id="rate_{{ $index }}" value="{{ $item->rate > 0 ? (float)$item->rate : '' }}" placeholder="0" style="width: 58px;" oninput="onRateInput({{ $index }}, this.value)">
                                     </td>
                                     <td>
-                                        <input type="number" step="0.01" class="grid-input text-right" name="items[{{ $index }}][st_charge]" id="st_charge_{{ $index }}" value="{{ number_format($item->st_charge, 2, '.', '') }}" style="width: 48px;" oninput="onStChargeInput({{ $index }}, this.value)">
+                                        <input type="number" step="0.01" class="grid-input text-right" name="items[{{ $index }}][st_charge]" id="st_charge_{{ $index }}" value="{{ $item->st_charge > 0 ? (float)$item->st_charge : '' }}" placeholder="0" style="width: 48px;" oninput="onStChargeInput({{ $index }}, this.value)">
                                     </td>
                                     <td>
-                                        <input type="number" step="0.01" class="grid-input text-right font-bold" name="items[{{ $index }}][freight_amount]" id="freight_amount_{{ $index }}" value="{{ number_format($item->freight_amount, 2, '.', '') }}" style="width: 62px;" oninput="recalculateRowTotal({{ $index }})">
+                                        <input type="number" step="0.01" class="grid-input text-right font-bold" name="items[{{ $index }}][freight_amount]" id="freight_amount_{{ $index }}" value="{{ $item->freight_amount > 0 ? (float)$item->freight_amount : '' }}" placeholder="0" style="width: 62px;" oninput="recalculateRowTotal({{ $index }})">
                                     </td>
                                     <td>
-                                        <input type="number" step="0.01" class="grid-input text-right" name="items[{{ $index }}][unload_rate]" id="unload_rate_{{ $index }}" value="{{ number_format($item->unload_rate, 2, '.', '') }}" style="width: 52px;" oninput="onUnloadRateInput({{ $index }}, this.value)">
+                                        <input type="number" step="0.01" class="grid-input text-right" name="items[{{ $index }}][unload_rate]" id="unload_rate_{{ $index }}" value="{{ $item->unload_rate > 0 ? (float)$item->unload_rate : '' }}" placeholder="0" style="width: 52px;" oninput="onUnloadRateInput({{ $index }}, this.value)">
                                     </td>
                                     <td>
-                                        <input type="number" step="0.01" class="grid-input text-right" name="items[{{ $index }}][unload_amount]" id="unload_amount_{{ $index }}" value="{{ number_format($item->unload_amount, 2, '.', '') }}" style="width: 55px;" oninput="updateRowUnloadAmount({{ $index }}, this.value)">
+                                        <input type="number" step="0.01" class="grid-input text-right" name="items[{{ $index }}][unload_amount]" id="unload_amount_{{ $index }}" value="{{ $item->unload_amount > 0 ? (float)$item->unload_amount : '' }}" placeholder="0" style="width: 55px;" oninput="updateRowUnloadAmount({{ $index }}, this.value)">
                                     </td>
                                     <td>
-                                        <input type="number" step="0.01" class="grid-input text-right" name="items[{{ $index }}][other_charges]" id="other_charges_{{ $index }}" value="{{ number_format($item->other_charges, 2, '.', '') }}" style="width: 48px;" oninput="recalculateRowTotal({{ $index }})">
+                                        <input type="number" step="0.01" class="grid-input text-right" name="items[{{ $index }}][other_charges]" id="other_charges_{{ $index }}" value="{{ $item->other_charges > 0 ? (float)$item->other_charges : '' }}" placeholder="0" style="width: 48px;" oninput="recalculateRowTotal({{ $index }})">
                                     </td>
                                     <td>
-                                        <input type="number" step="0.01" class="grid-input text-right" name="items[{{ $index }}][oda_charge]" id="oda_charge_{{ $index }}" value="{{ number_format($item->oda_charge, 2, '.', '') }}" style="width: 52px;" oninput="recalculateRowTotal({{ $index }})">
+                                        <input type="number" step="0.01" class="grid-input text-right" name="items[{{ $index }}][oda_charge]" id="oda_charge_{{ $index }}" value="{{ $item->oda_charge > 0 ? (float)$item->oda_charge : '' }}" placeholder="0" style="width: 52px;" oninput="recalculateRowTotal({{ $index }})">
                                     </td>
                                     <td>
-                                        <input type="number" step="0.01" class="grid-input text-right font-bold" name="items[{{ $index }}][amount]" id="row_amount_input_{{ $index }}" value="{{ number_format($item->amount, 2, '.', '') }}" style="width: 65px; color: #8b0000;" oninput="onRowAmountManualEdit({{ $index }})">
+                                        <input type="number" step="0.01" class="grid-input text-right font-bold" name="items[{{ $index }}][amount]" id="row_amount_input_{{ $index }}" value="{{ $item->amount > 0 ? (float)$item->amount : '' }}" placeholder="0" style="width: 65px; color: #8b0000;" oninput="onRowAmountManualEdit({{ $index }})">
                                     </td>
                                 </tr>
                             @endforeach
@@ -678,12 +682,12 @@
                     <div class="footer-amounts-group">
                         <div class="ctrl-group">
                             <label for="bill_amount">BILL AMT.</label>
-                            <input type="number" name="bill_amount" id="bill_amount" value="{{ number_format(old('bill_amount', $existingInvoice->bill_amount ?? 0), 2, '.', '') }}" step="0.01" readonly style="width: 100px; background: #e8e8e8;">
+                            <input type="text" name="bill_amount" id="bill_amount" value="{{ (isset($existingInvoice) && $existingInvoice->bill_amount > 0) ? (float)$existingInvoice->bill_amount : '0' }}" placeholder="0" readonly style="width: 100px; background: #e8e8e8; text-align: right; font-weight: bold;">
                         </div>
 
                         <div class="ctrl-group">
                             <label for="gst_percent">GST%</label>
-                            <input type="number" name="gst_percent" id="gst_percent" value="{{ number_format(old('gst_percent', $existingInvoice->gst_percent ?? ((old('is_gst_bill', $existingInvoice->is_gst_bill ?? false)) ? '18.00' : '0.00')), 2, '.', '') }}" step="0.01" style="width: 55px;">
+                            <input type="number" name="gst_percent" id="gst_percent" value="{{ (isset($existingInvoice) && $existingInvoice->gst_percent > 0) ? (float)$existingInvoice->gst_percent : ((old('is_gst_bill', $existingInvoice->is_gst_bill ?? false)) ? '18' : '0') }}" placeholder="0" step="0.01" style="width: 55px; text-align: right;">
                         </div>
 
                         <div class="ctrl-group">
@@ -693,12 +697,12 @@
 
                         <div class="ctrl-group">
                             <label for="gst_amount">GST AMT.</label>
-                            <input type="number" name="gst_amount" id="gst_amount" value="{{ number_format(old('gst_amount', $existingInvoice->gst_amount ?? 0), 2, '.', '') }}" step="0.01" readonly style="width: 90px; background: #e8e8e8;">
+                            <input type="text" name="gst_amount" id="gst_amount" value="{{ (isset($existingInvoice) && $existingInvoice->gst_amount > 0) ? (float)$existingInvoice->gst_amount : '0' }}" placeholder="0" readonly style="width: 90px; background: #e8e8e8; text-align: right; font-weight: bold;">
                         </div>
 
                         <div class="ctrl-group">
                             <label for="total_amount">TOTAL AMT.</label>
-                            <input type="number" name="total_amount" id="total_amount" value="{{ number_format(old('total_amount', $existingInvoice->total_amount ?? 0), 2, '.', '') }}" step="0.01" readonly style="width: 110px; font-weight: bold; color: #8b0000; background: #ffffd0;">
+                            <input type="text" name="total_amount" id="total_amount" value="{{ (isset($existingInvoice) && $existingInvoice->total_amount > 0) ? (float)$existingInvoice->total_amount : '0' }}" placeholder="0" readonly style="width: 110px; font-weight: bold; color: #8b0000; background: #ffffd0; text-align: right;">
                         </div>
                     </div>
                 </div>
@@ -962,7 +966,7 @@
 
     // Recalculate Grand Totals
     window.recalculateTotals = function() {
-        let billAmount = 0.00;
+        let billAmount = 0;
         const checkboxes = document.querySelectorAll('.row-checkbox:checked');
         
         checkboxes.forEach(cb => {
@@ -975,18 +979,18 @@
             }
         });
 
-        const gstPercent = parseFloat(document.getElementById('gst_percent')?.value) || 0.00;
+        const gstPercent = parseFloat(document.getElementById('gst_percent')?.value) || 0;
         const gstAmount = (billAmount * gstPercent) / 100.0;
         const totalAmount = billAmount + gstAmount;
 
         const billAmtInput = document.getElementById('bill_amount');
-        if (billAmtInput) billAmtInput.value = billAmount.toFixed(2);
+        if (billAmtInput) billAmtInput.value = billAmount > 0 ? (Number.isInteger(billAmount) ? billAmount : billAmount.toFixed(2)) : '0';
 
         const gstAmtInput = document.getElementById('gst_amount');
-        if (gstAmtInput) gstAmtInput.value = gstAmount.toFixed(2);
+        if (gstAmtInput) gstAmtInput.value = gstAmount > 0 ? (Number.isInteger(gstAmount) ? gstAmount : gstAmount.toFixed(2)) : '0';
 
         const totalAmtInput = document.getElementById('total_amount');
-        if (totalAmtInput) totalAmtInput.value = totalAmount.toFixed(2);
+        if (totalAmtInput) totalAmtInput.value = totalAmount > 0 ? (Number.isInteger(totalAmount) ? totalAmount : totalAmount.toFixed(2)) : '0';
     };
     function recalculateTotals() { window.recalculateTotals(); }
 
@@ -999,12 +1003,12 @@
         
         if (isChecked) {
             if (gstPercentInput && (!gstPercentInput.value || gstPercentInput.value === '0.00' || gstPercentInput.value === '0')) {
-                gstPercentInput.value = '18.00';
+                gstPercentInput.value = '18';
             }
             if (table) table.classList.add('hide-third-party-cn');
         } else {
-            if (gstPercentInput && gstPercentInput.value === '18.00') {
-                gstPercentInput.value = '0.00';
+            if (gstPercentInput && (gstPercentInput.value === '18.00' || gstPercentInput.value === '18')) {
+                gstPercentInput.value = '0';
             }
             if (table) table.classList.remove('hide-third-party-cn');
         }
@@ -1041,6 +1045,19 @@
             return;
         }
 
+        const fmtVal = (val) => {
+            if (val === undefined || val === null || val === '') return '';
+            const num = parseFloat(val);
+            if (isNaN(num) || num === 0) return '';
+            return Number.isInteger(num) ? num : num.toFixed(2).replace(/\.?0+$/, '');
+        };
+        const fmtWeight = (val) => {
+            if (val === undefined || val === null || val === '') return '';
+            const num = parseFloat(val);
+            if (isNaN(num) || num === 0) return '';
+            return Number.isInteger(num) ? num : num.toFixed(3).replace(/\.?0+$/, '');
+        };
+
         let html = '';
         rows.forEach((row, index) => {
             html += `
@@ -1060,7 +1077,7 @@
                         <input type="text" class="grid-input text-center" name="items[${index}][cn_no]" value="${row.cn_no || ''}" style="width: 85px;">
                     </td>
                     <td>
-                        <input type="number" class="grid-input text-center" name="items[${index}][packages]" value="${row.packages || 0}" style="width: 42px;" oninput="onUnitCatOrRateOrPktChange(${index})">
+                        <input type="number" class="grid-input text-center" name="items[${index}][packages]" value="${row.packages || ''}" placeholder="0" style="width: 42px;" oninput="onUnitCatOrRateOrPktChange(${index})">
                     </td>
                     <td>
                         <div class="autocomplete-grid-wrap">
@@ -1087,7 +1104,7 @@
                         <input type="text" class="grid-input text-center" name="items[${index}][invoice_no_ref]" value="${row.invoice_no_ref || ''}" style="width: 72px;">
                     </td>
                     <td>
-                        <input type="number" step="0.001" class="grid-input text-right" name="items[${index}][weight]" id="weight_${index}" value="${row.weight || '0.000'}" style="width: 58px;" oninput="onUnitCatOrRateOrPktChange(${index})">
+                        <input type="number" step="0.001" class="grid-input text-right" name="items[${index}][weight]" id="weight_${index}" value="${fmtWeight(row.weight)}" placeholder="0" style="width: 58px;" oninput="onUnitCatOrRateOrPktChange(${index})">
                     </td>
                     <td>
                         <select class="grid-input text-center font-bold" name="items[${index}][weight_type]" id="weight_type_${index}" style="width: 62px; height: 20px; padding: 0 1px; font-size: 10px;" onchange="onUnitCatChange(${index}, this.value)">
@@ -1098,28 +1115,28 @@
                         </select>
                     </td>
                     <td>
-                        <input type="number" step="0.01" class="grid-input text-right" name="items[${index}][rate]" id="rate_${index}" value="${row.rate || '0.00'}" style="width: 58px;" oninput="onRateInput(${index}, this.value)">
+                        <input type="number" step="0.01" class="grid-input text-right" name="items[${index}][rate]" id="rate_${index}" value="${fmtVal(row.rate)}" placeholder="0" style="width: 58px;" oninput="onRateInput(${index}, this.value)">
                     </td>
                     <td>
-                        <input type="number" step="0.01" class="grid-input text-right" name="items[${index}][st_charge]" id="st_charge_${index}" value="${row.st_charge || '0.00'}" style="width: 48px;" oninput="onStChargeInput(${index}, this.value)">
+                        <input type="number" step="0.01" class="grid-input text-right" name="items[${index}][st_charge]" id="st_charge_${index}" value="${fmtVal(row.st_charge)}" placeholder="0" style="width: 48px;" oninput="onStChargeInput(${index}, this.value)">
                     </td>
                     <td>
-                        <input type="number" step="0.01" class="grid-input text-right font-bold" name="items[${index}][freight_amount]" id="freight_amount_${index}" value="${row.freight_amount || '0.00'}" style="width: 62px;" oninput="recalculateRowTotal(${index})">
+                        <input type="number" step="0.01" class="grid-input text-right font-bold" name="items[${index}][freight_amount]" id="freight_amount_${index}" value="${fmtVal(row.freight_amount)}" placeholder="0" style="width: 62px;" oninput="recalculateRowTotal(${index})">
                     </td>
                     <td>
-                        <input type="number" step="0.01" class="grid-input text-right" name="items[${index}][unload_rate]" id="unload_rate_${index}" value="${row.unload_rate || '0.00'}" style="width: 52px;" oninput="onUnloadRateInput(${index}, this.value)">
+                        <input type="number" step="0.01" class="grid-input text-right" name="items[${index}][unload_rate]" id="unload_rate_${index}" value="${fmtVal(row.unload_rate)}" placeholder="0" style="width: 52px;" oninput="onUnloadRateInput(${index}, this.value)">
                     </td>
                     <td>
-                        <input type="number" step="0.01" class="grid-input text-right" name="items[${index}][unload_amount]" id="unload_amount_${index}" value="${row.unload_amount || '0.00'}" style="width: 55px;" oninput="updateRowUnloadAmount(${index}, this.value)">
+                        <input type="number" step="0.01" class="grid-input text-right" name="items[${index}][unload_amount]" id="unload_amount_${index}" value="${fmtVal(row.unload_amount)}" placeholder="0" style="width: 55px;" oninput="updateRowUnloadAmount(${index}, this.value)">
                     </td>
                     <td>
-                        <input type="number" step="0.01" class="grid-input text-right" name="items[${index}][other_charges]" id="other_charges_${index}" value="${row.other_charges || '0.00'}" style="width: 48px;" oninput="recalculateRowTotal(${index})">
+                        <input type="number" step="0.01" class="grid-input text-right" name="items[${index}][other_charges]" id="other_charges_${index}" value="${fmtVal(row.other_charges)}" placeholder="0" style="width: 48px;" oninput="recalculateRowTotal(${index})">
                     </td>
                     <td>
-                        <input type="number" step="0.01" class="grid-input text-right" name="items[${index}][oda_charge]" id="oda_charge_${index}" value="${row.oda_charge || '0.00'}" style="width: 52px;" oninput="recalculateRowTotal(${index})">
+                        <input type="number" step="0.01" class="grid-input text-right" name="items[${index}][oda_charge]" id="oda_charge_${index}" value="${fmtVal(row.oda_charge)}" placeholder="0" style="width: 52px;" oninput="recalculateRowTotal(${index})">
                     </td>
                     <td>
-                        <input type="number" step="0.01" class="grid-input text-right font-bold" name="items[${index}][amount]" id="row_amount_input_${index}" value="${row.amount || '0.00'}" style="width: 65px; color: #8b0000;" oninput="onRowAmountManualEdit(${index})">
+                        <input type="number" step="0.01" class="grid-input text-right font-bold" name="items[${index}][amount]" id="row_amount_input_${index}" value="${fmtVal(row.amount)}" placeholder="0" style="width: 65px; color: #8b0000;" oninput="onRowAmountManualEdit(${index})">
                     </td>
                 </tr>
             `;
@@ -1309,7 +1326,7 @@
 
         // Amounts
         const gstPInput = document.getElementById('gst_percent');
-        if (gstPInput) gstPInput.value = inv.gst_percent || '0.00';
+        if (gstPInput) gstPInput.value = inv.gst_percent || '0';
 
         // Render Rows
         window.renderTableRows(data.rows || []);
@@ -1388,11 +1405,11 @@
 
         // Reset Totals
         const billAmt = document.getElementById('bill_amount');
-        if (billAmt) billAmt.value = '0.00';
+        if (billAmt) billAmt.value = '0';
         const gstAmt = document.getElementById('gst_amount');
-        if (gstAmt) gstAmt.value = '0.00';
+        if (gstAmt) gstAmt.value = '0';
         const totalAmt = document.getElementById('total_amount');
-        if (totalAmt) totalAmt.value = '0.00';
+        if (totalAmt) totalAmt.value = '0';
         const remarkInput = document.getElementById('remark');
         if (remarkInput) remarkInput.value = '';
     };
@@ -1747,18 +1764,15 @@
 
         const frInput = document.getElementById(`freight_amount_${index}`);
         if (frInput) {
-            if (unit === 'KG') {
-                frInput.value = (weight * rate).toFixed(2);
-            } else {
-                frInput.value = (pkts * rate).toFixed(2);
-            }
+            const frAmt = (unit === 'KG') ? (weight * rate) : (pkts * rate);
+            frInput.value = frAmt > 0 ? (Number.isInteger(frAmt) ? frAmt : frAmt.toFixed(2)) : '';
         }
 
         // Auto compute unload amount if unload_rate > 0
         if (unloadRate > 0) {
             const uAmt = (weight * unloadRate);
             const uAmtInput = document.getElementById(`unload_amount_${index}`);
-            if (uAmtInput) uAmtInput.value = uAmt.toFixed(2);
+            if (uAmtInput) uAmtInput.value = uAmt > 0 ? (Number.isInteger(uAmt) ? uAmt : uAmt.toFixed(2)) : '';
         }
 
         recalculateRowTotal(index);
@@ -1861,6 +1875,7 @@
         document.querySelectorAll('.auto-grid-input').forEach(input => {
             if (input.dataset.autocompleteAttached) return;
             input.dataset.autocompleteAttached = 'true';
+
 
             const wrap = input.closest('.autocomplete-grid-wrap');
             if (!wrap) return;
@@ -1967,7 +1982,7 @@
         const unloadAmt = (weight * r);
         
         const uAmtInput = document.getElementById(`unload_amount_${index}`);
-        if (uAmtInput) uAmtInput.value = unloadAmt.toFixed(2);
+        if (uAmtInput) uAmtInput.value = unloadAmt > 0 ? (Number.isInteger(unloadAmt) ? unloadAmt : unloadAmt.toFixed(2)) : '';
         
         recalculateRowTotal(index);
     };
@@ -1993,7 +2008,7 @@
         const total = frAmt + stCh + othCh + odaCh + unloadAmt;
         const amtInput = document.getElementById(`row_amount_input_${index}`);
         if (amtInput) {
-            amtInput.value = total.toFixed(2);
+            amtInput.value = total > 0 ? (Number.isInteger(total) ? total : total.toFixed(2)) : '';
         }
         
         window.recalculateTotals();
