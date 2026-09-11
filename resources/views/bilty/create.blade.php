@@ -12,41 +12,43 @@
     }
     .autocomplete-input {
         width: 100%;
-        padding: 6px 10px;
-        font-size: 12px;
-        border: 1px solid var(--border-color, #d1d5db);
+        padding: 6px 12px;
+        font-size: 13.5px;
+        font-weight: 600;
+        border: 1.5px solid #94a3b8;
         border-radius: 6px;
         background: #ffffff;
-        color: #333;
+        color: #000000;
         outline: none;
         transition: all 0.2s ease;
-        height: 32px;
+        height: 35px;
         box-sizing: border-box;
     }
     .autocomplete-input:focus {
         border-color: var(--primary-color, #0f3460);
-        box-shadow: 0 0 6px rgba(15, 52, 96, 0.15);
+        box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.2);
     }
     .autocomplete-dropdown {
         position: absolute;
         top: calc(100% + 2px);
         left: 0;
         right: 0;
-        max-height: 220px;
+        max-height: 240px;
         overflow-y: auto;
         background: #ffffff;
-        border: 1px solid #cbd5e1;
+        border: 1.5px solid #94a3b8;
         border-radius: 6px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         z-index: 99999;
         display: none;
     }
     .autocomplete-item {
-        padding: 7px 12px;
-        font-size: 12px;
-        color: #1e293b;
+        padding: 8px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #0f172a;
         cursor: pointer;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid #e2e8f0;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -57,32 +59,32 @@
     }
     .autocomplete-item:hover,
     .autocomplete-item.active {
-        background-color: #f1f5f9;
+        background-color: #e2e8f0;
         color: var(--primary-color, #0f3460);
-        font-weight: 600;
+        font-weight: 700;
     }
     .autocomplete-item .match-text {
-        font-weight: 700;
+        font-weight: 800;
         color: var(--secondary-color, #c92a2a);
         text-decoration: underline;
     }
     .autocomplete-item .item-meta {
-        font-size: 11px;
-        color: #64748b;
+        font-size: 12px;
+        color: #475569;
         margin-left: 8px;
-        font-weight: normal;
+        font-weight: 600;
     }
     .autocomplete-no-match {
         padding: 8px 12px;
-        font-size: 12px;
-        color: #94a3b8;
+        font-size: 13px;
+        color: #64748b;
         font-style: italic;
     }
     .bilty-card {
         background: #ffffff;
         border-radius: 12px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(15, 52, 96, 0.1);
+        border: 1px solid rgba(15, 52, 96, 0.15);
         overflow: hidden;
     }
 
@@ -94,8 +96,8 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        font-weight: 600;
-        font-size: 15px;
+        font-weight: 700;
+        font-size: 16px;
         border-bottom: 2px solid #b32e44;
     }
 
@@ -109,17 +111,27 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        font-size: 13.5px;
+        font-weight: 600;
     }
 
     .bilty-header-inputs input, .bilty-header-inputs select {
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.95);
+        border: 1.5px solid rgba(0, 0, 0, 0.2);
         border-radius: 4px;
-        padding: 4px 8px;
-        font-size: 13px;
-        color: #333;
-        font-weight: 500;
+        padding: 5px 10px;
+        font-size: 13.5px;
+        color: #000000;
+        font-weight: 600;
         outline: none;
+    }
+
+    .bilty-header-inputs div label {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 13.5px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.3px;
     }
 
     .bilty-body {
@@ -135,22 +147,23 @@
 
     /* Column Section Headers */
     .section-box {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        border: 1.5px solid #cbd5e1;
         border-radius: 8px;
-        padding: 15px;
+        padding: 18px;
         position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
 
     .section-title {
-        font-size: 12px;
-        font-weight: 700;
+        font-size: 13.5px;
+        font-weight: 800;
         color: var(--primary-color);
-        text-transform: uppercase;
+        text-transform: uppercase !important;
         letter-spacing: 0.5px;
-        margin-bottom: 12px;
-        border-bottom: 1px solid #e2e8f0;
-        padding-bottom: 6px;
+        margin-bottom: 14px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 8px;
         display: flex;
         justify-content: space-between;
     }
@@ -158,36 +171,46 @@
     .grid-fields-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-bottom: 10px;
+        gap: 14px;
+        margin-bottom: 12px;
     }
 
     .form-group-custom {
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: 6px;
     }
 
     .form-group-custom label {
-        font-size: 11px;
-        font-weight: 600;
-        color: #4b5563;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.3px;
     }
 
     .form-group-custom input, .form-group-custom select, .form-group-custom textarea {
-        padding: 6px 10px;
-        font-size: 12px;
-        border: 1px solid var(--border-color);
+        padding: 6px 12px;
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        border: 1.5px solid #94a3b8;
         border-radius: 6px;
         background: #ffffff;
-        color: #333;
+        color: #000000 !important;
         outline: none;
         transition: all 0.2s ease;
+        height: 35px;
+        box-sizing: border-box;
+    }
+
+    .form-group-custom textarea {
+        height: auto;
+        min-height: 55px;
     }
 
     .form-group-custom input:focus, .form-group-custom select:focus, .form-group-custom textarea:focus {
         border-color: var(--primary-color);
-        box-shadow: 0 0 6px rgba(15, 52, 96, 0.1);
+        box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.2);
     }
 
     .billing-party-group {
@@ -197,32 +220,36 @@
     /* Paid/To Pay/TBB Segmented Control */
     .billing-options {
         display: flex;
-        gap: 15px;
+        gap: 18px;
         align-items: center;
-        background: #edf2f7;
-        padding: 8px 15px;
+        background: #e2e8f0;
+        padding: 10px 18px;
         border-radius: 6px;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
+        border: 1px solid #cbd5e1;
     }
 
     .billing-options label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #4a5568;
+        font-size: 13.5px !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
         cursor: pointer;
+        text-transform: uppercase !important;
     }
 
     .billing-options input[type="radio"] {
         accent-color: var(--primary-color);
+        width: 16px;
+        height: 16px;
     }
 
     /* Consignment Grid Styles */
     .grid-container {
         margin: 25px 0;
-        border: 1px solid #e2e8f0;
+        border: 1.5px solid #cbd5e1;
         border-radius: 8px;
         overflow-x: auto;
         background: white;
@@ -231,52 +258,63 @@
     .bilty-grid {
         width: 100%;
         border-collapse: collapse;
-        font-size: 12px;
+        font-size: 13px;
         text-align: left;
     }
 
     .bilty-grid th {
-        background: #f1f5f9;
-        color: #334155;
-        font-weight: 600;
-        padding: 10px;
-        border-bottom: 2px solid #cbd5e1;
+        background: #e2e8f0;
+        color: #0f172a;
+        font-weight: 700;
+        padding: 10px 12px;
+        border-bottom: 2px solid #94a3b8;
+        border-right: 1px solid #cbd5e1;
         white-space: nowrap;
+        font-size: 13px;
     }
 
     .bilty-grid td {
         padding: 8px 10px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid #cbd5e1;
+        border-right: 1px solid #e2e8f0;
+        font-size: 13px;
+        font-weight: 600;
+        color: #000000;
     }
 
     .bilty-grid input, .bilty-grid select {
         width: 100%;
-        padding: 4px 6px;
-        border: 1px solid #cbd5e1;
+        padding: 6px 8px;
+        border: 1.5px solid #94a3b8;
         border-radius: 4px;
-        font-size: 12px;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #000000 !important;
         outline: none;
+        height: 32px;
+        box-sizing: border-box;
     }
 
     .input-st, .input-rc, .input-sc {
-        min-width: 80px;
+        min-width: 85px;
         text-align: right;
     }
     .input-dd {
-        min-width: 85px;
+        min-width: 90px;
         text-align: right;
     }
 
     .bilty-grid input:focus, .bilty-grid select:focus {
         border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(15, 52, 96, 0.2);
     }
 
     .btn-delete-row {
         background: #ef4444;
         color: white;
         border: none;
-        width: 24px;
-        height: 24px;
+        width: 26px;
+        height: 26px;
         border-radius: 4px;
         cursor: pointer;
         display: flex;
@@ -291,21 +329,23 @@
     }
 
     .grid-actions {
-        padding: 10px;
+        padding: 10px 14px;
         background: #f8fafc;
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #cbd5e1;
     }
 
     .btn-add-row {
         background: var(--primary-color);
         color: white;
         border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
+        padding: 8px 16px;
+        border-radius: 5px;
         cursor: pointer;
-        font-size: 12px;
-        font-weight: 500;
+        font-size: 13px;
+        font-weight: 600;
         transition: all 0.2s ease;
     }
 
@@ -319,7 +359,7 @@
         grid-template-columns: 1.5fr 1fr;
         gap: 25px;
         background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        border: 1.5px solid #cbd5e1;
         border-radius: 8px;
         padding: 20px;
     }
@@ -332,7 +372,7 @@
 
     .net-amount-card {
         background: #fef08a; /* Yellow highlight box matching Net */
-        border: 2px solid #eab308;
+        border: 2px solid #ca8a04;
         padding: 12px;
         border-radius: 8px;
         display: flex;
@@ -343,8 +383,9 @@
     }
 
     .net-amount-card label {
-        font-size: 12px;
-        color: #854d0e;
+        font-size: 13px;
+        color: #713f12;
+        font-weight: 800;
         text-transform: uppercase;
         margin-bottom: 2px;
     }
@@ -352,16 +393,16 @@
     .net-amount-card input {
         background: transparent;
         border: none;
-        font-size: 24px;
+        font-size: 26px;
         text-align: center;
         width: 100%;
-        color: #854d0e;
+        color: #713f12;
         font-weight: 800;
         outline: none;
     }
 
     .settlement-panel {
-        border-left: 1px solid #cbd5e1;
+        border-left: 1.5px solid #cbd5e1;
         padding-left: 25px;
     }
 
@@ -369,23 +410,23 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px;
+        padding: 10px 14px;
         border-radius: 6px;
         font-weight: 700;
         margin-top: 15px;
-        font-size: 14px;
+        font-size: 14.5px;
     }
 
     .balance-unpaid {
         background: #fee2e2;
         color: #991b1b;
-        border: 1px solid #fca5a5;
+        border: 1.5px solid #f87171;
     }
 
     .balance-paid {
         background: #d1fae5;
         color: #065f46;
-        border: 1px solid #a7f3d0;
+        border: 1.5px solid #34d399;
     }
 
     /* Floating bottom action buttons */
@@ -394,14 +435,14 @@
         justify-content: flex-end;
         gap: 15px;
         padding: 20px;
-        border-top: 1px solid #e2e8f0;
+        border-top: 1.5px solid #cbd5e1;
         background: #ffffff;
     }
 
     .btn-footer {
         padding: 10px 24px;
-        font-size: 13px;
-        font-weight: 600;
+        font-size: 13.5px;
+        font-weight: 700;
         border-radius: 6px;
         cursor: pointer;
         display: flex;

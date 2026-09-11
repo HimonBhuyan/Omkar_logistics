@@ -10,17 +10,17 @@
         :root {
             --primary-color: #0f3460;   /* Deep Navy */
             --secondary-color: #e94560; /* Crimson Red */
-            --bg-color: #f4f6f9;
+            --bg-color: #f1f5f9;
             --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #d1d5db;
+            --text-color: #0f172a;      /* High contrast rich slate black */
+            --border-color: #94a3b8;    /* High contrast crisp border */
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         input[type="text"], input[type="search"], textarea {
@@ -36,6 +36,98 @@
             padding-top: 135px; /* Offset for fixed floating header */
             padding-bottom: 75px; /* Offset for fixed floating footer */
             overflow-x: hidden;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Global High-Contrast Form & Input Visibility */
+        label, .form-label, .ctrl-group label, .filter-label, .master-label, .form-group-custom label, .ctrl-item label, .voucher-group label, .summary-item label, .f-row label, .form-row label, .filter-group label, .billing-options label, .radio-group label, .radio-pill-group label, .bilty-header-inputs label, .bilty-header-inputs div label, .header-left-group label, .header-right-group label, .checkbox-item {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+            font-size: 13.5px !important;
+            letter-spacing: 0.3px;
+            text-transform: uppercase !important;
+        }
+
+        input[type="text"], input[type="number"], input[type="date"], input[type="search"], input[type="password"], input[type="email"], select, textarea, .form-control {
+            color: #000000 !important;
+            font-weight: 600 !important;
+            font-size: 13.5px !important;
+            border: 1.5px solid #94a3b8;
+            background-color: #ffffff;
+        }
+
+        input:focus, select:focus, textarea:focus, .form-control:focus {
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.2) !important;
+        }
+
+        ::placeholder {
+            color: #475569 !important; /* Rich slate gray for clear visibility */
+            opacity: 1 !important;
+            font-weight: 500 !important;
+            font-size: 12.5px !important;
+            text-transform: uppercase;
+        }
+
+        /* Global High-Contrast Tables with UPPERCASE Headers */
+        table th, .table th, .bilty-grid th, .party-bill-table th, .register-table th, .ledger-table th, .grid-table th, .report-table th, .register-data-table th, .receipt-grid-table th, .series-table th {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+            font-size: 13px !important;
+            background-color: #e2e8f0;
+            border-color: #94a3b8 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.3px;
+        }
+
+        table td, .table td, .bilty-grid td, .party-bill-table td, .register-table td, .ledger-table td, .grid-table td, .report-table td, .register-data-table td, .receipt-grid-table td {
+            color: #000000 !important;
+            font-weight: 600 !important;
+            font-size: 13px !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        /* Global Master, Form, Section Titles & Header Bars in UPPERCASE */
+        .master-wrapper, .ledger-wrapper {
+            font-size: 13px !important;
+        }
+        .master-list-header, .ledger-title-bar, .master-title-bar, .party-bill-header-bar, .receipt-title-bar, .payment-title-bar, .report-header-bar, .register-header-red, .section-title, .f-section-title, .bilty-header-bar {
+            font-size: 14.5px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px;
+        }
+        .master-list-search input {
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            height: 30px !important;
+            color: #000000 !important;
+            border: 1.5px solid #94a3b8 !important;
+        }
+        .master-item-link, .ledger-list-item {
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: #0f172a !important;
+        }
+        .f-row label, .form-row label, .ctrl-group label, .filter-label, .filter-group label, .ctrl-item label, .voucher-group label, .summary-item label, .form-group-custom label {
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.3px;
+        }
+        .f-row input, .f-row select, .f-row textarea, .form-row input, .form-row select, .ctrl-group input, .ctrl-group select, .filter-group input, .filter-group select, .ctrl-item input, .ctrl-item select {
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: #000000 !important;
+            border: 1.5px solid #94a3b8 !important;
+        }
+        .btn-action, .btn-desktop-cyan, .btn-footer, .btn-add-row, .btn-search, .btn-clear {
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.3px;
         }
 
         .fixed-top-nav {
@@ -48,8 +140,8 @@
             flex-direction: column;
             margin: 12px 20px 0 20px;
             border-radius: 10px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.12);
         }
 
         /* Top Header Bar */
@@ -99,8 +191,8 @@
         }
 
         .header-logo h1 {
-            font-size: 20px;
-            font-weight: 700;
+            font-size: 21px;
+            font-weight: 800;
             letter-spacing: 1px;
             display: flex;
             flex-direction: column;
@@ -109,9 +201,9 @@
         }
 
         .header-logo h1 .subtitle {
-            font-size: 10px;
-            font-weight: 400;
-            color: var(--secondary-color);
+            font-size: 11px;
+            font-weight: 500;
+            color: #ff99aa;
             letter-spacing: 2px;
             margin-top: 2px;
         }
@@ -120,31 +212,35 @@
             display: flex;
             align-items: center;
             gap: 20px;
-            font-size: 13px;
+            font-size: 13.5px;
+            font-weight: 600;
         }
 
         .badge {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.18);
+            padding: 5px 12px;
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #e5e7eb;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
         }
 
         .badge-active {
-            border-color: var(--secondary-color);
+            border-color: #ff6b81;
             color: #fff;
-            background: rgba(233, 69, 96, 0.2);
-            font-weight: 500;
+            background: rgba(233, 69, 96, 0.35);
+            font-weight: 700;
         }
 
         .user-dropdown {
             background: var(--secondary-color);
             color: white;
-            padding: 6px 15px;
+            padding: 6px 16px;
             border-radius: 6px;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 13px;
             transition: all 0.2s ease;
             box-shadow: 0 2px 8px rgba(233, 69, 96, 0.3);
             border: none;
@@ -152,7 +248,7 @@
         }
 
         .user-dropdown:hover {
-            opacity: 0.9;
+            opacity: 0.95;
             transform: translateY(-1px);
         }
 
@@ -160,7 +256,7 @@
         nav {
             background: #ffffff;
             padding: 0 20px;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
         }
 
         .menu-list {
@@ -175,11 +271,11 @@
 
         .menu-link {
             display: block;
-            padding: 10px 16px;
-            color: #222;
+            padding: 10px 18px;
+            color: #0f172a;
             text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 14px;
+            font-weight: 600;
             transition: all 0.15s ease;
             white-space: nowrap;
         }
@@ -200,9 +296,10 @@
             background: #fff;
             border: 1px solid #7da9d4;
             border-top: none;
-            min-width: 180px;
+            min-width: 190px;
             z-index: 9999;
             padding: 2px 0;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
         }
 
         .menu-item:hover .dropdown {
@@ -211,9 +308,10 @@
 
         .dropdown a {
             display: block;
-            padding: 6px 18px;
-            font-size: 13px;
-            color: #222;
+            padding: 7px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #0f172a;
             text-decoration: none;
             background: #c5ddf4;
             border-bottom: 1px solid #a8c8e8;
@@ -225,7 +323,7 @@
         }
 
         .dropdown a:hover {
-            background: #4a90d4;
+            background: #003087;
             color: #fff;
         }
 
@@ -243,10 +341,10 @@
             top: 0;
             background: #c5ddf4;
             border: 1px solid #7da9d4;
-            min-width: 245px;
+            min-width: 255px;
             z-index: 10000;
             padding: 0;
-            box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.25);
         }
 
         .dropdown .has-sub, .dropdown-menu .has-sub {
@@ -261,9 +359,9 @@
             background: #c5ddf4;
             border-bottom: 1px solid #a8c8e8;
             color: #000080;
-            font-weight: 600;
-            font-size: 12px;
-            padding: 5px 14px;
+            font-weight: 700;
+            font-size: 13.5px;
+            padding: 7px 16px;
             white-space: nowrap;
         }
 
@@ -318,7 +416,7 @@
             padding: 12px 18px;
             border-radius: 8px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 600;
             display: flex;
             align-items: center;
@@ -381,16 +479,16 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
-            border: 1px solid var(--border-color);
+            border: 1.5px solid #94a3b8;
             text-align: center;
             padding: 8px 30px;
-            font-size: 11px;
-            color: #4b5563;
+            font-size: 12.5px;
+            color: #0f172a;
             border-radius: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            font-weight: 600;
             white-space: nowrap;
         }
 

@@ -24,9 +24,9 @@
         z-index: 100;
         overflow: visible !important;
         background: #d4d0c8;
-        padding: 10px;
-        border-bottom: 1px solid #999;
-        font-size: 12px;
+        padding: 12px;
+        border-bottom: 1.5px solid #999;
+        font-size: 13px;
     }
     .filter-grid:nth-of-type(1) {
         position: relative;
@@ -34,7 +34,7 @@
         overflow: visible !important;
         display: grid;
         grid-template-columns: repeat(4, 1fr) auto;
-        gap: 8px;
+        gap: 10px;
         align-items: center;
     }
     .filter-grid:nth-of-type(2) {
@@ -43,7 +43,7 @@
         overflow: visible !important;
         display: grid;
         grid-template-columns: 1fr 1fr auto auto auto auto;
-        gap: 8px;
+        gap: 10px;
         align-items: center;
     }
     .filter-group {
@@ -55,51 +55,56 @@
         gap: 6px;
     }
     .filter-group label {
-        font-weight: 600;
+        font-weight: 700;
+        font-size: 13px;
         min-width: 60px;
-        color: #111;
+        color: #0f172a;
         white-space: nowrap;
     }
     .filter-group input[type="text"],
     .filter-group input[type="date"],
     .filter-group select {
         width: 100%;
-        height: 24px;
-        border: 1px solid #7f9db9;
-        font-size: 12px;
-        padding: 2px 4px;
+        height: 28px;
+        border: 1.5px solid #7f9db9;
+        font-size: 13px;
+        font-weight: 600;
+        color: #000;
+        padding: 2px 6px;
         box-sizing: border-box;
     }
     .filter-checkboxes {
         display: flex;
-        gap: 15px;
+        gap: 18px;
         align-items: center;
         background: #e4e2de;
-        padding: 4px 8px;
-        border: 1px solid #aaa;
-        margin-top: 5px;
+        padding: 6px 12px;
+        border: 1.5px solid #aaa;
+        margin-top: 6px;
     }
     .checkbox-item {
         display: flex;
         align-items: center;
-        gap: 4px;
-        font-weight: 600;
+        gap: 6px;
+        font-weight: 700;
+        font-size: 13px;
+        color: #0f172a;
         cursor: pointer;
     }
     .btn-search, .btn-clear {
         background: #f0f0f0;
-        border: 1px solid #7f9db9;
-        padding: 4px 10px;
+        border: 1.5px solid #7f9db9;
+        padding: 4px 12px;
         font-weight: bold;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        font-size: 12px;
-        height: 24px;
+        font-size: 13px;
+        height: 28px;
         color: #111;
         box-sizing: border-box;
-        border-radius: 2px;
+        border-radius: 3px;
         white-space: nowrap;
     }
     .btn-search:hover, .btn-clear:hover {
@@ -110,30 +115,34 @@
         position: relative;
         z-index: 1;
         overflow-x: auto;
-        max-height: 500px;
+        max-height: 550px;
         background: #fff;
     }
     .report-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 11px;
+        font-size: 12.5px;
     }
     .report-table th {
-        background: #f0f0f0;
-        color: #111;
-        border: 1px solid #ccc;
-        padding: 4px 6px;
-        font-weight: bold;
+        background: #e2e8f0;
+        color: #0f172a;
+        border: 1px solid #94a3b8;
+        padding: 6px 8px;
+        font-weight: 700;
         text-align: left;
         white-space: nowrap;
         position: sticky;
         top: 0;
         z-index: 10;
+        font-size: 12.5px;
     }
     .report-table td {
-        border: 1px solid #ddd;
+        border: 1px solid #cbd5e1;
         padding: 4px 6px;
         white-space: nowrap;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: #000;
     }
     .report-table tr:nth-child(even) {
         background-color: #f9f9f9;
@@ -152,12 +161,12 @@
     }
     .report-footer {
         background: #d4d0c8;
-        padding: 10px;
-        border-top: 1px solid #999;
+        padding: 10px 14px;
+        border-top: 1.5px solid #999;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: bold;
     }
     .totals-box {
@@ -169,10 +178,12 @@
         gap: 8px;
     }
     .totals-label {
-        color: #333;
+        color: #0f172a;
+        font-weight: 700;
     }
     .totals-value {
         color: #800000;
+        font-weight: 800;
     }
     .action-buttons {
         display: flex;
@@ -296,7 +307,7 @@
 
 @section('content')
 <div class="report-card">
-    <div class="report-header-bar">Bilty Register</div>
+    <div class="report-header-bar">BILTY REGISTER</div>
     
 @php
     $isSubmitted = request()->has('search_submitted') || request()->hasAny(['from_date', 'to_date', 'consignor_name', 'consignee_name', 'billing_party_name', 'series', 'vehicle_no', 'from_location_name', 'to_location_name', 'mop_paid', 'mop_topay', 'mop_tbb']);
@@ -320,39 +331,39 @@
         <table class="report-table">
             <thead>
                 <tr>
-                    <th>Srno.</th>
-                    <th>Status</th>
-                    <th>BiltyNo</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>From Loc.</th>
-                    <th>To Loc.</th>
-                    <th>Consignor</th>
-                    <th>Mobile</th>
-                    <th>Consignee</th>
-                    <th>Mob.</th>
-                    <th>Party</th>
-                    <th>Third Party C.N.</th>
-                    <th>E-WayBill No</th>
-                    <th>Vehicle No</th>
-                    <th>Ship Status</th>
-                    <th>Packages</th>
-                    <th>Packing</th>
-                    <th>Description</th>
-                    <th>Invoice No.</th>
-                    <th>Invoice Value</th>
-                    <th>Unit</th>
+                    <th>SRNO.</th>
+                    <th>STATUS</th>
+                    <th>BILTY NO</th>
+                    <th>DATE</th>
+                    <th>TIME</th>
+                    <th>FROM LOC.</th>
+                    <th>TO LOC.</th>
+                    <th>CONSIGNOR</th>
+                    <th>MOBILE</th>
+                    <th>CONSIGNEE</th>
+                    <th>MOB.</th>
+                    <th>PARTY</th>
+                    <th>THIRD PARTY C.N.</th>
+                    <th>E-WAY BILL NO</th>
+                    <th>VEHICLE NO</th>
+                    <th>SHIP STATUS</th>
+                    <th>PACKAGES</th>
+                    <th>PACKING</th>
+                    <th>DESCRIPTION</th>
+                    <th>INVOICE NO.</th>
+                    <th>INVOICE VALUE</th>
+                    <th>UNIT</th>
                     <th>QTY</th>
-                    <th>Rate</th>
+                    <th>RATE</th>
                     <th>ST</th>
                     <th>RC</th>
                     <th>SC</th>
                     <th>DD</th>
-                    <th>Total</th>
-                    <th>Net Amt.</th>
+                    <th>TOTAL</th>
+                    <th>NET AMT.</th>
                     <th>M.O.P</th>
-                    <th>User Name</th>
-                    <th>Action</th>
+                    <th>USER NAME</th>
+                    <th>ACTION</th>
                 </tr>
             </thead>
             <tbody>

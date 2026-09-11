@@ -1,4 +1,4 @@
-@extends('layouts.app')
+clxtends('layouts.app')
 
 @section('title', 'Sundry Creditors Ledger Summery - Omkaar Logistics')
 

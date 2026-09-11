@@ -264,7 +264,7 @@
     <div class="receipt-detail-report-window">
         <!-- 1. Top Red Title Bar -->
         <div class="report-header-red">
-            Receipt Detail / TDS Report
+            RECEIPT DETAIL / TDS REPORT
         </div>
 
         <!-- 2. Controls & Filters Form -->
@@ -273,25 +273,25 @@
                 <!-- Row 1: Series, Receipt Detail / TDS Report Radio, User, From, To, Search Button -->
                 <div class="filter-grid-row">
                     <div class="ctrl-item">
-                        <label for="series_input" style="min-width: 42px;">Series</label>
-                        <input type="text" name="series" id="series_input" value="{{ request('series') }}" placeholder="Series" style="width: 70px; text-transform: uppercase;">
+                        <label for="series_input" style="min-width: 42px;">SERIES</label>
+                        <input type="text" name="series" id="series_input" value="{{ request('series') }}" placeholder="SERIES" style="width: 70px; text-transform: uppercase;">
                     </div>
 
                     <div class="radio-pill-group" style="margin-left: 15px;">
                         <label>
                             <input type="radio" name="report_type" value="receipt_detail" {{ request('report_type', 'receipt_detail') === 'receipt_detail' ? 'checked' : '' }} onchange="document.getElementById('receiptDetailFilterForm').submit();">
-                            Receipt Detail
+                            RECEIPT DETAIL
                         </label>
                         <label style="margin-left: 10px;">
                             <input type="radio" name="report_type" value="tds_report" {{ request('report_type') === 'tds_report' ? 'checked' : '' }} onchange="document.getElementById('receiptDetailFilterForm').submit();">
-                            TDS Report
+                            TDS REPORT
                         </label>
                     </div>
 
                     <div class="ctrl-item" style="margin-left: 20px;">
-                        <label for="user_select">User</label>
+                        <label for="user_select">USER</label>
                         <select name="user_id" id="user_select" style="width: 170px;">
-                            <option value="all">All User</option>
+                            <option value="all">ALL USER</option>
                             @foreach ($users as $u)
                                 <option value="{{ $u->id }}" {{ request('user_id') == $u->id ? 'selected' : '' }}>{{ $u->name }}</option>
                             @endforeach
@@ -299,12 +299,12 @@
                     </div>
 
                     <div class="ctrl-item" style="margin-left: auto;">
-                        <label for="from_date">From</label>
+                        <label for="from_date">FROM</label>
                         <input type="date" name="from_date" id="from_date" value="{{ request('from_date', $fromDate) }}" style="width: 115px;">
                     </div>
 
                     <div class="ctrl-item">
-                        <label for="to_date">To</label>
+                        <label for="to_date">TO</label>
                         <input type="date" name="to_date" id="to_date" value="{{ request('to_date', $toDate) }}" style="width: 115px;">
                     </div>
 
@@ -316,8 +316,8 @@
                 <!-- Row 2: Customer, Customer Like, Non Cancel/Cancel/All Radio -->
                 <div class="filter-grid-row" style="margin-top: 4px;">
                     <div class="ctrl-item">
-                        <label for="customer_input" style="min-width: 60px;">Customer</label>
-                        <input type="text" name="customer" id="customer_input" list="customers_datalist" value="{{ request('customer') }}" placeholder="Search Customer..." style="width: 220px;">
+                        <label for="customer_input" style="min-width: 60px;">CUSTOMER</label>
+                        <input type="text" name="customer" id="customer_input" list="customers_datalist" value="{{ request('customer') }}" placeholder="SEARCH CUSTOMER..." style="width: 220px;">
                         <datalist id="customers_datalist">
                             @foreach ($customers as $c)
                                 <option value="{{ $c }}"></option>
@@ -326,22 +326,22 @@
                     </div>
 
                     <div class="ctrl-item" style="margin-left: 15px;">
-                        <label for="customer_like_input">Customer Like</label>
-                        <input type="text" name="customer_like" id="customer_like_input" value="{{ request('customer_like') }}" placeholder="Customer Name..." style="width: 180px;">
+                        <label for="customer_like_input">CUSTOMER LIKE</label>
+                        <input type="text" name="customer_like" id="customer_like_input" value="{{ request('customer_like') }}" placeholder="CUSTOMER NAME..." style="width: 180px;">
                     </div>
 
                     <div class="radio-pill-group" style="margin-left: 25px;">
                         <label>
                             <input type="radio" name="cancel_status" value="non_cancel" {{ request('cancel_status', 'non_cancel') == 'non_cancel' ? 'checked' : '' }}>
-                            Non Cancel
+                            NON CANCEL
                         </label>
                         <label>
                             <input type="radio" name="cancel_status" value="cancel" {{ request('cancel_status') == 'cancel' ? 'checked' : '' }}>
-                            Cancel
+                            CANCEL
                         </label>
                         <label>
                             <input type="radio" name="cancel_status" value="all" {{ request('cancel_status') == 'all' ? 'checked' : '' }}>
-                            All
+                            ALL
                         </label>
                     </div>
                 </div>
@@ -353,21 +353,21 @@
             <table class="report-data-table" id="receiptDetailReportTable">
                 <thead>
                     <tr>
-                        <th style="width: 40px;">Srno.</th>
-                        <th style="width: 45px;">Series</th>
-                        <th style="width: 80px;">Receipt No</th>
-                        <th style="width: 80px;">Date</th>
-                        <th style="min-width: 180px;">Receipt By</th>
-                        <th style="width: 65px;">Invoice No</th>
-                        <th style="width: 85px;">UTR No</th>
+                        <th style="width: 40px;">SRNO.</th>
+                        <th style="width: 45px;">SERIES</th>
+                        <th style="width: 80px;">RECEIPT NO</th>
+                        <th style="width: 80px;">DATE</th>
+                        <th style="min-width: 180px;">RECEIPT BY</th>
+                        <th style="width: 65px;">INVOICE NO</th>
+                        <th style="width: 85px;">UTR NO</th>
                         <th style="width: 75px;">TDS</th>
-                        <th style="width: 85px;">Amount</th>
+                        <th style="width: 85px;">AMOUNT</th>
                         <th style="width: 65px;">MOP</th>
-                        <th style="min-width: 140px;">Bank/Account</th>
-                        <th style="width: 80px;">No.</th>
-                        <th style="width: 80px;">Che.Date</th>
-                        <th style="min-width: 130px;">Remark</th>
-                        <th style="width: 80px;">Entry By</th>
+                        <th style="min-width: 140px;">BANK/ACCOUNT</th>
+                        <th style="width: 80px;">NO.</th>
+                        <th style="width: 80px;">CHE.DATE</th>
+                        <th style="min-width: 130px;">REMARK</th>
+                        <th style="width: 80px;">ENTRY BY</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -13,7 +13,7 @@
         border: 1px solid #808080;
         box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-        font-size: 11px;
+        font-size: 13px;
         color: #000;
         user-select: none;
     }
@@ -23,25 +23,25 @@
         background: #8b0000;
         color: #ffffff;
         text-align: center;
-        font-size: 13px;
+        font-size: 15px;
         font-weight: bold;
         letter-spacing: 0.5px;
-        padding: 3px 0;
-        border-bottom: 1px solid #5a0000;
+        padding: 6px 0;
+        border-bottom: 2px solid #5a0000;
     }
 
     /* 2. Controls & Filter Bar (Grey ERP background) */
     .register-filter-panel {
         background: #d4d0c8;
-        padding: 6px 12px 6px 12px;
-        border-bottom: 1px solid #808080;
+        padding: 10px 14px;
+        border-bottom: 1.5px solid #808080;
     }
 
     .filter-grid-row {
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin-bottom: 5px;
+        gap: 14px;
+        margin-bottom: 8px;
         flex-wrap: wrap;
     }
 
@@ -57,7 +57,7 @@
 
     .ctrl-item label {
         font-weight: bold;
-        font-size: 11px;
+        font-size: 13px;
         color: #000;
         white-space: nowrap;
         margin: 0;
@@ -66,11 +66,12 @@
     .ctrl-item input[type="text"],
     .ctrl-item input[type="date"],
     .ctrl-item select {
-        height: 22px;
-        border: 1px solid #7f9db9;
+        height: 28px;
+        border: 1.5px solid #7f9db9;
         background: #ffffff;
-        font-size: 11px;
-        padding: 1px 4px;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 2px 6px;
         color: #000;
         box-sizing: border-box;
     }
@@ -78,45 +79,47 @@
     .ctrl-item input[type="text"]:focus,
     .ctrl-item input[type="date"]:focus,
     .ctrl-item select:focus {
-        outline: 1px solid #0055ff;
+        outline: 1.5px solid #0055ff;
     }
 
     /* Radio button groups */
     .radio-pill-group {
         display: inline-flex;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
         margin-left: 10px;
     }
 
     .radio-pill-group label {
         font-weight: bold;
-        font-size: 11px;
+        font-size: 13px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
         margin: 0;
     }
 
     .radio-pill-group input[type="radio"] {
         margin: 0;
         cursor: pointer;
+        width: 15px;
+        height: 15px;
     }
 
     /* Square search button */
     .btn-search-box {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 34px;
         background: linear-gradient(to bottom, #ffffff 0%, #e6e6e6 100%);
-        border: 1px solid #7f9db9;
-        border-radius: 2px;
+        border: 1.5px solid #7f9db9;
+        border-radius: 3px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 1px 2px rgba(0,0,0,0.1);
-        font-size: 15px;
+        font-size: 17px;
         margin-left: auto;
     }
 
@@ -133,14 +136,14 @@
         height: calc(100vh - 290px);
         min-height: 380px;
         background: #d8e6f8; /* Soft blue fill for empty table space */
-        border-top: 1px solid #808080;
-        border-bottom: 1px solid #808080;
+        border-top: 1.5px solid #808080;
+        border-bottom: 1.5px solid #808080;
     }
 
     .register-data-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 10.5px;
+        font-size: 12.5px;
         background: #ffffff;
     }
 
@@ -148,7 +151,7 @@
         background: #e4e2de;
         color: #000;
         font-weight: bold;
-        padding: 4px 4px;
+        padding: 6px 6px;
         border: 1px solid #808080;
         text-align: center;
         white-space: nowrap;
@@ -156,13 +159,16 @@
         top: 0;
         z-index: 10;
         box-shadow: 0 1px 1px rgba(0,0,0,0.08);
+        font-size: 12.5px;
     }
 
     .register-data-table td {
         border: 1px solid #b4b4b4;
-        padding: 2.5px 4px;
+        padding: 4px 6px;
         white-space: nowrap;
         color: #000;
+        font-size: 12.5px;
+        font-weight: 500;
     }
 
     .register-data-table tr.data-row {
@@ -264,7 +270,7 @@
     <div class="receipt-register-window">
         <!-- 1. Top Red Title Bar -->
         <div class="register-header-red">
-            Receipt register
+            RECEIPT REGISTER
         </div>
 
         <!-- 2. Controls & Filters Form -->
@@ -273,14 +279,14 @@
                 <!-- Row 1: Series, User, Non Cancel/Cancel/All, From, To, Search Button -->
                 <div class="filter-grid-row">
                     <div class="ctrl-item">
-                        <label for="series_input" style="min-width: 42px;">Series</label>
-                        <input type="text" name="series" id="series_input" value="{{ request('series') }}" placeholder="Series" style="width: 70px; text-transform: uppercase;">
+                        <label for="series_input" style="min-width: 42px;">SERIES</label>
+                        <input type="text" name="series" id="series_input" value="{{ request('series') }}" placeholder="SERIES" style="width: 70px; text-transform: uppercase;">
                     </div>
 
                     <div class="ctrl-item" style="margin-left: 10px;">
-                        <label for="user_select">User</label>
+                        <label for="user_select">USER</label>
                         <select name="user_id" id="user_select" style="width: 170px;">
-                            <option value="all">All User</option>
+                            <option value="all">ALL USER</option>
                             @foreach ($users as $u)
                                 <option value="{{ $u->id }}" {{ request('user_id') == $u->id ? 'selected' : '' }}>{{ $u->name }}</option>
                             @endforeach
@@ -290,25 +296,25 @@
                     <div class="radio-pill-group" style="margin-left: 15px;">
                         <label>
                             <input type="radio" name="cancel_status" value="non_cancel" {{ request('cancel_status', 'non_cancel') == 'non_cancel' ? 'checked' : '' }}>
-                            Non Cancel
+                            NON CANCEL
                         </label>
                         <label>
-                            <input type="radio" name="cancel_status" value="cancel" {{ request('cancel_status') == 'cancel' ? 'checked' : '' }}>
-                            Cancel
+                            <input type="radio" name="cancel_status" value="cancel" {{ request('cancel_status', 'cancel') == 'cancel' ? 'checked' : '' }}>
+                            CANCEL
                         </label>
                         <label>
-                            <input type="radio" name="cancel_status" value="all" {{ request('cancel_status') == 'all' ? 'checked' : '' }}>
-                            All
+                            <input type="radio" name="cancel_status" value="all" {{ request('cancel_status', 'all') == 'all' ? 'checked' : '' }}>
+                            ALL
                         </label>
                     </div>
 
                     <div class="ctrl-item" style="margin-left: auto;">
-                        <label for="from_date">From</label>
+                        <label for="from_date">FROM</label>
                         <input type="date" name="from_date" id="from_date" value="{{ request('from_date', $fromDate) }}" style="width: 115px;">
                     </div>
 
                     <div class="ctrl-item">
-                        <label for="to_date">To</label>
+                        <label for="to_date">TO</label>
                         <input type="date" name="to_date" id="to_date" value="{{ request('to_date', $toDate) }}" style="width: 115px;">
                     </div>
 
@@ -320,8 +326,8 @@
                 <!-- Row 2: Customer & Customer Like -->
                 <div class="filter-grid-row" style="margin-top: 4px;">
                     <div class="ctrl-item">
-                        <label for="customer_input" style="min-width: 60px;">Customer</label>
-                        <input type="text" name="customer" id="customer_input" list="customers_datalist" value="{{ request('customer') }}" placeholder="Search Customer..." style="width: 220px;">
+                        <label for="customer_input" style="min-width: 60px;">CUSTOMER</label>
+                        <input type="text" name="customer" id="customer_input" list="customers_datalist" value="{{ request('customer') }}" placeholder="SEARCH CUSTOMER..." style="width: 220px;">
                         <datalist id="customers_datalist">
                             @foreach ($customers as $c)
                                 <option value="{{ $c }}"></option>
@@ -330,8 +336,8 @@
                     </div>
 
                     <div class="ctrl-item" style="margin-left: 15px;">
-                        <label for="customer_like_input">Customer Like</label>
-                        <input type="text" name="customer_like" id="customer_like_input" value="{{ request('customer_like') }}" placeholder="Customer Name..." style="width: 180px;">
+                        <label for="customer_like_input">CUSTOMER LIKE</label>
+                        <input type="text" name="customer_like" id="customer_like_input" value="{{ request('customer_like') }}" placeholder="CUSTOMER NAME..." style="width: 180px;">
                     </div>
                 </div>
             </div>
@@ -342,19 +348,19 @@
             <table class="register-data-table" id="receiptRegisterTable">
                 <thead>
                     <tr>
-                        <th style="width: 45px;">Srno.</th>
-                        <th style="width: 50px;">Series</th>
-                        <th style="width: 80px;">Receipt No</th>
-                        <th style="width: 85px;">Date</th>
-                        <th style="min-width: 220px;">Receipt By</th>
+                        <th style="width: 45px;">SRNO.</th>
+                        <th style="width: 50px;">SERIES</th>
+                        <th style="width: 80px;">RECEIPT NO</th>
+                        <th style="width: 85px;">DATE</th>
+                        <th style="min-width: 220px;">RECEIPT BY</th>
                         <th style="width: 80px;">TDS</th>
-                        <th style="width: 95px;">Amount</th>
+                        <th style="width: 95px;">AMOUNT</th>
                         <th style="width: 70px;">MOP</th>
-                        <th style="min-width: 150px;">Bank/Account</th>
-                        <th style="width: 90px;">No.</th>
-                        <th style="width: 85px;">Che.Date</th>
-                        <th style="min-width: 140px;">Remark</th>
-                        <th style="width: 85px;">Entry By</th>
+                        <th style="min-width: 150px;">BANK/ACCOUNT</th>
+                        <th style="width: 90px;">NO.</th>
+                        <th style="width: 85px;">CHE.DATE</th>
+                        <th style="min-width: 140px;">REMARK</th>
+                        <th style="width: 85px;">ENTRY BY</th>
                     </tr>
                 </thead>
                 <tbody>

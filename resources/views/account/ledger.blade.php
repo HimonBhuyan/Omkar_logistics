@@ -9,32 +9,34 @@
         display: flex;
         height: calc(100vh - 148px);
         gap: 0;
-        border: 1px solid #aaa;
-        background: #f0f0f0;
-        font-size: 12px;
-        font-family: 'Segoe UI', Tahoma, sans-serif;
+        border: 1.5px solid #94a3b8;
+        background: #f1f5f9;
+        font-size: 13px;
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
     /* ── Left panel: list ── */
     .ledger-list-panel {
-        width: 320px;
-        min-width: 320px;
-        border-right: 2px solid #999;
+        width: 330px;
+        min-width: 330px;
+        border-right: 2px solid #94a3b8;
         display: flex;
         flex-direction: column;
         background: #fff;
     }
 
     .ledger-list-filter {
-        padding: 4px;
-        border-bottom: 1px solid #ccc;
+        padding: 6px;
+        border-bottom: 1.5px solid #cbd5e1;
     }
 
     .ledger-list-filter select {
         width: 100%;
-        font-size: 12px;
-        padding: 3px 4px;
-        border: 1px solid #999;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 4px 6px;
+        border: 1.5px solid #94a3b8;
+        height: 30px;
     }
 
     .ledger-list-scroll {
@@ -45,11 +47,12 @@
 
     .ledger-list-item {
         display: block;
-        padding: 4px 8px;
-        font-size: 12px;
-        color: #111;
+        padding: 6px 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #0f172a;
         text-decoration: none;
-        border-bottom: 1px solid #e8e8e8;
+        border-bottom: 1px solid #e2e8f0;
         cursor: pointer;
         white-space: nowrap;
         overflow: hidden;
@@ -78,79 +81,84 @@
         background: #8b0000;
         color: #fff;
         text-align: center;
-        font-size: 14px;
-        font-weight: 600;
-        padding: 6px 10px;
+        font-size: 15px;
+        font-weight: 700;
+        padding: 7px 10px;
         letter-spacing: 0.5px;
         flex-shrink: 0;
     }
 
     /* Info bar (code + datetime) */
     .ledger-info-bar {
-        background: #e8e8e8;
-        border-bottom: 1px solid #bbb;
-        padding: 4px 10px;
+        background: #e2e8f0;
+        border-bottom: 1.5px solid #cbd5e1;
+        padding: 6px 12px;
         display: flex;
         align-items: center;
         gap: 15px;
-        font-size: 12px;
+        font-size: 13px;
         flex-shrink: 0;
     }
 
     .ledger-info-bar label {
-        font-weight: 600;
+        font-weight: 700;
+        color: #0f172a;
         margin-right: 4px;
+        font-size: 13px;
     }
 
     .ledger-info-bar input {
-        border: 1px solid #999;
-        padding: 2px 6px;
-        font-size: 12px;
+        border: 1.5px solid #94a3b8;
+        padding: 3px 8px;
+        font-size: 13px;
+        font-weight: 700;
         background: #ffffcc;
+        height: 28px;
     }
 
     .ledger-info-bar .datetime {
-        color: #555;
-        font-size: 11px;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 600;
     }
 
     /* Scrollable form body */
     .ledger-form-body {
         flex: 1;
         overflow-y: auto;
-        padding: 8px 12px;
-        background: #f5f5f5;
+        padding: 10px 16px;
+        background: #f8fafc;
     }
 
     /* Field rows */
     .f-row {
         display: flex;
         align-items: center;
-        margin-bottom: 5px;
-        gap: 6px;
+        margin-bottom: 6px;
+        gap: 8px;
     }
 
     .f-row label {
-        width: 120px;
-        min-width: 120px;
+        width: 130px;
+        min-width: 130px;
         text-align: right;
-        padding-right: 6px;
-        font-size: 12px;
-        color: #222;
-        font-weight: 500;
+        padding-right: 8px;
+        font-size: 13px;
+        color: #0f172a;
+        font-weight: 700;
     }
 
     .f-row-wrapper {
         display: flex;
         flex-direction: column;
-        margin-bottom: 5px;
+        margin-bottom: 6px;
     }
 
     .validation-error-msg {
         color: #d32f2f;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 600;
-        margin-left: 126px;
+        margin-left: 138px;
         margin-top: 2px;
         display: none;
     }
@@ -167,12 +175,15 @@
     .f-row select,
     .f-row textarea {
         flex: 1;
-        border: 1px solid #999;
-        padding: 2px 6px;
-        font-size: 12px;
+        border: 1.5px solid #94a3b8;
+        padding: 3px 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #000000;
         background: #fff;
-        height: 24px;
+        height: 28px;
         outline: none;
+        border-radius: 3px;
     }
 
     .f-row select {
@@ -180,37 +191,38 @@
     }
 
     .f-row textarea {
-        height: 44px;
+        height: 50px;
         resize: vertical;
     }
 
     .f-row input:focus, .f-row select:focus {
         border-color: #003087;
         background: #fffff0;
+        box-shadow: 0 0 0 2px rgba(0, 48, 135, 0.2);
     }
 
     /* Two-column layout sections */
     .f-grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0 20px;
+        gap: 0 24px;
     }
 
     /* Section separator */
     .f-divider {
         border: none;
-        border-top: 1px solid #bbb;
-        margin: 12px 0;
+        border-top: 1.5px solid #cbd5e1;
+        margin: 14px 0;
     }
 
     /* Sub-heading section title */
     .f-section-title {
-        font-size: 12px;
-        font-weight: bold;
+        font-size: 13px;
+        font-weight: 700;
         color: #fff;
         background: linear-gradient(90deg, #003087, #8b0000);
-        margin: 18px 0 10px 126px;
-        padding: 4px 10px;
+        margin: 18px 0 10px 138px;
+        padding: 5px 12px;
         border-radius: 3px;
         letter-spacing: 0.3px;
     }
@@ -219,69 +231,73 @@
     .f-inline {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
     }
 
     .f-inline input {
-        border: 1px solid #999;
-        padding: 2px 6px;
-        font-size: 12px;
+        border: 1.5px solid #94a3b8;
+        padding: 3px 8px;
+        font-size: 13px;
+        font-weight: 600;
         background: #fff;
-        height: 24px;
-        width: 80px;
+        height: 28px;
+        width: 90px;
     }
 
     .f-inline label {
-        font-size: 12px;
-        font-weight: 500;
+        font-size: 13px;
+        font-weight: 700;
     }
 
     /* Radio button rows */
     .f-radio-row {
         display: flex;
         align-items: center;
-        gap: 20px;
-        padding: 4px 0 4px 126px;
+        gap: 24px;
+        padding: 4px 0 4px 138px;
     }
 
     .f-radio-row label {
-        font-size: 12px;
+        font-size: 13px;
+        font-weight: 700;
         width: auto;
         text-align: left;
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
         cursor: pointer;
     }
 
     /* Series wise opening table */
     .series-section {
-        margin-top: 8px;
-        border: 1px solid #bbb;
+        margin-top: 10px;
+        border: 1.5px solid #cbd5e1;
         background: #fff;
-        padding: 6px;
+        padding: 8px;
+        border-radius: 4px;
     }
 
     .series-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
     }
 
     .series-header span {
-        font-weight: 600;
-        font-size: 12px;
-        color: #333;
+        font-weight: 700;
+        font-size: 13px;
+        color: #0f172a;
     }
 
     .btn-add-row {
         background: #c5ddf4;
-        border: 1px solid #7da9d4;
-        padding: 2px 10px;
-        font-size: 11px;
+        border: 1.5px solid #7da9d4;
+        padding: 3px 12px;
+        font-size: 12px;
         cursor: pointer;
-        font-weight: 600;
+        font-weight: 700;
+        border-radius: 3px;
     }
 
     .btn-add-row:hover {
@@ -292,27 +308,29 @@
     .series-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .series-table th {
-        background: #c5ddf4;
-        border: 1px solid #aaa;
-        padding: 3px 8px;
+        background: #e2e8f0;
+        border: 1px solid #94a3b8;
+        padding: 5px 10px;
         text-align: left;
-        font-weight: 600;
+        font-weight: 700;
+        color: #0f172a;
     }
 
     .series-table td {
-        border: 1px solid #ccc;
-        padding: 2px 4px;
+        border: 1px solid #cbd5e1;
+        padding: 3px 6px;
     }
 
     .series-table td input {
         width: 100%;
         border: none;
-        padding: 2px 4px;
-        font-size: 12px;
+        padding: 3px 6px;
+        font-size: 13px;
+        font-weight: 600;
         outline: none;
         background: transparent;
     }
@@ -323,26 +341,26 @@
 
     /* ── Bottom action bar ── */
     .ledger-action-bar {
-        background: #e8e8e8;
-        border-top: 2px solid #999;
-        padding: 5px 10px;
+        background: #e2e8f0;
+        border-top: 2px solid #94a3b8;
+        padding: 8px 14px;
         display: flex;
         justify-content: flex-end;
-        gap: 6px;
+        gap: 8px;
         flex-shrink: 0;
     }
 
     .btn-action {
-        width: 36px;
-        height: 30px;
-        border: 1px solid #888;
+        width: 40px;
+        height: 34px;
+        border: 1.5px solid #888;
         background: #d4d4d4;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 18px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 3px;
+        border-radius: 4px;
         transition: background 0.1s;
     }
 
@@ -357,7 +375,7 @@
     /* Ledger name highlight style */
     .ledger-name-input {
         background: #ffffcc !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
     }
 </style>
 @endsection

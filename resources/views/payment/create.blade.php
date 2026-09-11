@@ -22,7 +22,7 @@
         border-bottom-color: #404040;
         box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-        font-size: 11.5px;
+        font-size: 13px;
         color: #000;
         user-select: none;
     }
@@ -30,9 +30,10 @@
     /* Top window title bar (small gray bar) */
     .payment-system-bar {
         background: #d4d0c8;
-        color: #555;
-        padding: 2px 6px;
-        font-size: 10px;
+        color: #333;
+        padding: 3px 8px;
+        font-size: 11px;
+        font-weight: 600;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -42,11 +43,11 @@
     .payment-system-bar .win-btn {
         background: #d4d0c8;
         border: 1px solid #808080;
-        width: 14px;
-        height: 14px;
-        line-height: 12px;
+        width: 16px;
+        height: 16px;
+        line-height: 14px;
         text-align: center;
-        font-size: 9px;
+        font-size: 10px;
         cursor: pointer;
     }
 
@@ -55,20 +56,20 @@
         background: #8b0000;
         color: #ffff00;
         text-align: center;
-        font-size: 13px;
+        font-size: 15px;
         font-weight: bold;
         letter-spacing: 1px;
-        padding: 4px 0;
-        border-bottom: 1px solid #5a0000;
+        padding: 6px 0;
+        border-bottom: 2px solid #5a0000;
         position: relative;
     }
 
     .payment-status-badge {
         position: absolute;
         right: 8px;
-        top: 3px;
-        font-size: 10px;
-        padding: 2px 6px;
+        top: 5px;
+        font-size: 11px;
+        padding: 3px 8px;
         border-radius: 2px;
         font-weight: bold;
         text-transform: uppercase;
@@ -79,37 +80,38 @@
     /* 2. Form Panel */
     .payment-form-panel {
         background: #d4d0c8;
-        padding: 12px 18px 10px 18px;
+        padding: 14px 20px 12px 20px;
     }
 
     .form-row {
         display: flex;
         align-items: center;
-        margin-bottom: 7px;
+        margin-bottom: 8px;
         gap: 8px;
         flex-wrap: nowrap;
     }
 
     .form-label {
         font-weight: bold;
-        font-size: 11.5px;
-        color: #000;
+        font-size: 13px !important;
+        color: #000 !important;
         white-space: nowrap;
         text-align: right;
     }
 
     .form-input {
-        height: 22px;
-        border: 1px solid #7f9db9;
+        height: 28px;
+        border: 1.5px solid #7f9db9;
         background: #ffffff;
-        font-size: 11.5px;
-        padding: 1px 4px;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 2px 6px;
         color: #000;
         box-sizing: border-box;
     }
 
     .form-input:focus {
-        outline: 1px solid #0055ff;
+        outline: 1.5px solid #0055ff;
         background-color: #ffffff;
     }
 
@@ -128,7 +130,8 @@
 
     .input-readonly {
         background-color: #ece9d8;
-        color: #333;
+        color: #222;
+        font-weight: 600;
     }
 
     .text-right {
@@ -140,12 +143,12 @@
     }
 
     .btn-lookup {
-        height: 22px;
-        width: 24px;
+        height: 28px;
+        width: 28px;
         background: #e4e2de;
-        border: 1px solid #7f9db9;
+        border: 1.5px solid #7f9db9;
         font-weight: bold;
-        font-size: 11px;
+        font-size: 13px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
@@ -160,24 +163,24 @@
     /* 3. Action Toolbar (Bottom Right) */
     .payment-action-bar {
         background: #d4d0c8;
-        padding: 6px 18px 12px 18px;
+        padding: 8px 20px 14px 20px;
         display: flex;
         justify-content: flex-end;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
     }
 
     .action-icon-btn {
-        width: 32px;
-        height: 30px;
+        width: 36px;
+        height: 34px;
         background: #e4e2de;
-        border: 1px solid #808080;
+        border: 1.5px solid #808080;
         border-radius: 3px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
+        font-size: 18px;
         transition: all 0.1s ease;
         box-shadow: 1px 1px 2px rgba(0,0,0,0.15);
         text-decoration: none;
@@ -197,7 +200,7 @@
         box-shadow: inset 1px 1px 2px rgba(0,0,0,0.3);
     }
 
-    .btn-add { color: #0288d1; font-weight: bold; font-size: 18px; }
+    .btn-add { color: #0288d1; font-weight: bold; font-size: 20px; }
     .btn-print { color: #6a1b9a; }
     .btn-save { color: #0066cc; }
     .btn-cancel-doc { color: #d32f2f; }
@@ -259,17 +262,17 @@
             <div class="payment-form-panel">
                 <!-- Row 1: Series, Payment No, Date, Time, Voucher No. -->
                 <div class="form-row">
-                    <label class="form-label" style="width: 50px;">Series</label>
+                    <label class="form-label" style="width: 50px;">SERIES</label>
                     <input type="text" name="series" id="series" class="form-input text-center font-bold" 
                            value="{{ old('series', isset($existingPayment) ? $existingPayment->series : ($series ?? 'A')) }}" 
-                           style="width: 45px;" maxlength="5" required>
+                           style="width: 50px; text-transform: uppercase;" required>
 
-                    <label class="form-label" style="margin-left: 15px;">Payment No</label>
+                    <label class="form-label" style="margin-left: 15px;">PAYMENT NO</label>
                     <input type="number" name="payment_no" id="payment_no" class="form-input text-center font-bold" 
                            value="{{ old('payment_no', isset($existingPayment) ? $existingPayment->payment_no : ($nextPaymentNo ?? 1)) }}" 
                            style="width: 75px;" required>
 
-                    <label class="form-label" style="margin-left: 15px;">Date</label>
+                    <label class="form-label" style="margin-left: 15px;">DATE</label>
                     <input type="date" name="payment_date" id="payment_date" class="form-input" 
                            value="{{ old('payment_date', isset($existingPayment) && $existingPayment->payment_date ? $existingPayment->payment_date->format('Y-m-d') : ($currentDate ?? date('Y-m-d'))) }}" 
                            style="width: 110px;" required>
@@ -279,7 +282,7 @@
                            style="width: 75px;" placeholder="HH:MM:SS">
 
                     <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 6px;">
-                        <label class="form-label">Voucher No.</label>
+                        <label class="form-label">VOUCHER NO.</label>
                         <input type="text" name="voucher_no" id="voucher_no" class="form-input input-lavender" 
                                value="{{ old('voucher_no', isset($existingPayment) ? ($existingPayment->voucher_no ?: $existingPayment->payment_no) : ($nextPaymentNo ?? 1)) }}" 
                                style="width: 65px;" readonly>
@@ -288,7 +291,7 @@
 
                 <!-- Row 2: Account, Account Alias / Details -->
                 <div class="form-row" style="position: relative;">
-                    <label class="form-label" style="width: 50px;">Account</label>
+                    <label class="form-label" style="width: 50px;">ACCOUNT</label>
                     <div style="flex: 1; position: relative;">
                         <input type="text" name="account_name" id="account_name" class="form-input font-bold" 
                                value="{{ old('account_name', isset($existingPayment) ? $existingPayment->account_name : ($selectedAccount ? $selectedAccount->ledger_name : '')) }}" 
@@ -304,13 +307,13 @@
 
                 <!-- Row 3: Customer Invoice Number, Customer Bill Amt. -->
                 <div class="form-row">
-                    <label class="form-label" style="width: 155px; text-align: left;">Customer Invoice Number</label>
+                    <label class="form-label" style="width: 155px; text-align: left;">CUSTOMER INVOICE NUMBER</label>
                     <input type="text" name="customer_invoice_no" id="customer_invoice_no" class="form-input" 
                            value="{{ old('customer_invoice_no', isset($existingPayment) ? $existingPayment->customer_invoice_no : '') }}" 
                            style="width: 220px;" placeholder="ENTER CUSTOMER INVOICE NO">
 
                     <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 6px;">
-                        <label class="form-label">Customer Bill Amt.</label>
+                        <label class="form-label">CUSTOMER BILL AMT.</label>
                         <input type="number" step="0.01" name="customer_bill_amt" id="customer_bill_amt" class="form-input text-right font-bold" 
                                value="{{ old('customer_bill_amt', isset($existingPayment) && $existingPayment->customer_bill_amt ? number_format($existingPayment->customer_bill_amt, 2, '.', '') : '') }}" 
                                style="width: 130px;" placeholder="0.00">
@@ -319,18 +322,18 @@
 
                 <!-- Row 4: Payment (Yellow), Deduct Amount (Readonly), Discount (Yellow) -->
                 <div class="form-row">
-                    <label class="form-label" style="width: 50px;">Payment</label>
+                    <label class="form-label" style="width: 50px;">PAYMENT</label>
                     <input type="number" step="0.01" name="payment_amount" id="payment_amount" class="form-input input-yellow text-right" 
                            value="{{ old('payment_amount', isset($existingPayment) ? number_format($existingPayment->payment_amount, 2, '.', '') : '') }}" 
                            style="width: 110px;" placeholder="0.00" required>
 
-                    <label class="form-label" style="margin-left: 10px;">Deduct Amount :</label>
+                    <label class="form-label" style="margin-left: 10px;">DEDUCT AMOUNT :</label>
                     <input type="number" step="0.01" name="deduct_amount" id="deduct_amount" class="form-input input-readonly text-right font-bold" 
                            value="{{ old('deduct_amount', isset($existingPayment) ? number_format($existingPayment->deduct_amount ?: $existingPayment->due_amount, 2, '.', '') : '0.00') }}" 
                            style="width: 100px;" readonly>
 
                     <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 6px;">
-                        <label class="form-label">Discount</label>
+                        <label class="form-label">DISCOUNT</label>
                         <input type="number" step="0.01" name="discount_amount" id="discount_amount" class="form-input input-yellow text-right" 
                                value="{{ old('discount_amount', isset($existingPayment) ? number_format($existingPayment->discount_amount, 2, '.', '') : '0.00') }}" 
                                style="width: 110px;">
@@ -339,7 +342,7 @@
 
                 <!-- Row 5: Pay Mode, Bank Name, Lookup :: -->
                 <div class="form-row">
-                    <label class="form-label" style="width: 50px;">Pay Mode</label>
+                    <label class="form-label" style="width: 50px;">PAY MODE</label>
                     <select name="pay_mode" id="pay_mode" class="form-input font-bold" style="width: 170px;">
                         @php
                             $currentPayMode = old('pay_mode', isset($existingPayment) ? $existingPayment->pay_mode : 'BANK TRANSFER');
@@ -352,7 +355,7 @@
                         <option value="DIRECT" {{ $currentPayMode === 'DIRECT' ? 'selected' : '' }}>DIRECT</option>
                     </select>
 
-                    <label class="form-label" style="margin-left: 10px;">Bank Name</label>
+                    <label class="form-label" style="margin-left: 10px;">BANK NAME</label>
                     <select name="bank_name" id="bank_name" class="form-input font-bold" style="flex: 1;">
                         <option value="">-- SELECT BANK --</option>
                         @php
@@ -369,13 +372,13 @@
 
                 <!-- Row 7: Chq No., Chq Date -->
                 <div class="form-row">
-                    <label class="form-label" style="width: 50px;">Chq No.</label>
+                    <label class="form-label" style="width: 50px;">CHQ NO.</label>
                     <input type="text" name="cheque_no" id="cheque_no" class="form-input" 
                            value="{{ old('cheque_no', isset($existingPayment) ? $existingPayment->cheque_no : '') }}" 
                            style="width: 250px;" placeholder="CHEQUE / UTR / REF NO">
 
                     <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 6px;">
-                        <label class="form-label">Chq Date</label>
+                        <label class="form-label">CHQ DATE</label>
                         <input type="date" name="cheque_date" id="cheque_date" class="form-input" 
                                value="{{ old('cheque_date', isset($existingPayment) && $existingPayment->cheque_date ? $existingPayment->cheque_date->format('Y-m-d') : ($currentDate ?? date('Y-m-d'))) }}" 
                                style="width: 110px;">
@@ -384,7 +387,7 @@
 
                 <!-- Row 8: Purpose of payment -->
                 <div class="form-row">
-                    <label class="form-label" style="width: 120px; text-align: left;">Purpose of payment</label>
+                    <label class="form-label" style="width: 120px; text-align: left;">PURPOSE OF PAYMENT</label>
                     <input type="text" name="remark" id="remark" class="form-input" 
                            value="{{ old('remark', isset($existingPayment) ? $existingPayment->remark : '') }}" 
                            style="flex: 1;" placeholder="ENTER PURPOSE OF PAYMENT / BILL DETAILS">

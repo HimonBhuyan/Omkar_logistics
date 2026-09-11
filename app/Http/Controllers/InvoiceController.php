@@ -51,9 +51,9 @@ class InvoiceController extends Controller
             ->orderBy('description')
             ->pluck('description');
 
-        // 5. Build monthPartiesMap and party destinations for all unbilled bilties
-        // 5. Build monthPartiesMap, party destinations, and party items for all unbilled bilties
+        // 5. Build monthPartiesMap, party destinations, and party items for all unbilled bilties (TBB only)
         $allUnbilledBilties = Bilty::with(['consignor', 'billingParty', 'toLocation', 'toCity', 'items'])
+            ->tbb()
             ->whereNull('invoice_id')
             ->whereNotNull('invoice_date')
             ->orderBy('invoice_date', 'desc')
@@ -251,10 +251,13 @@ class InvoiceController extends Controller
             ->orderBy('description')
             ->pluck('description');
 
-        // Build monthPartiesMap for unbilled bilties PLUS any bilties attached to this invoice
+        // Build monthPartiesMap for unbilled bilties (TBB only) PLUS any bilties attached to this invoice
         $allBilties = Bilty::with(['consignor', 'billingParty', 'toLocation', 'toCity', 'items'])
             ->where(function($q) use ($existingInvoice) {
-                $q->whereNull('invoice_id')->orWhere('invoice_id', $existingInvoice->id);
+                $q->where('invoice_id', $existingInvoice->id)
+                  ->orWhere(function($sq) {
+                      $sq->whereNull('invoice_id')->tbb();
+                  });
             })
             ->whereNotNull('invoice_date')
             ->orderBy('invoice_date', 'desc')
@@ -433,6 +436,7 @@ class InvoiceController extends Controller
     public function extractPartiesForMonth($monthStr = null)
     {
         $query = Bilty::with(['consignor', 'billingParty', 'toLocation', 'toCity', 'items'])
+            ->tbb()
             ->whereNull('invoice_id');
 
         if (!empty($monthStr) && $monthStr !== 'all' && $monthStr !== '-- All Months --') {
@@ -627,10 +631,13 @@ class InvoiceController extends Controller
         if ($request->filled('invoice_id')) {
             $invId = (int)$request->invoice_id;
             $query->where(function($q) use ($invId) {
-                $q->whereNull('invoice_id')->orWhere('invoice_id', $invId);
+                $q->where('invoice_id', $invId)
+                  ->orWhere(function($sq) {
+                      $sq->whereNull('invoice_id')->tbb();
+                  });
             });
         } else {
-            $query->whereNull('invoice_id');
+            $query->whereNull('invoice_id')->tbb();
         }
 
         // Filter by Account / Party name

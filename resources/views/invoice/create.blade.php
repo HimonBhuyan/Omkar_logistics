@@ -9,7 +9,7 @@
     .party-bill-wrapper {
         background: #d4d0c8;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        font-size: 11px;
+        font-size: 13px;
         border: 1px solid #7da9d4;
         box-shadow: 0 4px 15px rgba(0,0,0,0.12);
         margin: 0 auto;
@@ -20,7 +20,7 @@
     .party-bill-header-bar {
         background: #8b0000;
         color: #fff;
-        padding: 5px 12px;
+        padding: 6px 14px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -37,23 +37,23 @@
     .header-right-group label {
         font-weight: bold;
         color: #fff;
-        font-size: 11.5px;
+        font-size: 13px;
     }
 
     .header-left-group input,
     .header-right-group input {
-        height: 22px;
-        border: 1px solid #333;
-        font-size: 11px;
+        height: 26px;
+        border: 1.5px solid #333;
+        font-size: 13px;
         font-weight: bold;
-        padding: 2px 5px;
+        padding: 2px 6px;
         box-sizing: border-box;
         background: #fff;
         color: #000;
     }
 
     .header-center-title {
-        font-size: 18px;
+        font-size: 19px;
         font-weight: bold;
         color: #ffff00; /* Bright yellow title like the screenshot */
         text-shadow: 1px 1px 2px #000;
@@ -69,11 +69,11 @@
     /* Top Selection & Filter Panel */
     .party-bill-controls {
         background: #ece9d8;
-        padding: 8px 12px;
-        border-bottom: 1px solid #999;
+        padding: 10px 14px;
+        border-bottom: 1.5px solid #999;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
     }
 
     .controls-row {
@@ -92,24 +92,28 @@
     .ctrl-group label {
         font-weight: bold;
         color: #000;
+        font-size: 13px;
         white-space: nowrap;
     }
 
     .ctrl-group input[type="text"],
     .ctrl-group select {
-        height: 22px;
-        border: 1px solid #7f9db9;
-        font-size: 11px;
-        padding: 2px 4px;
+        height: 28px;
+        border: 1.5px solid #7f9db9;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 2px 6px;
         box-sizing: border-box;
         background: #fff;
+        color: #000;
     }
 
     /* Pale Yellow Account Input Field from Old System */
     .input-account-yellow {
         background-color: #ffffc0 !important;
-        border: 1px solid #7f9db9 !important;
+        border: 1.5px solid #7f9db9 !important;
         font-weight: bold;
+        font-size: 13px !important;
         color: #000;
         width: 320px;
     }
@@ -126,7 +130,7 @@
         max-height: calc(100vh - 330px);
         min-height: 280px;
         background: #808080; /* Grey backdrop when table has empty space */
-        border-top: 1px solid #999;
+        border-top: 1.5px solid #999;
         border-bottom: 2px solid #666;
     }
 
@@ -134,14 +138,14 @@
         width: 100%;
         border-collapse: collapse;
         background: #fff;
-        font-size: 10.5px;
+        font-size: 12.5px;
     }
 
     .party-bill-table th {
         background: #e4e2de;
         color: #000;
         font-weight: bold;
-        padding: 4px 4px;
+        padding: 6px 6px;
         border: 1px solid #999;
         text-align: center;
         white-space: nowrap;
@@ -149,31 +153,35 @@
         top: 0;
         z-index: 10;
         box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        font-size: 12.5px;
     }
 
     .party-bill-table td {
-        border: 1px solid #ccc;
-        padding: 2px 2px;
+        border: 1px solid #bbb;
+        padding: 3px 4px;
         text-align: center;
         white-space: nowrap;
-        color: #111;
+        color: #000;
+        font-size: 12.5px;
+        font-weight: 500;
     }
 
     /* Grid Input fields for inline editing */
     .grid-input {
         width: 100%;
-        height: 20px;
-        border: 1px solid #7f9db9;
+        height: 24px;
+        border: 1.5px solid #7f9db9;
         background: #fff;
         color: #000;
-        font-size: 11px;
+        font-size: 12.5px;
+        font-weight: 600;
         font-family: inherit;
-        padding: 1px 3px;
+        padding: 1px 4px;
         box-sizing: border-box;
     }
     .grid-input:focus {
         border-color: #0055ff;
-        outline: 1px solid #0055ff;
+        outline: 1.5px solid #0055ff;
         background: #ffffea;
     }
     .text-center { text-align: center; }
@@ -196,6 +204,8 @@
 
     .party-bill-table input.row-checkbox {
         cursor: pointer;
+        width: 15px;
+        height: 15px;
     }
 
     /* GST Bill Mode: Hide Third Party C.N.No Column */
@@ -221,14 +231,15 @@
         box-shadow: 0 6px 14px rgba(0,0,0,0.25);
         z-index: 99999;
         text-align: left;
-        font-size: 11px;
+        font-size: 12.5px;
         border-radius: 2px;
         display: none;
     }
     .auto-grid-item {
-        padding: 4px 8px;
+        padding: 5px 8px;
         cursor: pointer;
         color: #000;
+        font-weight: 600;
         border-bottom: 1px solid #f0f0f0;
         white-space: nowrap;
         overflow: hidden;
@@ -243,11 +254,11 @@
     /* Bottom Summary & Actions Panel */
     .party-bill-footer-bar {
         background: #ece9d8;
-        padding: 8px 12px;
-        border-top: 1px solid #fff;
+        padding: 10px 14px;
+        border-top: 1.5px solid #fff;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
     }
 
     .footer-row-1 {
@@ -265,9 +276,9 @@
     }
 
     .footer-amounts-group .ctrl-group input {
-        height: 22px;
-        border: 1px solid #7f9db9;
-        font-size: 11px;
+        height: 26px;
+        border: 1.5px solid #7f9db9;
+        font-size: 12.5px;
         padding: 2px 6px;
         text-align: right;
         font-weight: bold;
@@ -276,10 +287,10 @@
     .total-amt-box {
         background: #fff;
         border: 1.5px solid #7f9db9;
-        font-size: 13px !important;
-        font-weight: bold !important;
+        font-size: 14.5px !important;
+        font-weight: 800 !important;
         color: #8b0000 !important;
-        width: 120px !important;
+        width: 130px !important;
         text-align: right;
         padding: 2px 6px;
     }
@@ -292,9 +303,10 @@
 
     .remark-input-field {
         width: 100%;
-        height: 22px;
-        border: 1px solid #7f9db9;
-        font-size: 11px;
+        height: 26px;
+        border: 1.5px solid #7f9db9;
+        font-size: 12.5px;
+        font-weight: 600;
         padding: 2px 6px;
     }
 
@@ -304,8 +316,8 @@
         align-items: center;
         justify-content: space-between;
         gap: 15px;
-        padding-top: 6px;
-        border-top: 1px solid #d4d0c8;
+        padding-top: 8px;
+        border-top: 1.5px solid #d4d0c8;
         flex-wrap: wrap;
     }
 
@@ -316,16 +328,16 @@
     }
 
     .voucher-group label {
-        font-size: 11px;
+        font-size: 13px;
         font-weight: bold;
         color: #000;
         white-space: nowrap;
     }
 
     .voucher-group input {
-        height: 22px;
-        border: 1px solid #7f9db9;
-        font-size: 11px;
+        height: 26px;
+        border: 1.5px solid #7f9db9;
+        font-size: 13px;
         font-weight: bold;
         padding: 2px 6px;
         background: #fff;
@@ -344,19 +356,19 @@
 
     .btn-desktop-cyan {
         background: linear-gradient(to bottom, #d6f2fa 0%, #b8e6f5 50%, #9ddcef 100%);
-        border: 1px solid #5b89a6;
+        border: 1.5px solid #5b89a6;
         color: #000;
         font-weight: bold;
-        font-size: 11.5px;
-        min-width: 82px;
-        height: 24px;
-        padding: 0 14px;
+        font-size: 12.5px;
+        min-width: 88px;
+        height: 28px;
+        padding: 0 16px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 2px;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 1px 2px rgba(0,0,0,0.1);
+        border-radius: 3px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 1px 2px rgba(0,0,0,0.15);
         text-decoration: none;
     }
 
@@ -372,18 +384,21 @@
 
     /* Select2 Tweaks to match desktop ERP styling */
     .select2-container .select2-selection--single {
-        height: 22px !important;
-        border: 1px solid #7f9db9 !important;
+        height: 28px !important;
+        border: 1.5px solid #7f9db9 !important;
         border-radius: 0px !important;
-        font-size: 11px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
     }
     .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 20px !important;
-        padding-left: 4px !important;
-        font-size: 11px !important;
+        line-height: 26px !important;
+        padding-left: 6px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #000 !important;
     }
     .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 20px !important;
+        height: 26px !important;
     }
 </style>
 @endsection
@@ -404,17 +419,17 @@
             <div class="party-bill-header-bar">
                 <div class="header-left-group">
                     <div class="ctrl-group">
-                        <label for="series">Series</label>
+                        <label for="series">SERIES</label>
                         <input type="text" name="series" id="series" value="{{ old('series', $existingInvoice->series ?? ($series ?? 'A')) }}" style="width: 50px; text-transform: uppercase;">
                     </div>
                     <div class="ctrl-group">
-                        <label for="invoice_no">Receipt No.</label>
+                        <label for="invoice_no">RECEIPT NO.</label>
                         <input type="number" name="invoice_no" id="invoice_no" value="{{ old('invoice_no', $existingInvoice->invoice_no ?? $nextInvoiceNo) }}" style="width: 70px;" required autocomplete="off">
                     </div>
                 </div>
 
                 <div class="header-center-title" id="headerTitle">
-                    Invoice
+                    INVOICE
                     <span id="invoice_status_badge">
                         @if(($isEdit ?? false) && isset($existingInvoice))
                             @if($existingInvoice->status === 'draft')
@@ -430,7 +445,7 @@
 
                 <div class="header-right-group">
                     <div class="ctrl-group">
-                        <label for="invoice_date">Date</label>
+                        <label for="invoice_date">DATE</label>
                         <input type="date" name="invoice_date" id="invoice_date" value="{{ old('invoice_date', (isset($existingInvoice) && $existingInvoice->invoice_date) ? $existingInvoice->invoice_date->format('Y-m-d') : date('Y-m-d')) }}" style="width: 120px;" required>
                     </div>
                     <div class="ctrl-group">
@@ -444,9 +459,9 @@
                 <!-- Row 1: Account, Consignor, Pending Bill Parties -->
                 <div class="controls-row">
                     <div class="ctrl-group">
-                        <label for="account_name_select" style="min-width: 55px;">Account <span id="account_count_badge" style="color: #0f3460; font-weight: normal; font-size: 10px;">({{ count($consignors) }})</span></label>
+                        <label for="account_name_select" style="min-width: 55px;">ACCOUNT <span id="account_count_badge" style="color: #0f3460; font-weight: normal; font-size: 10px;">({{ count($consignors) }})</span></label>
                         <select name="account_name" id="account_name_select" class="input-account-yellow" required style="width: 320px; height: 22px; border: 1px solid #7f9db9; font-size: 11px; font-weight: bold; background-color: #ffffc0; padding: 1px 3px;">
-                            <option value="">-- Select Account ({{ count($consignors) }}) --</option>
+                            <option value="">-- SELECT ACCOUNT ({{ count($consignors) }}) --</option>
                             @php
                                 $currentAccount = old('account_name', $existingInvoice->account_name ?? '');
                             @endphp
@@ -460,9 +475,9 @@
                     </div>
 
                     <div class="ctrl-group">
-                        <label for="consignor_select">Consignor <span id="consignor_count_badge" style="color: #0f3460; font-weight: normal; font-size: 10px;">({{ count($consignors) }})</span></label>
+                        <label for="consignor_select">CONSIGNOR <span id="consignor_count_badge" style="color: #0f3460; font-weight: normal; font-size: 10px;">({{ count($consignors) }})</span></label>
                         <select name="consignor_name" id="consignor_select" style="width: 230px; height: 22px; border: 1px solid #7f9db9; font-size: 11px; background: #fff; padding: 1px 3px;">
-                            <option value="">-- All Consignors ({{ count($consignors) }}) --</option>
+                            <option value="">-- ALL CONSIGNORS ({{ count($consignors) }}) --</option>
                             @php
                                 $currentConsignor = old('consignor_name', $existingInvoice->consignor_name ?? '');
                             @endphp
@@ -476,9 +491,9 @@
                     </div>
 
                     <div class="ctrl-group" style="margin-left: auto;">
-                        <label for="pending_party_select">Pending Bill Parties <span id="pending_count_badge" style="color: #8b0000; font-weight: normal; font-size: 10px;">({{ count($pendingParties) }})</span></label>
+                        <label for="pending_party_select">PENDING BILL PARTIES <span id="pending_count_badge" style="color: #8b0000; font-weight: normal; font-size: 10px;">({{ count($pendingParties) }})</span></label>
                         <select id="pending_party_select" style="width: 260px; height: 22px; border: 1px solid #7f9db9; font-size: 11px; font-weight: bold; color: #8b0000; background: #fff; padding: 1px 3px;">
-                            <option value="">-- Select Pending Party ({{ count($pendingParties) }}) --</option>
+                            <option value="">-- SELECT PENDING PARTY ({{ count($pendingParties) }}) --</option>
                             @foreach ($pendingParties as $p)
                                 <option value="{{ $p }}" {{ (old('account_name', $existingInvoice->account_name ?? '') == $p) ? 'selected' : '' }}>{{ $p }}</option>
                             @endforeach
@@ -489,9 +504,9 @@
                 <!-- Row 2: For Month, Item, GST Bill, Show Destination -->
                 <div class="controls-row">
                     <div class="ctrl-group">
-                        <label for="for_month" style="min-width: 55px;">For Month</label>
+                        <label for="for_month" style="min-width: 55px;">FOR MONTH</label>
                         <select name="for_month" id="for_month" style="width: 110px;" onchange="window.loadMonthParties(this.value, true);">
-                            <option value="">-- All Months --</option>
+                            <option value="">-- ALL MONTHS --</option>
                             @php $activeMonth = old('for_month', $existingInvoice->for_month ?? ($selectedMonth ?? date('M/Y'))); @endphp
                             @foreach ($months as $val => $lbl)
                                 <option value="{{ $lbl }}" {{ $activeMonth == $lbl ? 'selected' : '' }}>{{ $lbl }}</option>
@@ -500,9 +515,9 @@
                     </div>
 
                     <div class="ctrl-group">
-                        <label for="item_filter">Item <span id="item_count_badge" style="color: #0f3460; font-weight: normal; font-size: 10px;"></span></label>
+                        <label for="item_filter">ITEM <span id="item_count_badge" style="color: #0f3460; font-weight: normal; font-size: 10px;"></span></label>
                         <select name="item_filter" id="item_filter" style="width: 140px; height: 22px; border: 1px solid #7f9db9; font-size: 11px; background: #fff; padding: 1px 3px;">
-                            <option value="">-- All Items --</option>
+                            <option value="">-- ALL ITEMS --</option>
                             @php $activeItem = old('item_filter', $existingInvoice->item_filter ?? ''); @endphp
                             @foreach ($itemDescriptions as $desc)
                                 <option value="{{ $desc }}" {{ $activeItem == $desc ? 'selected' : '' }}>{{ $desc }}</option>
@@ -512,13 +527,13 @@
 
                     <div class="ctrl-group" style="margin-left: 10px;">
                         <input type="checkbox" name="is_gst_bill" id="is_gst_bill" value="1" {{ old('is_gst_bill', $existingInvoice->is_gst_bill ?? false) ? 'checked' : '' }} style="cursor: pointer;">
-                        <label for="is_gst_bill" style="cursor: pointer;">GST Bill</label>
+                        <label for="is_gst_bill" style="cursor: pointer;">GST BILL</label>
                     </div>
 
                     <div class="ctrl-group" style="margin-left: 20px;">
-                        <label for="destination_filter">Show Destination <span id="destination_count_badge" style="color: #0f3460; font-weight: normal; font-size: 10px;"></span></label>
+                        <label for="destination_filter">SHOW DESTINATION <span id="destination_count_badge" style="color: #0f3460; font-weight: normal; font-size: 10px;"></span></label>
                         <select name="destination_filter" id="destination_filter" style="width: 160px; height: 22px; border: 1px solid #7f9db9; font-size: 11px; background: #fff; padding: 1px 3px;">
-                            <option value="">-- All Destinations --</option>
+                            <option value="">-- ALL DESTINATIONS --</option>
                             @php $activeDest = old('destination_filter', $existingInvoice->destination_filter ?? ''); @endphp
                             @foreach ($destinations as $d)
                                 <option value="{{ $d }}" {{ $activeDest == $d ? 'selected' : '' }}>{{ $d }}</option>
@@ -528,7 +543,7 @@
 
                     <div class="ctrl-group" style="margin-left: auto;">
                         <button type="button" class="btn-action" id="btnFetchBilties" style="height: 22px; font-weight: bold; background: #d0e1fd;">
-                            🔍 Fetch Pending Bilties
+                            🔍 FETCH PENDING BILTIES
                         </button>
                     </div>
                 </div>
@@ -540,26 +555,26 @@
                     <thead>
                         <tr>
                             <th width="30"><input type="checkbox" id="checkAllRows" checked title="Select All / Deselect All"></th>
-                            <th width="35">SrNo</th>
-                            <th width="75">Date</th>
-                            <th width="65">C.N.No</th>
-                            <th width="90" class="col-third-party-cn">Third Party C.N.No</th>
-                            <th width="45">Pkt</th>
-                            <th width="90">From</th>
-                            <th width="90">Destination</th>
-                            <th width="140">Consignee</th>
-                            <th width="100">Items</th>
-                            <th width="80">Inv.No</th>
-                            <th width="65">Wgt</th>
-                            <th width="65">Unit Cat.</th>
+                            <th width="35">SRNO</th>
+                            <th width="75">DATE</th>
+                            <th width="65">C.N.NO</th>
+                            <th width="90" class="col-third-party-cn">THIRD PARTY C.N.NO</th>
+                            <th width="45">PKT</th>
+                            <th width="90">FROM</th>
+                            <th width="90">DESTINATION</th>
+                            <th width="140">CONSIGNEE</th>
+                            <th width="100">ITEMS</th>
+                            <th width="80">INV.NO</th>
+                            <th width="65">WGT</th>
+                            <th width="65">UNIT CAT.</th>
                             <th width="65">RT/KG/CB</th>
-                            <th width="55">St.Ch.</th>
-                            <th width="65">Fr.Amt</th>
-                            <th width="65">Unload Rt.</th>
-                            <th width="65">Unload Amt.</th>
-                            <th width="55">Oth.Ch.</th>
-                            <th width="65">ODA Charge</th>
-                            <th width="75">Amt.</th>
+                            <th width="55">ST.CH.</th>
+                            <th width="65">FR.AMT</th>
+                            <th width="65">UNLOAD RT.</th>
+                            <th width="65">UNLOAD AMT.</th>
+                            <th width="55">OTH.CH.</th>
+                            <th width="65">ODA CHARGE</th>
+                            <th width="75">AMT.</th>
                         </tr>
                     </thead>
                     <tbody id="partyBillTableBody">
@@ -662,7 +677,7 @@
                 <div class="footer-row-1">
                     <div class="footer-amounts-group">
                         <div class="ctrl-group">
-                            <label for="bill_amount">Bill Amt.</label>
+                            <label for="bill_amount">BILL AMT.</label>
                             <input type="number" name="bill_amount" id="bill_amount" value="{{ number_format(old('bill_amount', $existingInvoice->bill_amount ?? 0), 2, '.', '') }}" step="0.01" readonly style="width: 100px; background: #e8e8e8;">
                         </div>
 
@@ -677,12 +692,12 @@
                         </div>
 
                         <div class="ctrl-group">
-                            <label for="gst_amount">GST Amt.</label>
+                            <label for="gst_amount">GST AMT.</label>
                             <input type="number" name="gst_amount" id="gst_amount" value="{{ number_format(old('gst_amount', $existingInvoice->gst_amount ?? 0), 2, '.', '') }}" step="0.01" readonly style="width: 90px; background: #e8e8e8;">
                         </div>
 
                         <div class="ctrl-group">
-                            <label for="total_amount">Total Amt.</label>
+                            <label for="total_amount">TOTAL AMT.</label>
                             <input type="number" name="total_amount" id="total_amount" value="{{ number_format(old('total_amount', $existingInvoice->total_amount ?? 0), 2, '.', '') }}" step="0.01" readonly style="width: 110px; font-weight: bold; color: #8b0000; background: #ffffd0;">
                         </div>
                     </div>
@@ -691,7 +706,7 @@
                 <!-- Row 2: Remarks Row -->
                 <div class="footer-row-2">
                     <div class="ctrl-group" style="width: 100%;">
-                        <label for="remark" style="min-width: 55px;">Remark</label>
+                        <label for="remark" style="min-width: 55px;">REMARK</label>
                         <input type="text" name="remark" id="remark" placeholder="ENTER INVOICE REMARKS OR NOTES..." value="{{ old('remark', $existingInvoice->remark ?? '') }}" style="width: 100%;">
                     </div>
                 </div>
@@ -699,31 +714,31 @@
                 <!-- Row 3: Lower Action Buttons Row (Matching Desktop ERP) -->
                 <div class="footer-row-3">
                     <div class="voucher-group">
-                        <label for="voucher_no_display">Voucher No. :</label>
+                        <label for="voucher_no_display">VOUCHER NO. :</label>
                         <input type="text" id="voucher_no_display" value="{{ $existingInvoice->invoice_no ?? ($nextInvoiceNo ?? 40) }}" readonly style="width: 80px;">
                     </div>
 
                     <div class="desktop-btn-bar">
                         <button type="button" class="btn-desktop-cyan" onclick="window.location.href='{{ route('invoice.create') }}';" title="New Invoice">
-                            New
+                            NEW
                         </button>
                         <button type="button" class="btn-desktop-cyan" id="btnSaveInvoice" onclick="submitInvoiceWithStatus('finalized');" title="{{ ($isEdit ?? false) ? 'Update Invoice as Finalized' : 'Save Invoice as Finalized' }}">
-                            {{ ($isEdit ?? false) ? 'Update' : 'Save' }}
+                            {{ ($isEdit ?? false) ? 'UPDATE' : 'SAVE' }}
                         </button>
                         <button type="button" class="btn-desktop-cyan" id="btnDraftInvoice" onclick="submitInvoiceWithStatus('draft');" style="background: linear-gradient(to bottom, #fff8db 0%, #fae69e 50%, #f7d768 100%); border-color: #d4a017;" title="Save as Draft">
-                            Draft
+                            DRAFT
                         </button>
                         <button type="button" class="btn-desktop-cyan" id="btnPrintInvoice" onclick="handlePrintBtn();" title="Print Invoice">
-                            Print
+                            PRINT
                         </button>
                         <button type="button" class="btn-desktop-cyan" id="btnCancelInvoice" onclick="handleCancelBtn();" @if($isEdit ?? false) style="background: linear-gradient(to bottom, #fee2e2 0%, #fecaca 50%, #fca5a5 100%); border-color: #ef4444;" title="Cancel this Bill" @else title="Reset Form" @endif>
-                            Cancel
+                            CANCEL
                         </button>
                         <button type="button" class="btn-desktop-cyan" id="btnDeleteInvoice" onclick="handleDeleteBtn();" title="Delete Invoice">
-                            Delete
+                            DELETE
                         </button>
                         <button type="button" class="btn-desktop-cyan" onclick="window.location.href='{{ route('invoice.register') }}';">
-                            Exit
+                            EXIT
                         </button>
                     </div>
                 </div>

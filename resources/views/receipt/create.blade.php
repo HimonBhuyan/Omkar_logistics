@@ -13,7 +13,7 @@
         border: 1px solid #808080;
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-        font-size: 11px;
+        font-size: 13px;
         color: #000;
         user-select: none;
     }
@@ -23,21 +23,21 @@
         background: #8b0000;
         color: #ffffff;
         text-align: center;
-        font-size: 13px;
+        font-size: 15px;
         font-weight: bold;
         letter-spacing: 0.5px;
-        padding: 4px 0;
-        border-bottom: 1px solid #5a0000;
+        padding: 6px 0;
+        border-bottom: 2px solid #5a0000;
         position: relative;
     }
 
     .receipt-status-badge {
         position: absolute;
         right: 10px;
-        top: 3px;
-        font-size: 10px;
-        padding: 2px 6px;
-        border-radius: 2px;
+        top: 5px;
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 3px;
         font-weight: bold;
         text-transform: uppercase;
     }
@@ -45,14 +45,14 @@
     /* 2. Controls & Form Panels */
     .receipt-panel {
         background: #d4d0c8;
-        padding: 8px 14px 6px 14px;
+        padding: 10px 16px 8px 16px;
     }
 
     .receipt-form-row {
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin-bottom: 6px;
+        gap: 14px;
+        margin-bottom: 8px;
         flex-wrap: wrap;
     }
 
@@ -64,7 +64,7 @@
 
     .ctrl-group label {
         font-weight: bold;
-        font-size: 11px;
+        font-size: 13px;
         color: #000;
         white-space: nowrap;
         margin: 0;
@@ -74,11 +74,12 @@
     .ctrl-group input[type="number"],
     .ctrl-group input[type="date"],
     .ctrl-group select {
-        height: 22px;
-        border: 1px solid #7f9db9;
+        height: 28px;
+        border: 1.5px solid #7f9db9;
         background: #ffffff;
-        font-size: 11px;
-        padding: 1px 4px;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 2px 6px;
         color: #000;
         box-sizing: border-box;
     }
@@ -87,7 +88,7 @@
     .ctrl-group input[type="number"]:focus,
     .ctrl-group input[type="date"]:focus,
     .ctrl-group select:focus {
-        outline: 1px solid #0055ff;
+        outline: 1.5px solid #0055ff;
     }
 
     .input-lavender {
@@ -112,16 +113,16 @@
         overflow-y: auto;
         height: auto;
         max-height: calc(100vh - 320px);
-        min-height: 60px;
+        min-height: 80px;
         background: #ffffff;
-        border-top: 1px solid #808080;
-        border-bottom: 1px solid #808080;
+        border-top: 1.5px solid #808080;
+        border-bottom: 1.5px solid #808080;
     }
 
     .receipt-grid-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 10.5px;
+        font-size: 12.5px;
         background: #ffffff;
     }
 
@@ -129,20 +130,23 @@
         background: #e4e2de;
         color: #000;
         font-weight: bold;
-        padding: 4px 3px;
+        padding: 6px 4px;
         border: 1px solid #808080;
         text-align: center;
         white-space: nowrap;
         position: sticky;
         top: 0;
         z-index: 10;
+        font-size: 12.5px;
     }
 
     .receipt-grid-table td {
         border: 1px solid #b4b4b4;
-        padding: 2px 3px;
+        padding: 4px 4px;
         white-space: nowrap;
         color: #000;
+        font-size: 12.5px;
+        font-weight: 500;
         vertical-align: middle;
     }
 
@@ -155,25 +159,26 @@
     }
 
     .row-pointer {
-        width: 14px;
+        width: 16px;
         text-align: center;
-        font-size: 9px;
+        font-size: 11px;
         color: #0044cc;
         cursor: pointer;
     }
 
     .table-cell-input {
         width: 100%;
-        height: 20px;
-        border: 1px solid #7f9db9;
-        font-size: 10.5px;
-        padding: 1px 3px;
+        height: 24px;
+        border: 1.5px solid #7f9db9;
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 1px 4px;
         box-sizing: border-box;
         text-align: right;
     }
 
     .table-cell-input:focus {
-        outline: 1px solid #0055ff;
+        outline: 1.5px solid #0055ff;
         background: #ffffd8;
     }
 
@@ -185,8 +190,8 @@
     /* 4. Bottom Payment & Summary Panels */
     .receipt-bottom-panel {
         background: #d4d0c8;
-        padding: 6px 14px;
-        border-top: 1px solid #808080;
+        padding: 8px 16px;
+        border-top: 1.5px solid #808080;
     }
 
     .summary-box-row {
@@ -194,36 +199,36 @@
         align-items: center;
         justify-content: space-between;
         gap: 15px;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
         flex-wrap: wrap;
     }
 
     .summary-group-left, .summary-group-right {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
         flex-wrap: wrap;
     }
 
     .summary-item {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
     }
 
     .summary-item label {
         font-weight: bold;
-        font-size: 11px;
+        font-size: 13px;
         color: #000;
         margin: 0;
     }
 
     .summary-item input {
-        height: 22px;
-        border: 1px solid #7f9db9;
-        font-size: 11px;
+        height: 26px;
+        border: 1.5px solid #7f9db9;
+        font-size: 12.5px;
         font-weight: bold;
-        padding: 1px 4px;
+        padding: 1px 6px;
         text-align: right;
         box-sizing: border-box;
     }
@@ -231,24 +236,24 @@
     /* 5. Button Bar */
     .receipt-button-bar {
         background: #d4d0c8;
-        padding: 6px 14px 10px 14px;
+        padding: 8px 16px 12px 16px;
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 8px;
-        border-top: 1px solid #808080;
+        gap: 10px;
+        border-top: 1.5px solid #808080;
     }
 
     .btn-desktop-cyan {
         background: linear-gradient(to bottom, #b3e5fc 0%, #81d4fa 50%, #4fc3f7 100%);
-        border: 1px solid #0288d1;
-        border-radius: 2px;
+        border: 1.5px solid #0288d1;
+        border-radius: 3px;
         color: #000000;
         font-weight: bold;
-        font-size: 11px;
-        padding: 3px 20px;
-        min-width: 65px;
-        height: 25px;
+        font-size: 12.5px;
+        padding: 4px 20px;
+        min-width: 75px;
+        height: 28px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
@@ -303,17 +308,17 @@
                 <!-- Row 1: Series, Receipt No., Date, Time, Voucher No. -->
                 <div class="receipt-form-row">
                     <div class="ctrl-group">
-                        <label for="series_input" style="min-width: 40px;">Series</label>
+                        <label for="series_input" style="min-width: 40px;">SERIES</label>
                         <input type="text" name="series" id="series_input" value="{{ old('series', isset($existingReceipt) ? $existingReceipt->series : $series) }}" style="width: 70px; text-transform: uppercase;" required>
                     </div>
 
                     <div class="ctrl-group" style="margin-left: 10px;">
-                        <label for="receipt_no_input">Receipt No.</label>
+                        <label for="receipt_no_input">RECEIPT NO.</label>
                         <input type="number" name="receipt_no" id="receipt_no_input" value="{{ old('receipt_no', isset($existingReceipt) ? $existingReceipt->receipt_no : $nextReceiptNo) }}" style="width: 75px;" required>
                     </div>
 
                     <div class="ctrl-group" style="margin-left: 20px;">
-                        <label for="receipt_date_input">Date</label>
+                        <label for="receipt_date_input">DATE</label>
                         <input type="date" name="receipt_date" id="receipt_date_input" value="{{ old('receipt_date', $currentDate) }}" style="width: 120px;" required>
                     </div>
 
@@ -322,7 +327,7 @@
                     </div>
 
                     <div class="ctrl-group" style="margin-left: auto;">
-                        <label for="voucher_no_input">Voucher No.</label>
+                        <label for="voucher_no_input">VOUCHER NO.</label>
                         <input type="text" name="voucher_no" id="voucher_no_input" class="input-lavender" value="{{ old('voucher_no', isset($existingReceipt) ? $existingReceipt->voucher_no : (isset($existingReceipt) ? $existingReceipt->receipt_no : $nextReceiptNo)) }}" style="width: 85px;">
                     </div>
                 </div>
@@ -330,8 +335,8 @@
                 <!-- Row 2: Account (Debtor Party) & Mobile -->
                 <div class="receipt-form-row" style="margin-top: 4px;">
                     <div class="ctrl-group" style="flex-grow: 1;">
-                        <label for="account_input" style="min-width: 40px;">Account</label>
-                        <input type="text" name="account_name" id="account_input" list="accounts_datalist" value="{{ old('account_name', isset($existingReceipt) ? $existingReceipt->account_name : ($selectedAccount ? $selectedAccount->ledger_name : '')) }}" placeholder="Search Debtor Account / Party..." style="flex-grow: 1; max-width: 420px; font-weight: bold; color: #000080;" autocomplete="off" required>
+                        <label for="account_input" style="min-width: 40px;">ACCOUNT</label>
+                        <input type="text" name="account_name" id="account_input" list="accounts_datalist" value="{{ old('account_name', isset($existingReceipt) ? $existingReceipt->account_name : ($selectedAccount ? $selectedAccount->ledger_name : '')) }}" placeholder="SEARCH DEBTOR ACCOUNT / PARTY..." style="flex-grow: 1; max-width: 420px; font-weight: bold; color: #000080;" autocomplete="off" required>
                         <datalist id="accounts_datalist">
                             @foreach ($accounts as $acc)
                                 <option value="{{ $acc->ledger_name }}" data-id="{{ $acc->id }}" data-mobile="{{ $acc->mobile ?: $acc->phone_o }}"></option>
@@ -340,8 +345,8 @@
                     </div>
 
                     <div class="ctrl-group" style="margin-left: auto;">
-                        <label for="mobile_input">Mobile</label>
-                        <input type="text" name="mobile" id="mobile_input" class="input-yellow" value="{{ old('mobile', isset($existingReceipt) ? $existingReceipt->mobile : ($selectedAccount ? ($selectedAccount->mobile ?: $selectedAccount->phone_o) : '')) }}" style="width: 220px;" placeholder="Party Mobile No.">
+                        <label for="mobile_input">MOBILE</label>
+                        <input type="text" name="mobile" id="mobile_input" class="input-yellow" value="{{ old('mobile', isset($existingReceipt) ? $existingReceipt->mobile : ($selectedAccount ? ($selectedAccount->mobile ?: $selectedAccount->phone_o) : '')) }}" style="width: 220px;" placeholder="PARTY MOBILE NO.">
                     </div>
                 </div>
             </div>
@@ -352,20 +357,20 @@
                     <thead>
                         <tr>
                             <th style="width: 16px;"></th>
-                            <th style="width: 32px;">SrNo</th>
-                            <th style="width: 42px;">Series</th>
-                            <th style="width: 65px;">Invoice No</th>
-                            <th style="width: 85px;">Gross Amt</th>
-                            <th style="width: 80px;">GST Amt</th>
-                            <th style="width: 85px;">Bill Amt</th>
-                            <th style="width: 75px;">Old Paid</th>
-                            <th style="width: 85px;">Due Amount</th>
-                            <th style="width: 75px;">Discount</th>
+                            <th style="width: 32px;">SRNO</th>
+                            <th style="width: 42px;">SERIES</th>
+                            <th style="width: 65px;">INVOICE NO</th>
+                            <th style="width: 85px;">GROSS AMT</th>
+                            <th style="width: 80px;">GST AMT</th>
+                            <th style="width: 85px;">BILL AMT</th>
+                            <th style="width: 75px;">OLD PAID</th>
+                            <th style="width: 85px;">DUE AMOUNT</th>
+                            <th style="width: 75px;">DISCOUNT</th>
                             <th style="width: 70px;">TDS</th>
-                            <th style="width: 85px;">Paid</th>
-                            <th style="width: 90px;">UTR No</th>
-                            <th style="width: 50px;">Full Pay</th>
-                            <th style="width: 80px;">Balance</th>
+                            <th style="width: 85px;">PAID</th>
+                            <th style="width: 90px;">UTR NO</th>
+                            <th style="width: 50px;">FULL PAY</th>
+                            <th style="width: 80px;">BALANCE</th>
                         </tr>
                     </thead>
                     <tbody id="invoicesTableBody">
@@ -385,26 +390,26 @@
                 <div class="summary-box-row">
                     <div class="summary-group-left">
                         <div class="summary-item">
-                            <label>Bill Amt.</label>
+                            <label>BILL AMT.</label>
                             <input type="text" name="bill_amount" id="sum_bill_amt" value="{{ old('bill_amount', isset($existingReceipt) ? number_format($existingReceipt->bill_amount, 2, '.', '') : '0.00') }}" style="width: 105px;" readonly>
                         </div>
                         <div class="summary-item" style="margin-left: 10px;">
-                            <label>Due Amt.</label>
+                            <label>DUE AMT.</label>
                             <input type="text" name="due_amount" id="sum_due_amt" value="{{ old('due_amount', isset($existingReceipt) ? number_format($existingReceipt->due_amount, 2, '.', '') : '0.00') }}" style="width: 105px;" readonly>
                         </div>
                     </div>
 
                     <div class="summary-group-right">
                         <div class="summary-item">
-                            <label>TDS Amt</label>
+                            <label>TDS AMT</label>
                             <input type="text" name="tds_amount" id="sum_tds_amt" class="input-bright-yellow" value="{{ old('tds_amount', isset($existingReceipt) ? number_format($existingReceipt->tds_amount, 2, '.', '') : '0.00') }}" style="width: 95px;" readonly>
                         </div>
                         <div class="summary-item" style="margin-left: 10px;">
-                            <label>Rect Amt</label>
+                            <label>RECT AMT</label>
                             <input type="text" name="receipt_amount" id="sum_rect_amt" class="input-bright-yellow" value="{{ old('receipt_amount', isset($existingReceipt) ? number_format($existingReceipt->receipt_amount, 2, '.', '') : '0.00') }}" style="width: 115px; font-size: 12.5px;" readonly>
                         </div>
                         <div class="summary-item" style="margin-left: 10px;">
-                            <label>Balance</label>
+                            <label>BALANCE</label>
                             <input type="text" name="balance_amount" id="sum_balance_amt" value="{{ old('balance_amount', isset($existingReceipt) ? number_format($existingReceipt->balance_amount, 2, '.', '') : '0.00') }}" style="width: 95px;" readonly>
                         </div>
                     </div>
@@ -413,7 +418,7 @@
                 <!-- Row 2: Pay Mode, Bank Name, Chq No, Chq Date -->
                 <div class="receipt-form-row" style="margin-top: 6px;">
                     <div class="ctrl-group">
-                        <label for="pay_mode_select" style="min-width: 60px;">Pay Mode</label>
+                        <label for="pay_mode_select" style="min-width: 60px;">PAY MODE</label>
                         <select name="pay_mode" id="pay_mode_select" style="width: 120px; font-weight: bold;" onchange="handlePayModeChange(this.value)">
                             <option value="CASH" {{ old('pay_mode', isset($existingReceipt) ? $existingReceipt->pay_mode : 'CASH') === 'CASH' ? 'selected' : '' }}>CASH</option>
                             <option value="BANK" {{ old('pay_mode', isset($existingReceipt) ? $existingReceipt->pay_mode : '') === 'BANK' ? 'selected' : '' }}>BANK</option>
@@ -424,9 +429,9 @@
                     </div>
 
                     <div class="ctrl-group" style="margin-left: 12px;">
-                        <label for="bank_name_select">Bank Name</label>
+                        <label for="bank_name_select">BANK NAME</label>
                         <select name="bank_name" id="bank_name_select" style="width: 180px;">
-                            <option value="">Select Bank</option>
+                            <option value="">SELECT BANK</option>
                             @foreach ($bankAccounts as $bank)
                                 <option value="{{ $bank->ledger_name }}" {{ old('bank_name', isset($existingReceipt) ? $existingReceipt->bank_name : '') === $bank->ledger_name ? 'selected' : '' }}>{{ $bank->ledger_name }}</option>
                             @endforeach
@@ -434,12 +439,12 @@
                     </div>
 
                     <div class="ctrl-group" style="margin-left: 12px;">
-                        <label for="cheque_no_input">:: Chq No</label>
-                        <input type="text" name="cheque_no" id="cheque_no_input" value="{{ old('cheque_no', isset($existingReceipt) ? $existingReceipt->cheque_no : '') }}" placeholder="Chq/Ref No." style="width: 110px;">
+                        <label for="cheque_no_input">:: CHQ NO</label>
+                        <input type="text" name="cheque_no" id="cheque_no_input" value="{{ old('cheque_no', isset($existingReceipt) ? $existingReceipt->cheque_no : '') }}" placeholder="CHQ/REF NO." style="width: 110px;">
                     </div>
 
                     <div class="ctrl-group" style="margin-left: 12px;">
-                        <label for="cheque_date_input">Chq Date</label>
+                        <label for="cheque_date_input">CHQ DATE</label>
                         <input type="date" name="cheque_date" id="cheque_date_input" value="{{ old('cheque_date', isset($existingReceipt) && $existingReceipt->cheque_date ? $existingReceipt->cheque_date->format('Y-m-d') : $currentDate) }}" style="width: 115px;">
                     </div>
                 </div>
@@ -447,8 +452,8 @@
                 <!-- Row 3: Remark -->
                 <div class="receipt-form-row" style="margin-top: 4px;">
                     <div class="ctrl-group" style="width: 100%;">
-                        <label for="remark_input" style="min-width: 60px;">Remark</label>
-                        <input type="text" name="remark" id="remark_input" value="{{ old('remark', isset($existingReceipt) ? $existingReceipt->remark : '') }}" placeholder="Enter Narration / Notes..." style="flex-grow: 1;">
+                        <label for="remark_input" style="min-width: 60px;">REMARK</label>
+                        <input type="text" name="remark" id="remark_input" value="{{ old('remark', isset($existingReceipt) ? $existingReceipt->remark : '') }}" placeholder="ENTER NARRATION / NOTES..." style="flex-grow: 1;">
                     </div>
                 </div>
             </div>
@@ -456,32 +461,36 @@
             <!-- 5. Bottom Cyan Button Bar -->
             <div class="receipt-button-bar">
                 <a href="{{ route('receipt.create') }}" class="btn-desktop-cyan" title="New Receipt Voucher">
-                    New
+                    NEW
                 </a>
 
                 <button type="submit" class="btn-desktop-cyan" id="btnSubmitReceipt" title="Save Receipt">
-                    {{ isset($existingReceipt) ? 'Update' : 'Save' }}
+                    {{ isset($existingReceipt) ? 'UPDATE' : 'SAVE' }}
                 </button>
 
                 @if(isset($existingReceipt))
                     <button type="button" class="btn-desktop-cyan" onclick="confirmCancelReceipt()" title="Cancel Receipt">
-                        Cancel
+                        CANCEL
                     </button>
 
                     <button type="button" class="btn-desktop-cyan" onclick="confirmDeleteReceipt()" title="Delete Receipt">
-                        Delete
+                        DELETE
                     </button>
                 @else
                     <button type="button" class="btn-desktop-cyan" disabled style="opacity: 0.6; cursor: not-allowed;">
-                        Cancel
+                        CANCEL
                     </button>
                     <button type="button" class="btn-desktop-cyan" disabled style="opacity: 0.6; cursor: not-allowed;">
-                        Delete
+                        DELETE
                     </button>
                 @endif
 
-                <a href="{{ route('receipt.register') }}" class="btn-desktop-cyan" title="Exit to Receipt Register">
-                    Exit
+                <button type="button" class="btn-desktop-cyan" id="btnPrintReceipt" onclick="printCurrentReceipt()" title="Print Receipt">
+                    PRINT
+                </button>
+
+                <a href="{{ route('receipt.register') }}" class="btn-desktop-cyan" title="Exit to Register">
+                    EXIT
                 </a>
             </div>
         </form>

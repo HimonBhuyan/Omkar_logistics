@@ -71,6 +71,15 @@ class Bilty extends Model
         return $query;
     }
 
+    public function scopeTbb($query)
+    {
+        return $query->where(function($q) {
+            $q->whereIn('billing_type', ['T.B.B.', 'TBB', 'T.B.B', 'To Be Billed', 'TO BE BILLED', 't.b.b.', 'tbb'])
+              ->orWhere(\Illuminate\Support\Facades\DB::raw("REPLACE(REPLACE(UPPER(COALESCE(billing_type, '')), '.', ''), ' ', '')"), 'TBB')
+              ->orWhere(\Illuminate\Support\Facades\DB::raw("REPLACE(REPLACE(UPPER(COALESCE(billing_type, '')), '.', ''), ' ', '')"), 'TOBEBILLED');
+        });
+    }
+
     protected $casts = [
         'invoice_date' => 'date',
         'payment_date' => 'date',
