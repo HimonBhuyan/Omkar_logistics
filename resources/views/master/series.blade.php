@@ -269,12 +269,12 @@
 
             <div class="f-row">
                 <label for="name">Series Name <span style="color:red">*</span></label>
-                <input type="text" id="name" name="name" value="{{ old('name', $selected->name) }}" required max="50" placeholder="e.g. 26-27, 27-28">
+                <input type="text" id="name" name="name" value="{{ old('name', $selected->name) }}" required max="50" placeholder="26-27, 27-28">
             </div>
 
             <div class="f-row">
                 <label for="description">Description</label>
-                <input type="text" id="description" name="description" value="{{ old('description', $selected->description) }}" max="100" placeholder="e.g. FY 2026-2027">
+                <input type="text" id="description" name="description" value="{{ old('description', $selected->description) }}" max="100" placeholder="FY 2026-2027">
             </div>
 
             <div class="f-row" style="margin-top:15px;">

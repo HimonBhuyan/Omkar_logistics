@@ -78,12 +78,15 @@ class ReportController extends Controller
             $query->where('billing_party_id', $request->billing_party_id);
         }
 
-        // 3. Date range filters
-        if ($request->filled('from_date')) {
-            $query->whereDate('invoice_date', '>=', $request->from_date);
+        // 3. Date range filters (defaults to today's date if not provided)
+        $fromDate = $request->input('from_date', date('Y-m-d'));
+        $toDate = $request->input('to_date', date('Y-m-d'));
+
+        if ($fromDate) {
+            $query->whereDate('invoice_date', '>=', $fromDate);
         }
-        if ($request->filled('to_date')) {
-            $query->whereDate('invoice_date', '<=', $request->to_date);
+        if ($toDate) {
+            $query->whereDate('invoice_date', '<=', $toDate);
         }
 
         // 4. Vehicle No filter
@@ -97,25 +100,24 @@ class ReportController extends Controller
         }
 
         // 5. Billing Type MOP filters (Paid, To Pay, T.B.B.)
-        $isSubmitted = $request->has('search_submitted') || $request->hasAny(['from_date', 'to_date', 'consignor_name', 'consignee_name', 'billing_party_name', 'series', 'vehicle_no', 'shipping_status', 'from_location_name', 'to_location_name', 'mop_paid', 'mop_topay', 'mop_tbb']);
+        $isSubmitted = $request->has('search_submitted') || $request->hasAny(['consignor_name', 'consignee_name', 'billing_party_name', 'series', 'vehicle_no', 'shipping_status', 'from_location_name', 'to_location_name']);
+        $hasMopCheckboxes = $request->hasAny(['mop_paid', 'mop_topay', 'mop_tbb']);
 
-        if ($isSubmitted) {
-            $billingTypes = [];
-            if ($request->has('mop_paid')) {
-                $billingTypes = array_merge($billingTypes, ['Paid', 'PAID', 'paid']);
-            }
-            if ($request->has('mop_topay')) {
-                $billingTypes = array_merge($billingTypes, ['To Pay', 'TO PAY', 'to pay', 'TOPAY']);
-            }
-            if ($request->has('mop_tbb')) {
-                $billingTypes = array_merge($billingTypes, ['T.B.B.', 'T.B.B', 'TBB', 't.b.b.']);
-            }
+        $billingTypes = [];
+        if (!$hasMopCheckboxes || $request->has('mop_paid')) {
+            $billingTypes = array_merge($billingTypes, ['Paid', 'PAID', 'paid']);
+        }
+        if (!$hasMopCheckboxes || $request->has('mop_topay')) {
+            $billingTypes = array_merge($billingTypes, ['To Pay', 'TO PAY', 'to pay', 'TOPAY']);
+        }
+        if (!$hasMopCheckboxes || $request->has('mop_tbb')) {
+            $billingTypes = array_merge($billingTypes, ['T.B.B.', 'T.B.B', 'TBB', 't.b.b.']);
+        }
 
-            if (!empty($billingTypes)) {
-                $query->whereIn('billing_type', $billingTypes);
-            } else {
-                $query->whereRaw('1 = 0');
-            }
+        if (!empty($billingTypes)) {
+            $query->whereIn('billing_type', $billingTypes);
+        } else {
+            $query->whereRaw('1 = 0');
         }
 
         // 6. Series filter
@@ -173,19 +175,15 @@ class ReportController extends Controller
             if ($b->items->isNotEmpty()) {
                 foreach ($b->items as $item) {
                     $u = strtoupper(trim($item->unit ?? ''));
-                    if ($u === 'FIXED' || $b->type === 'Transport Name' || $b->type === 'VEHICLE NUMBER') {
+                    if (in_array($u, ['KG', 'KILOGRAM', 'TON', 'METRIC TON'])) {
+                        $totalKg += floatval($item->qty > 0 ? $item->qty : $item->weight_val);
+                    } else {
                         $totalFixedQty += floatval($item->qty);
                         $totalFixed += floatval($item->weight_val);
-                    } else {
-                        $totalKg += floatval($item->qty > 0 ? $item->qty : $item->weight_val);
                     }
                 }
             } else {
-                if ($b->type === 'Transport Name' || $b->type === 'VEHICLE NUMBER') {
-                    $totalFixedQty += floatval($b->total_qty);
-                } else {
-                    $totalKg += floatval($b->total_qty);
-                }
+                $totalKg += floatval($b->total_qty);
             }
         }
 

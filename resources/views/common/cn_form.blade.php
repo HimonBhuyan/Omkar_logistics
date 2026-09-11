@@ -213,7 +213,11 @@
                 <div class="form-group-custom" id="vehicle_input_wrapper">
                     <label for="vehicle_no_text" id="vehicle_no_label">VEHICLE NO.</label>
                     <div class="autocomplete-wrapper">
+<<<<<<< HEAD
                         <input type="text" name="vehicle_no" id="vehicle_no_text" placeholder="E.G. AS-01-XX-1234" value="{{ old('vehicle_no') }}" autocomplete="off">
+=======
+                        <input type="text" name="vehicle_no" id="vehicle_no_text" placeholder="AS-01-XX-1234" value="{{ old('vehicle_no') }}" autocomplete="off">
+>>>>>>> 9f0a266937d590c5d953b1c2915a3274fc83f4e5
                         <div class="autocomplete-dropdown" id="vehicle_no_dropdown"></div>
                     </div>
                 </div>

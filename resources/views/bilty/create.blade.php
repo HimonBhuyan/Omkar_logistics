@@ -1954,7 +1954,7 @@
             if (input) input.placeholder = 'Type transport name...';
         } else {
             if (label) label.textContent = 'Vehicle No.';
-            if (input) input.placeholder = 'e.g. AS-01-XX-1234';
+            if (input) input.placeholder = 'AS-01-XX-1234';
         }
         autoUpdateShippingStatus();
     }

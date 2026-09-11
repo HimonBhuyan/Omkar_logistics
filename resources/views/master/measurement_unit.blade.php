@@ -283,12 +283,12 @@
 
             <div class="form-group-custom">
                 <label for="unit_code">Unit Code <span style="color:red;">*</span></label>
-                <input type="text" name="unit_code" id="unit_code" value="{{ old('unit_code', $selected->unit_code) }}" required maxlength="50" placeholder="e.g. KG, TON, BOX, PCS" {{ $isSystemUnit ? 'readonly style=background-color:#f0f0f0;' : '' }}>
+                <input type="text" name="unit_code" id="unit_code" value="{{ old('unit_code', $selected->unit_code) }}" required maxlength="50" placeholder="KG, TON, BOX, PCS" {{ $isSystemUnit ? 'readonly style=background-color:#f0f0f0;' : '' }}>
             </div>
 
             <div class="form-group-custom">
                 <label for="unit_name">Unit Name <span style="color:red;">*</span></label>
-                <input type="text" name="unit_name" id="unit_name" value="{{ old('unit_name', $selected->unit_name) }}" required maxlength="100" placeholder="e.g. Kilogram, Metric Ton, Box / Carton">
+                <input type="text" name="unit_name" id="unit_name" value="{{ old('unit_name', $selected->unit_name) }}" required maxlength="100" placeholder="Kilogram, Metric Ton, Box / Carton">
             </div>
 
             <div class="form-group-custom">
@@ -303,7 +303,7 @@
                 </select>
             <div class="form-group-custom">
                 <label for="package_label">Package Column Label</label>
-                <input type="text" name="package_label" id="package_label" value="{{ old('package_label', $selected->package_label ?: 'NoOfPkgs') }}" maxlength="50" placeholder="e.g. NoOfBoxes, NoOfCases, NoOfPcs, NoOfPkgs">
+                <input type="text" name="package_label" id="package_label" value="{{ old('package_label', $selected->package_label ?: 'NoOfPkgs') }}" maxlength="50" placeholder="NoOfBoxes, NoOfCases, NoOfPcs, NoOfPkgs">
                 <small style="color:#666; margin-top:4px; font-size:11px;">
                     💡 Changes the first column header label dynamically on C.N. Entry form when this unit is selected (e.g. <code>NoOfBoxes</code> for BOX, <code>NoOfCases</code> for CASE, <code>NoOfPcs</code> for PCS).
                 </small>

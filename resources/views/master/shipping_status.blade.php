@@ -272,7 +272,7 @@
 
             <div class="f-row">
                 <label for="name">Status Name <span style="color:red">*</span></label>
-                <input type="text" id="name" name="name" value="{{ old('name', $selected->name) }}" required max="50" {{ $selected->is_system ? 'readonly style=background:#eee;' : '' }} placeholder="e.g. In Transit, Out for Delivery">
+                <input type="text" id="name" name="name" value="{{ old('name', $selected->name) }}" required max="50" {{ $selected->is_system ? 'readonly style=background:#eee;' : '' }} placeholder="In Transit, Out for Delivery">
                 @if($selected->is_system)
                     <span style="margin-left:8px; font-size:11px; color:#666;">(System Default)</span>
                 @endif
