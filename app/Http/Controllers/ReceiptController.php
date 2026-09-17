@@ -512,6 +512,64 @@ class ReceiptController extends Controller
     }
 
     /**
+     * Preview/Print Money Receipt before saving using live form data.
+     */
+    public function preview(Request $request)
+    {
+        $receipt = new Receipt();
+        $receipt->series = $request->input('series', '26-27');
+        $receipt->receipt_no = $request->input('receipt_no', 1);
+        $receipt->voucher_no = $request->input('voucher_no', $receipt->receipt_no);
+        $receipt->receipt_date = $request->filled('receipt_date') ? \Carbon\Carbon::parse($request->receipt_date) : \Carbon\Carbon::now();
+        $receipt->receipt_time = $request->input('receipt_time', date('H:i:s'));
+        
+        $receipt->account_id = $request->input('account_id');
+        $receipt->account_name = $request->input('account_name', '');
+        $receipt->mobile = $request->input('mobile', '');
+        
+        $receipt->bill_amount = (float)$request->input('bill_amount', 0);
+        $receipt->due_amount = (float)$request->input('due_amount', 0);
+        $receipt->discount_amount = (float)$request->input('discount_amount', 0);
+        $receipt->tds_amount = (float)$request->input('tds_amount', 0);
+        $receipt->receipt_amount = (float)$request->input('receipt_amount', 0);
+        $receipt->balance_amount = (float)$request->input('balance_amount', 0);
+        
+        $receipt->pay_mode = $request->input('pay_mode', 'BANK TRANSFER');
+        $receipt->bank_name = $request->input('bank_name', '');
+        $receipt->cheque_no = $request->input('cheque_no', '');
+        if ($request->filled('cheque_date')) {
+            $receipt->cheque_date = \Carbon\Carbon::parse($request->cheque_date);
+        }
+        $receipt->remark = $request->input('remark', '');
+        $receipt->status = $receipt->receipt_amount > 0 ? 'FINAL' : 'DRAFT';
+
+        // Set account relation if available
+        if ($receipt->account_id) {
+            $receipt->setRelation('account', AccountLedger::find($receipt->account_id));
+        } elseif (!empty($receipt->account_name)) {
+            $matchedAcc = AccountLedger::where('ledger_name', $receipt->account_name)->first();
+            if ($matchedAcc) {
+                $receipt->setRelation('account', $matchedAcc);
+            }
+        }
+        $receipt->setRelation('user', auth()->user());
+
+        // Process line items if submitted
+        $items = collect();
+        if ($request->has('items') && is_array($request->items)) {
+            foreach ($request->items as $itemData) {
+                if (!empty($itemData['paid_amount']) && (float)$itemData['paid_amount'] > 0) {
+                    $item = new ReceiptItem($itemData);
+                    $items->push($item);
+                }
+            }
+        }
+        $receipt->setRelation('items', $items);
+
+        return view('receipt.print', compact('receipt'));
+    }
+
+    /**
      * Helper to build filtered query for Receipt Register.
      */
     private function getFilteredReceiptsQuery(Request $request)

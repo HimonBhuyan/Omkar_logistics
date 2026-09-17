@@ -91,6 +91,73 @@ class PaymentController extends Controller
     }
 
     /**
+     * Lookup Payment Voucher by Payment No & strictly for the selected Series.
+     */
+    public function lookup(Request $request, $payment_no)
+    {
+        $series = strtoupper(trim($request->query('series', '')));
+        $query = Payment::with(['account', 'bank', 'user']);
+        
+        if ($series && $series !== 'ALL') {
+            $query->where('series', $series);
+        }
+        $payment = $query->where('payment_no', $payment_no)->first();
+
+        if (!$payment) {
+            return response()->json(['found' => false, 'message' => 'Payment voucher not found for series ' . $series], 404);
+        }
+
+        return response()->json([
+            'found' => true,
+            'payment' => [
+                'id' => $payment->id,
+                'series' => $payment->series,
+                'payment_no' => $payment->payment_no,
+                'payment_date' => $payment->payment_date ? $payment->payment_date->format('Y-m-d') : '',
+                'payment_time' => $payment->payment_time ?? '',
+                'voucher_no' => $payment->voucher_no ?: $payment->payment_no,
+                'account_id' => $payment->account_id,
+                'account_name' => $payment->account_name,
+                'account_alias' => $payment->account_alias ?? ($payment->account->code ?? ''),
+                'customer_invoice_no' => $payment->customer_invoice_no ?? '',
+                'customer_bill_amt' => (float)$payment->customer_bill_amt,
+                'payment_amount' => (float)$payment->payment_amount,
+                'deduct_amount' => (float)($payment->deduct_amount ?: $payment->due_amount),
+                'due_amount' => (float)$payment->due_amount,
+                'discount_amount' => (float)$payment->discount_amount,
+                'total_amount' => (float)$payment->total_amount,
+                'pay_mode' => $payment->pay_mode ?: 'BANK TRANSFER',
+                'bank_name' => $payment->bank_name ?? '',
+                'bank_ledger_id' => $payment->bank_ledger_id,
+                'cheque_no' => $payment->cheque_no ?? '',
+                'cheque_date' => $payment->cheque_date ? $payment->cheque_date->format('Y-m-d') : '',
+                'remark' => $payment->remark ?? '',
+                'status' => $payment->status ?? 'final',
+                'print_url' => route('payment.print', $payment->id),
+                'update_url' => route('payment.update', $payment->id),
+                'cancel_url' => url('/payment/cancel/' . $payment->id),
+                'destroy_url' => url('/payment/destroy/' . $payment->id),
+            ]
+        ]);
+    }
+
+    /**
+     * Get next payment number for a selected series.
+     */
+    public function getNextPaymentNo(Request $request)
+    {
+        $series = strtoupper(trim($request->query('series', $this->getDefaultSeries())));
+        $maxPaymentNo = Payment::where('series', $series)->max('payment_no');
+        $nextPaymentNo = ($maxPaymentNo && $maxPaymentNo >= 1) ? ($maxPaymentNo + 1) : 1;
+
+        return response()->json([
+            'success' => true,
+            'series' => $series,
+            'next_payment_no' => $nextPaymentNo,
+        ]);
+    }
+
+    /**
      * Fetch Account details / balance via AJAX.
      */
     public function getAccountDetails(Request $request)
@@ -230,6 +297,7 @@ class PaymentController extends Controller
      */
     public function edit($id)
     {
+        $existingPayment = Payment::findOrFail($id);
         $defaultSeries = $this->getDefaultSeries();
         $series = $existingPayment->series ?: $defaultSeries;
         $nextPaymentNo = $existingPayment->payment_no;
@@ -404,6 +472,52 @@ class PaymentController extends Controller
     public function print($id)
     {
         $payment = Payment::with(['account', 'bank', 'user'])->findOrFail($id);
+        return view('payment.print', compact('payment'));
+    }
+
+    /**
+     * Preview/Print Payment Voucher before saving using live form data.
+     */
+    public function preview(Request $request)
+    {
+        $payment = new Payment();
+        $payment->series = $request->input('series', '26-27');
+        $payment->payment_no = $request->input('payment_no', 1);
+        $payment->voucher_no = $request->input('voucher_no', $payment->payment_no);
+        $payment->payment_date = $request->filled('payment_date') ? \Carbon\Carbon::parse($request->payment_date) : \Carbon\Carbon::now();
+        $payment->payment_time = $request->input('payment_time', date('H:i:s'));
+        
+        $payment->account_id = $request->input('account_id');
+        $payment->account_name = $request->input('account_name', '');
+        $payment->account_alias = $request->input('account_alias', '');
+        
+        $payment->customer_invoice_no = $request->input('customer_invoice_no', '');
+        $payment->customer_bill_amt = (float)$request->input('customer_bill_amt', 0);
+        $payment->deduct_amount = (float)$request->input('deduct_amount', 0);
+        $payment->payment_amount = (float)$request->input('payment_amount', 0);
+        $payment->discount_amount = (float)$request->input('discount_amount', 0);
+        $payment->total_amount = $payment->payment_amount - $payment->discount_amount;
+        
+        $payment->pay_mode = $request->input('pay_mode', 'BANK TRANSFER');
+        $payment->bank_name = $request->input('bank_name', '');
+        $payment->cheque_no = $request->input('cheque_no', '');
+        if ($request->filled('cheque_date')) {
+            $payment->cheque_date = \Carbon\Carbon::parse($request->cheque_date);
+        }
+        $payment->remark = $request->input('remark', '');
+        $payment->status = $payment->payment_amount > 0 ? 'FINAL' : 'DRAFT';
+
+        // Set account relation if account_id or lookup is available
+        if ($payment->account_id) {
+            $payment->setRelation('account', AccountLedger::find($payment->account_id));
+        } elseif (!empty($payment->account_name)) {
+            $matchedAcc = AccountLedger::where('ledger_name', $payment->account_name)->first();
+            if ($matchedAcc) {
+                $payment->setRelation('account', $matchedAcc);
+            }
+        }
+        $payment->setRelation('user', auth()->user());
+
         return view('payment.print', compact('payment'));
     }
 
@@ -696,53 +810,17 @@ class PaymentController extends Controller
     }
 
     /**
-     * Get accounts allowed for Payment Voucher pulled from Group Ledgers:
-     * - Direct Expense / Direct Expenses
-     * - Fixed Asset / Fixed Assets
-     * - Investment / Investments
-     * - Misc Expense (Asset) / Misc Expense (Assest)
-     * - Sales Account / Sales Accounts
-     * - Transport Expense / Tranport Expense
-     * - Staff Salary
-     * - Vehicle Expense / vehicle expense
-     * - Oil Expense / oil Expense
+     * Get accounts allowed for Payment Voucher:
+     * Contains all undergroups ledgers data EXCEPT for Creditors.
      */
     private function getPaymentAccounts()
     {
-        $allowedGroups = [
-            'Direct Expense',
-            'Direct Expenses',
-            'Direct Exprense',
-            'Fixed Asset',
-            'Fixed Assets',
-            'Investment',
-            'Investments',
-            'Misc. Expense',
-            'Misc. Expenses (Asset)',
-            'Misc Expense (Asset)',
-            'Misc Expense (Assest)',
-            'Misc Expense',
-            'Sales Account',
-            'Sales Accounts',
-            'Transport Expense',
-            'Transport Expenses',
-            'Tranport Expense',
-            'Staff Salary',
-            'Salary',
-            'Vehicle Expense',
-            'Vehicle Expenses',
-            'vehicle expense',
-            'Oil Expense',
-            'Oil Expenses',
-            'oil Expense',
-        ];
-
-        $accounts = AccountLedger::where(function($q) use ($allowedGroups) {
-            foreach ($allowedGroups as $grp) {
-                $q->orWhere('under_group', 'like', '%' . $grp . '%');
-            }
+        return AccountLedger::where(function($q) {
+            $q->whereNull('under_group')
+              ->orWhere(function($sub) {
+                  $sub->where('under_group', 'not like', '%CREDITOR%')
+                      ->where('under_group', 'not like', '%Creditor%');
+              });
         })->orderBy('ledger_name')->get();
-
-        return $accounts;
     }
 }

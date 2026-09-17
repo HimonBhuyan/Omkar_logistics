@@ -247,19 +247,15 @@
         <!-- Red Title Bar -->
         <div class="payment-title-bar">
             PAYMENT
-            @if(isset($existingPayment))
-                <span class="payment-status-badge">
-                    {{ strtoupper($existingPayment->status ?? 'FINAL') }} (#{{ $existingPayment->series }}-{{ $existingPayment->payment_no }})
-                </span>
-            @endif
+            <span id="paymentStatusBadge" class="payment-status-badge" style="{{ isset($existingPayment) ? '' : 'display:none;' }}">
+                {{ isset($existingPayment) ? strtoupper($existingPayment->status ?? 'FINAL') . ' (#' . $existingPayment->series . '-' . $existingPayment->payment_no . ')' : '' }}
+            </span>
         </div>
 
         <!-- Main Form -->
         <form id="paymentForm" action="{{ isset($existingPayment) ? route('payment.update', $existingPayment->id) : route('payment.store') }}" method="POST">
             @csrf
-            @if(isset($existingPayment))
-                @method('PUT')
-            @endif
+            <input type="hidden" name="_method" id="formMethod" value="{{ isset($existingPayment) ? 'PUT' : 'POST' }}">
 
             <div class="payment-form-panel">
                 <!-- Row 1: Series, Payment No, Date, Time, Voucher No. -->
@@ -415,24 +411,16 @@
                     </svg>
                 </a>
 
-                <!-- Print -->
-                @if(isset($existingPayment))
-                    <a href="{{ route('payment.print', $existingPayment->id) }}" target="_blank" class="action-icon-btn btn-print" title="Print Payment Voucher">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6a1b9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                            <rect x="6" y="14" width="12" height="8" fill="#d1c4e9"></rect>
-                        </svg>
-                    </a>
-                @else
-                    <button type="button" class="action-icon-btn btn-print" title="Print (Save First)" onclick="alert('Please save the payment voucher first to print.');">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                            <rect x="6" y="14" width="12" height="8"></rect>
-                        </svg>
-                    </button>
-                @endif
+                <!-- Print (Can be printed before or after save) -->
+                <button type="button" id="btnPrint" onclick="printPaymentVoucher();" 
+                   class="action-icon-btn btn-print" 
+                   title="Print Payment Voucher (A5)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6a1b9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8" fill="#d1c4e9"></rect>
+                    </svg>
+                </button>
 
                 <!-- Save / Floppy Disk -->
                 <button type="submit" class="action-icon-btn btn-save" title="Save Payment Voucher (Ctrl+S)">
@@ -444,24 +432,24 @@
                 </button>
 
                 <!-- Cancel Status -->
-                @if(isset($existingPayment))
-                    <button type="button" class="action-icon-btn btn-cancel-doc" title="Cancel Voucher" onclick="cancelPayment({{ $existingPayment->id }});">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d32f2f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-                        </svg>
-                    </button>
-                @endif
+                <button type="button" id="btnCancel" class="action-icon-btn btn-cancel-doc" title="Cancel Voucher" 
+                        style="{{ isset($existingPayment) ? '' : 'display:none;' }}" 
+                        onclick="{{ isset($existingPayment) ? 'cancelPayment(' . $existingPayment->id . ');' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d32f2f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                    </svg>
+                </button>
 
                 <!-- Delete -->
-                @if(isset($existingPayment))
-                    <button type="button" class="action-icon-btn btn-delete" title="Delete Voucher" onclick="deletePayment({{ $existingPayment->id }});">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c62828" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"/>
-                            <line x1="6" y1="6" x2="18" y2="18"/>
-                        </svg>
-                    </button>
-                @endif
+                <button type="button" id="btnDelete" class="action-icon-btn btn-delete" title="Delete Voucher" 
+                        style="{{ isset($existingPayment) ? '' : 'display:none;' }}" 
+                        onclick="{{ isset($existingPayment) ? 'deletePayment(' . $existingPayment->id . ');' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c62828" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
 
                 <!-- Exit / Return to Dashboard -->
                 <a href="{{ route('dashboard') }}" class="action-icon-btn btn-exit" title="Exit / Close">
@@ -503,10 +491,229 @@
     const paymentNoInput = document.getElementById('payment_no');
     const voucherNoInput = document.getElementById('voucher_no');
 
-    // Auto-update Voucher No when Payment No changes
-    if (paymentNoInput && voucherNoInput) {
+    let lookupTimeout = null;
+    let isLookingUp = false;
+
+    // Perform live AJAX lookup when typing/changing Payment No
+    function performPaymentLookup(paymentNo) {
+        if (lookupTimeout) {
+            clearTimeout(lookupTimeout);
+        }
+
+        const cleanNo = (paymentNo || '').toString().trim();
+        if (!cleanNo || parseInt(cleanNo) <= 0) {
+            resetPaymentForm(cleanNo);
+            return;
+        }
+
+        const seriesEl = document.getElementById('series');
+        const seriesVal = seriesEl ? seriesEl.value : '26-27';
+
+        lookupTimeout = setTimeout(() => {
+            isLookingUp = true;
+            fetch(`{{ url('/payment/lookup') }}/${encodeURIComponent(cleanNo)}?series=${encodeURIComponent(seriesVal)}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error('Not found');
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.found && data.payment) {
+                        populatePaymentData(data.payment);
+                    } else {
+                        resetPaymentForm(cleanNo);
+                    }
+                })
+                .catch(err => {
+                    resetPaymentForm(cleanNo);
+                })
+                .finally(() => {
+                    isLookingUp = false;
+                });
+        }, 250);
+    }
+
+    function populatePaymentData(p) {
+        const form = document.getElementById('paymentForm');
+        if (form) form.action = p.update_url;
+        const methodInput = document.getElementById('formMethod');
+        if (methodInput) methodInput.value = 'PUT';
+
+        // Keep current selected series intact as requested
+        if (paymentNoInput) paymentNoInput.value = p.payment_no;
+        if (voucherNoInput) voucherNoInput.value = p.voucher_no || p.payment_no;
+        if (p.payment_date) document.getElementById('payment_date').value = p.payment_date;
+        if (p.payment_time) document.getElementById('payment_time').value = p.payment_time;
+
+        if (accountInput) accountInput.value = p.account_name || '';
+        if (accountIdInput) accountIdInput.value = p.account_id || '';
+        if (accountAliasInput) accountAliasInput.value = p.account_alias || '';
+
+        const custInv = document.getElementById('customer_invoice_no');
+        if (custInv) custInv.value = p.customer_invoice_no || '';
+
+        if (custBillAmtInput) custBillAmtInput.value = p.customer_bill_amt > 0 ? p.customer_bill_amt.toFixed(2) : '';
+        if (paymentAmtInput) paymentAmtInput.value = p.payment_amount > 0 ? p.payment_amount.toFixed(2) : '';
+        if (deductAmtInput) deductAmtInput.value = p.deduct_amount ? p.deduct_amount.toFixed(2) : '0.00';
+        if (discountAmtInput) discountAmtInput.value = p.discount_amount ? p.discount_amount.toFixed(2) : '0.00';
+
+        const payModeSelect = document.getElementById('pay_mode');
+        if (payModeSelect && p.pay_mode) payModeSelect.value = p.pay_mode;
+
+        const bankSelect = document.getElementById('bank_name');
+        if (bankSelect && p.bank_name) bankSelect.value = p.bank_name;
+
+        const chqNo = document.getElementById('cheque_no');
+        if (chqNo) chqNo.value = p.cheque_no || '';
+
+        const chqDate = document.getElementById('cheque_date');
+        if (chqDate && p.cheque_date) chqDate.value = p.cheque_date;
+
+        const remarkEl = document.getElementById('remark');
+        if (remarkEl) remarkEl.value = p.remark || '';
+
+        // Status badge
+        const badge = document.getElementById('paymentStatusBadge');
+        if (badge) {
+            badge.textContent = `${(p.status || 'FINAL').toUpperCase()} (#${p.series}-${p.payment_no})`;
+            badge.style.display = 'inline-block';
+        }
+
+        // Print button is always active and prints current live form data
+        const btnPrint = document.getElementById('btnPrint');
+        if (btnPrint) {
+            btnPrint.title = 'Print Payment Voucher (A5)';
+        }
+
+        // Cancel & Delete buttons
+        const btnCancel = document.getElementById('btnCancel');
+        if (btnCancel) {
+            btnCancel.style.display = 'inline-flex';
+            btnCancel.onclick = () => cancelPayment(p.id);
+        }
+
+        const btnDelete = document.getElementById('btnDelete');
+        if (btnDelete) {
+            btnDelete.style.display = 'inline-flex';
+            btnDelete.onclick = () => deletePayment(p.id);
+        }
+    }
+
+    function resetPaymentForm(paymentNo) {
+        const form = document.getElementById('paymentForm');
+        if (form) form.action = "{{ route('payment.store') }}";
+        const methodInput = document.getElementById('formMethod');
+        if (methodInput) methodInput.value = 'POST';
+
+        if (voucherNoInput) voucherNoInput.value = paymentNo || '';
+
+        if (accountInput) accountInput.value = '';
+        if (accountIdInput) accountIdInput.value = '';
+        if (accountAliasInput) accountAliasInput.value = '';
+
+        const custInv = document.getElementById('customer_invoice_no');
+        if (custInv) custInv.value = '';
+
+        if (custBillAmtInput) custBillAmtInput.value = '';
+        if (paymentAmtInput) paymentAmtInput.value = '';
+        if (deductAmtInput) deductAmtInput.value = '0.00';
+        if (discountAmtInput) discountAmtInput.value = '0.00';
+
+        const chqNo = document.getElementById('cheque_no');
+        if (chqNo) chqNo.value = '';
+
+        const remarkEl = document.getElementById('remark');
+        if (remarkEl) remarkEl.value = '';
+
+        const badge = document.getElementById('paymentStatusBadge');
+        if (badge) badge.style.display = 'none';
+
+        const btnPrint = document.getElementById('btnPrint');
+        if (btnPrint) {
+            btnPrint.title = 'Print Payment Voucher (A5)';
+        }
+
+        const btnCancel = document.getElementById('btnCancel');
+        if (btnCancel) btnCancel.style.display = 'none';
+
+        const btnDelete = document.getElementById('btnDelete');
+        if (btnDelete) btnDelete.style.display = 'none';
+    }
+
+    // Print Payment Voucher directly (works before save or after save)
+    function printPaymentVoucher() {
+        const form = document.getElementById('paymentForm');
+        if (!form) return;
+
+        // Create temporary form to POST to preview endpoint in new window
+        const previewForm = document.createElement('form');
+        previewForm.method = 'POST';
+        previewForm.action = '{{ route('payment.preview') }}';
+        previewForm.target = '_blank';
+        previewForm.style.display = 'none';
+
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = '{{ csrf_token() }}';
+        previewForm.appendChild(csrfInput);
+
+        // Copy all input and select fields from current paymentForm
+        const formData = new FormData(form);
+        for (let [key, value] of formData.entries()) {
+            if (key === '_method') continue; // don't send PUT to preview
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = value;
+            previewForm.appendChild(input);
+        }
+
+        document.body.appendChild(previewForm);
+        previewForm.submit();
+        document.body.removeChild(previewForm);
+    }
+
+    // Attach listeners for Payment No & Series changes
+    if (paymentNoInput) {
         paymentNoInput.addEventListener('input', function() {
-            voucherNoInput.value = this.value;
+            if (voucherNoInput) voucherNoInput.value = this.value;
+            performPaymentLookup(this.value.trim());
+        });
+
+        paymentNoInput.addEventListener('change', function() {
+            performPaymentLookup(this.value.trim());
+        });
+
+        paymentNoInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performPaymentLookup(this.value.trim());
+                if (accountInput) accountInput.focus();
+            }
+        });
+    }
+
+    const seriesSelect = document.getElementById('series');
+    if (seriesSelect) {
+        seriesSelect.addEventListener('change', function() {
+            const seriesVal = this.value;
+            fetch(`{{ url('/payment/next-no') }}?series=${encodeURIComponent(seriesVal)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.next_payment_no) {
+                        if (paymentNoInput) paymentNoInput.value = data.next_payment_no;
+                        if (voucherNoInput) voucherNoInput.value = data.next_payment_no;
+                        resetPaymentForm(data.next_payment_no);
+                    }
+                })
+                .catch(() => {
+                    if (paymentNoInput && paymentNoInput.value) {
+                        performPaymentLookup(paymentNoInput.value.trim());
+                    }
+                });
         });
     }
 

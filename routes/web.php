@@ -68,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/receipt/cancel/{id}', [ReceiptController::class, 'cancel'])->name('receipt.cancel');
         Route::delete('/receipt/destroy/{id}', [ReceiptController::class, 'destroy'])->name('receipt.destroy');
         Route::get('/receipt/print/{id}', [ReceiptController::class, 'print'])->name('receipt.print');
+        Route::post('/receipt/preview', [ReceiptController::class, 'preview'])->name('receipt.preview');
     });
 
     // Report: Receipt Register
@@ -79,6 +80,8 @@ Route::middleware(['auth'])->group(function () {
     // Transaction: Payment Entry
     Route::middleware([CheckPermission::class . ':transaction.payment'])->group(function () {
         Route::get('/payment/create', [PaymentController::class, 'create'])->name('payment.create');
+        Route::get('/payment/next-no', [PaymentController::class, 'getNextPaymentNo'])->name('payment.next-no');
+        Route::get('/payment/lookup/{payment_no}', [PaymentController::class, 'lookup'])->name('payment.lookup');
         Route::get('/payment/account-details', [PaymentController::class, 'getAccountDetails'])->name('payment.account_details');
         Route::post('/payment/store', [PaymentController::class, 'store'])->name('payment.store');
         Route::get('/payment/edit/{id}', [PaymentController::class, 'edit'])->name('payment.edit');
@@ -86,6 +89,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/payment/cancel/{id}', [PaymentController::class, 'cancel'])->name('payment.cancel');
         Route::delete('/payment/destroy/{id}', [PaymentController::class, 'destroy'])->name('payment.destroy');
         Route::get('/payment/print/{id}', [PaymentController::class, 'print'])->name('payment.print');
+        Route::post('/payment/preview', [PaymentController::class, 'preview'])->name('payment.preview');
     });
 
     // Report: Payment Register

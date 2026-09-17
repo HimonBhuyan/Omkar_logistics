@@ -828,5 +828,40 @@
             }
         });
     }
+
+    // Print Receipt Voucher directly (before save or after save)
+    function printCurrentReceipt() {
+        const form = document.querySelector('form[action*="receipt"]');
+        if (!form) return;
+
+        // Create temporary form to POST to preview endpoint in new window
+        const previewForm = document.createElement('form');
+        previewForm.method = 'POST';
+        previewForm.action = '{{ route('receipt.preview') }}';
+        previewForm.target = '_blank';
+        previewForm.style.display = 'none';
+
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = '{{ csrf_token() }}';
+        previewForm.appendChild(csrfInput);
+
+        // Copy all input and select fields from receipt form
+        const formData = new FormData(form);
+        for (let [key, value] of formData.entries()) {
+            if (key === '_method') continue;
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = value;
+            previewForm.appendChild(input);
+        }
+
+        document.body.appendChild(previewForm);
+        previewForm.submit();
+        document.body.removeChild(previewForm);
+    }
 </script>
 @endsection
