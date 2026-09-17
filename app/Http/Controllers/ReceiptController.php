@@ -19,13 +19,31 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 class ReceiptController extends Controller
 {
     /**
+     * Determine default series based on top navbar Financial Year session (e.g. '2026-2027' -> '26-27').
+     */
+    protected function getDefaultSeries()
+    {
+        $fySession = session('financial_year', '2026-2027');
+        $defaultSeries = '26-27';
+        if ($fySession && $fySession !== 'ALL' && strpos($fySession, '-') !== false) {
+            $parts = explode('-', $fySession);
+            if (count($parts) === 2 && strlen(trim($parts[0])) >= 2 && strlen(trim($parts[1])) >= 2) {
+                $defaultSeries = substr(trim($parts[0]), -2) . '-' . substr(trim($parts[1]), -2);
+            }
+        }
+        return $defaultSeries;
+    }
+
+    /**
      * Show the Receipt Voucher creation form.
      */
     public function create(Request $request)
     {
-        $series = $request->query('series', 'A');
+        $defaultSeries = $this->getDefaultSeries();
+        $series = strtoupper(trim($request->query('series', $defaultSeries)));
         $maxReceiptNo = Receipt::where('series', $series)->max('receipt_no');
         $nextReceiptNo = ($maxReceiptNo && $maxReceiptNo >= 1) ? ($maxReceiptNo + 1) : 1;
+        $seriesList = \App\Models\Series::orderBy('name', 'asc')->get();
 
         // All Accounts / Debtors / Parties
         $accounts = AccountLedger::orderBy('ledger_name')->get();
@@ -59,6 +77,8 @@ class ReceiptController extends Controller
 
         return view('receipt.create', compact(
             'series',
+            'seriesList',
+            'defaultSeries',
             'nextReceiptNo',
             'accounts',
             'bankAccounts',
@@ -159,9 +179,10 @@ class ReceiptController extends Controller
                 $isFullPay = $savedItem ? (bool)$savedItem->is_full_pay : true;
                 $balance = $savedItem ? (float)$savedItem->balance : round(max(0, $dueAmount - $discount - $tds - $paid), 2);
 
+                $defaultSeries = $this->getDefaultSeries();
                 $resultInvoices[] = [
                     'invoice_id' => $inv->id,
-                    'series' => $inv->series ?: 'A',
+                    'series' => $inv->series ?: $defaultSeries,
                     'invoice_no' => $inv->invoice_no,
                     'invoice_date' => $inv->invoice_date ? $inv->invoice_date->format('d-m-Y') : '',
                     'gross_amount' => $grossAmt,
@@ -198,7 +219,8 @@ class ReceiptController extends Controller
             'account_name' => 'required|string',
         ]);
 
-        $series = strtoupper(trim($request->series));
+        $defaultSeries = $this->getDefaultSeries();
+        $series = $request->filled('series') ? strtoupper(trim($request->series)) : $defaultSeries;
         $receiptNo = (int)$request->receipt_no;
 
         // Check uniqueness for series + receipt_no
@@ -256,7 +278,7 @@ class ReceiptController extends Controller
                     $receiptItem->receipt_id = $receipt->id;
                     $receiptItem->invoice_id = !empty($item['invoice_id']) ? $item['invoice_id'] : null;
                     $receiptItem->sr_no = $srNo++;
-                    $receiptItem->series = $item['series'] ?? 'A';
+                    $receiptItem->series = !empty($item['series']) ? $item['series'] : $series;
                     $receiptItem->invoice_no = (int)($item['invoice_no'] ?? 0);
                     $receiptItem->gross_amount = (float)($item['gross_amount'] ?? 0);
                     $receiptItem->gst_amount = (float)($item['gst_amount'] ?? 0);
@@ -303,8 +325,10 @@ class ReceiptController extends Controller
     {
         $existingReceipt = Receipt::with(['items', 'account'])->findOrFail($id);
 
-        $series = $existingReceipt->series ?: 'A';
+        $defaultSeries = $this->getDefaultSeries();
+        $series = $existingReceipt->series ?: $defaultSeries;
         $nextReceiptNo = $existingReceipt->receipt_no;
+        $seriesList = \App\Models\Series::orderBy('name', 'asc')->get();
 
         // All Accounts
         $accounts = AccountLedger::orderBy('ledger_name')->get();
@@ -332,6 +356,8 @@ class ReceiptController extends Controller
         return view('receipt.create', compact(
             'existingReceipt',
             'series',
+            'seriesList',
+            'defaultSeries',
             'nextReceiptNo',
             'accounts',
             'bankAccounts',
@@ -359,7 +385,8 @@ class ReceiptController extends Controller
 
         DB::beginTransaction();
         try {
-            $receipt->series = strtoupper(trim($request->series));
+            $defaultSeries = $this->getDefaultSeries();
+            $receipt->series = $request->filled('series') ? strtoupper(trim($request->series)) : $defaultSeries;
             $receipt->receipt_no = (int)$request->receipt_no;
             $receipt->receipt_date = $request->receipt_date;
             $receipt->receipt_time = $request->receipt_time ?: Carbon::now()->format('H:i:s');
@@ -402,7 +429,7 @@ class ReceiptController extends Controller
                     $receiptItem->receipt_id = $receipt->id;
                     $receiptItem->invoice_id = !empty($item['invoice_id']) ? $item['invoice_id'] : null;
                     $receiptItem->sr_no = $srNo++;
-                    $receiptItem->series = $item['series'] ?? 'A';
+                    $receiptItem->series = !empty($item['series']) ? $item['series'] : $receipt->series;
                     $receiptItem->invoice_no = (int)($item['invoice_no'] ?? 0);
                     $receiptItem->gross_amount = (float)($item['gross_amount'] ?? 0);
                     $receiptItem->gst_amount = (float)($item['gst_amount'] ?? 0);
@@ -542,7 +569,7 @@ class ReceiptController extends Controller
      */
     public function register(Request $request)
     {
-        $fromDate = $request->input('from_date', date('Y-m-01'));
+        $fromDate = $request->input('from_date', date('Y-m-d'));
         $toDate = $request->input('to_date', date('Y-m-d'));
 
         if (!$request->has('from_date')) {
@@ -570,10 +597,15 @@ class ReceiptController extends Controller
             $totalRectAmt += (float)$r->receipt_amount;
         }
 
+        $defaultSeries = $this->getDefaultSeries();
+        $seriesList = \App\Models\Series::orderBy('name', 'asc')->get();
+
         return view('receipt.register', compact(
             'receipts',
             'users',
             'customers',
+            'seriesList',
+            'defaultSeries',
             'totalTdsAmt',
             'totalRectAmt',
             'fromDate',
@@ -790,7 +822,7 @@ class ReceiptController extends Controller
      */
     public function receiptDetailTdsReport(Request $request)
     {
-        $fromDate = $request->input('from_date', date('Y-m-01'));
+        $fromDate = $request->input('from_date', date('Y-m-d'));
         $toDate = $request->input('to_date', date('Y-m-d'));
 
         if (!$request->has('from_date')) {
@@ -823,10 +855,15 @@ class ReceiptController extends Controller
             $totalPaidAmt += (float)$it->paid_amount;
         }
 
+        $defaultSeries = $this->getDefaultSeries();
+        $seriesList = \App\Models\Series::orderBy('name', 'asc')->get();
+
         return view('receipt.detail_tds_report', compact(
             'items',
             'users',
             'customers',
+            'seriesList',
+            'defaultSeries',
             'totalTdsAmt',
             'totalPaidAmt',
             'fromDate',
@@ -920,7 +957,7 @@ class ReceiptController extends Controller
             $totalAmt += $amt;
 
             $sheet->setCellValue('A' . $rowNum, $srNo++);
-            $sheet->setCellValue('B' . $rowNum, $it->series ?: ($r ? $r->series : 'A'));
+            $sheet->setCellValue('B' . $rowNum, $it->series ?: ($r ? $r->series : $this->getDefaultSeries()));
             $sheet->setCellValue('C' . $rowNum, $r ? ($r->voucher_no ?: $r->receipt_no) : '');
             $sheet->setCellValue('D' . $rowNum, ($r && $r->receipt_date) ? $r->receipt_date->format('d-m-Y') : '');
             $sheet->setCellValue('E' . $rowNum, $r ? $r->account_name : '');

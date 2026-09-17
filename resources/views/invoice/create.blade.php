@@ -424,10 +424,20 @@
                 <div class="header-left-group">
                     <div class="ctrl-group">
                         <label for="series">SERIES</label>
-                        <input type="text" name="series" id="series" value="{{ old('series', $existingInvoice->series ?? ($series ?? 'A')) }}" style="width: 50px; text-transform: uppercase;">
+                        <select name="series" id="series" style="width: 75px; font-weight: 700; background: #fff; border: 1px solid #999; height: 26px; border-radius: 2px;">
+                            @if(isset($seriesList) && count($seriesList) > 0)
+                                @foreach($seriesList as $s)
+                                    @if($s->name !== 'A')
+                                        <option value="{{ $s->name }}" {{ old('series', $existingInvoice->series ?? ($series ?? ($defaultSeries ?? '26-27'))) == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
+                                    @endif
+                                @endforeach
+                            @else
+                                <option value="{{ $defaultSeries ?? '26-27' }}" selected>{{ $defaultSeries ?? '26-27' }}</option>
+                            @endif
+                        </select>
                     </div>
                     <div class="ctrl-group">
-                        <label for="invoice_no">RECEIPT NO.</label>
+                        <label for="invoice_no">INVOICE NO.</label>
                         <input type="number" name="invoice_no" id="invoice_no" value="{{ old('invoice_no', $existingInvoice->invoice_no ?? $nextInvoiceNo) }}" style="width: 70px;" required autocomplete="off">
                     </div>
                 </div>
@@ -1158,7 +1168,7 @@
         if (!invoiceNoInput) return;
 
         const invoiceNo = invoiceNoInput.value.trim();
-        const series = seriesInput ? seriesInput.value.trim() : 'A';
+        const series = seriesInput ? seriesInput.value.trim() : '{{ $defaultSeries ?? '26-27' }}';
 
         // Keep Voucher No display in sync
         const voucherDisplay = document.getElementById('voucher_no_display');
@@ -2086,7 +2096,7 @@
     window.handleCancelBtn = function() {
         const existingIdInput = document.getElementById('existing_invoice_id');
         const invoiceId = existingIdInput ? existingIdInput.value : '';
-        const series = document.getElementById('series')?.value || 'A';
+        const series = document.getElementById('series')?.value || '{{ $defaultSeries ?? '26-27' }}';
         const invoiceNo = document.getElementById('invoice_no')?.value || '';
 
         if (invoiceId) {
@@ -2122,7 +2132,7 @@
     window.handleDeleteBtn = function() {
         const existingIdInput = document.getElementById('existing_invoice_id');
         const invoiceId = existingIdInput ? existingIdInput.value : '';
-        const series = document.getElementById('series')?.value || 'A';
+        const series = document.getElementById('series')?.value || '{{ $defaultSeries ?? '26-27' }}';
         const invoiceNo = document.getElementById('invoice_no')?.value || '';
 
         if (invoiceId) {

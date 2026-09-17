@@ -251,8 +251,16 @@
         <div class="filter-grid">
             <div class="filter-item">
                 <label class="filter-label">SERIES</label>
-                <input type="text" name="series" id="series" class="filter-input text-center" 
-                       value="{{ request('series', '') }}" style="width: 75px;" placeholder="ALL">
+                <select name="series" id="series" class="filter-input text-center" style="width: 80px;">
+                    <option value="">ALL</option>
+                    @if(isset($seriesList))
+                        @foreach($seriesList as $s)
+                            @if($s->name !== 'A')
+                                <option value="{{ $s->name }}" {{ request('series') == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
+                            @endif
+                        @endforeach
+                    @endif
+                </select>
             </div>
 
             <div class="filter-item">

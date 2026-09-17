@@ -360,8 +360,17 @@
                 <!-- Row 2: Series, User, Mobile No., Non Cancel/Cancel/All -->
                 <div class="filter-grid-row" style="margin-top: 4px;">
                     <div class="ctrl-item">
-                        <label for="series_input" style="min-width: 42px;">SERIES</label>
-                        <input type="text" name="series" id="series_input" value="{{ request('series') }}" placeholder="SERIES" style="width: 65px; text-transform: uppercase;">
+                        <label for="series_select" style="min-width: 42px;">SERIES</label>
+                        <select name="series" id="series_select" style="width: 80px; height: 26px; font-size: 12px;">
+                            <option value="">ALL</option>
+                            @if(isset($seriesList))
+                                @foreach($seriesList as $s)
+                                    @if($s->name !== 'A')
+                                        <option value="{{ $s->name }}" {{ request('series') == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
+                                    @endif
+                                @endforeach
+                            @endif
+                        </select>
                     </div>
 
                     <div class="ctrl-item" style="margin-left: 10px;">

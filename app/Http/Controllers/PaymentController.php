@@ -17,13 +17,31 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 class PaymentController extends Controller
 {
     /**
+     * Determine default series based on top navbar Financial Year session (e.g. '2026-2027' -> '26-27').
+     */
+    protected function getDefaultSeries()
+    {
+        $fySession = session('financial_year', '2026-2027');
+        $defaultSeries = '26-27';
+        if ($fySession && $fySession !== 'ALL' && strpos($fySession, '-') !== false) {
+            $parts = explode('-', $fySession);
+            if (count($parts) === 2 && strlen(trim($parts[0])) >= 2 && strlen(trim($parts[1])) >= 2) {
+                $defaultSeries = substr(trim($parts[0]), -2) . '-' . substr(trim($parts[1]), -2);
+            }
+        }
+        return $defaultSeries;
+    }
+
+    /**
      * Show the Payment Voucher creation form.
      */
     public function create(Request $request)
     {
-        $series = strtoupper(trim($request->query('series', 'A')));
+        $defaultSeries = $this->getDefaultSeries();
+        $series = strtoupper(trim($request->query('series', $defaultSeries)));
         $maxPaymentNo = Payment::where('series', $series)->max('payment_no');
         $nextPaymentNo = ($maxPaymentNo && $maxPaymentNo >= 1) ? ($maxPaymentNo + 1) : 1;
+        $seriesList = \App\Models\Series::orderBy('name', 'asc')->get();
 
         // Accounts filtered by target Expense / Asset / Creditor groups
         $accounts = $this->getPaymentAccounts();
@@ -61,6 +79,8 @@ class PaymentController extends Controller
 
         return view('payment.create', compact(
             'series',
+            'seriesList',
+            'defaultSeries',
             'nextPaymentNo',
             'accounts',
             'bankAccounts',
@@ -118,7 +138,8 @@ class PaymentController extends Controller
             'payment_amount' => 'required|numeric|min:0',
         ]);
 
-        $series = strtoupper(trim($request->series));
+        $defaultSeries = $this->getDefaultSeries();
+        $series = $request->filled('series') ? strtoupper(trim($request->series)) : $defaultSeries;
         $paymentNo = (int)$request->payment_no;
 
         // Ensure unique series + payment_no
@@ -209,10 +230,10 @@ class PaymentController extends Controller
      */
     public function edit($id)
     {
-        $existingPayment = Payment::with(['account', 'bank', 'user'])->findOrFail($id);
-
-        $series = $existingPayment->series ?: 'A';
+        $defaultSeries = $this->getDefaultSeries();
+        $series = $existingPayment->series ?: $defaultSeries;
         $nextPaymentNo = $existingPayment->payment_no;
+        $seriesList = \App\Models\Series::orderBy('name', 'asc')->get();
 
         // Accounts filtered by target Expense / Asset / Creditor groups
         $accounts = $this->getPaymentAccounts();
@@ -243,6 +264,8 @@ class PaymentController extends Controller
         return view('payment.create', compact(
             'existingPayment',
             'series',
+            'seriesList',
+            'defaultSeries',
             'nextPaymentNo',
             'accounts',
             'bankAccounts',
@@ -271,7 +294,8 @@ class PaymentController extends Controller
 
         DB::beginTransaction();
         try {
-            $payment->series = strtoupper(trim($request->series));
+            $defaultSeries = $this->getDefaultSeries();
+            $payment->series = $request->filled('series') ? strtoupper(trim($request->series)) : $defaultSeries;
             $payment->payment_no = (int)$request->payment_no;
             $payment->payment_date = $request->payment_date;
             $payment->payment_time = $request->payment_time ?: Carbon::now()->format('H:i:s');
@@ -444,7 +468,7 @@ class PaymentController extends Controller
      */
     public function register(Request $request)
     {
-        $fromDate = $request->input('from_date', date('Y-m-01'));
+        $fromDate = $request->input('from_date', date('Y-m-d'));
         $toDate = $request->input('to_date', date('Y-m-d'));
 
         if (!$request->has('from_date')) {
@@ -487,11 +511,16 @@ class PaymentController extends Controller
             $totalPaid += (float)$p->total_amount;
         }
 
+        $defaultSeries = $this->getDefaultSeries();
+        $seriesList = \App\Models\Series::orderBy('name', 'asc')->get();
+
         return view('payment.register', compact(
             'payments',
             'users',
             'suppliers',
             'bankNames',
+            'seriesList',
+            'defaultSeries',
             'totalPayAmount',
             'totalDeductAmount',
             'totalDiscount',

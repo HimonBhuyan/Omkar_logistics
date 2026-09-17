@@ -308,8 +308,18 @@
                 <!-- Row 1: Series, Receipt No., Date, Time, Voucher No. -->
                 <div class="receipt-form-row">
                     <div class="ctrl-group">
-                        <label for="series_input" style="min-width: 40px;">SERIES</label>
-                        <input type="text" name="series" id="series_input" value="{{ old('series', isset($existingReceipt) ? $existingReceipt->series : $series) }}" style="width: 70px; text-transform: uppercase;" required>
+                        <label for="series_input" style="min-width: 55px;">SERIES</label>
+                        <select name="series" id="series_input" style="width: 75px; height: 26px; font-weight: 700; background: #fff; border: 1px solid #999; border-radius: 2px;">
+                            @if(isset($seriesList) && count($seriesList) > 0)
+                                @foreach($seriesList as $s)
+                                    @if($s->name !== 'A')
+                                        <option value="{{ $s->name }}" {{ old('series', isset($existingReceipt) ? $existingReceipt->series : ($series ?? ($defaultSeries ?? '26-27'))) == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
+                                    @endif
+                                @endforeach
+                            @else
+                                <option value="{{ $defaultSeries ?? '26-27' }}" selected>{{ $defaultSeries ?? '26-27' }}</option>
+                            @endif
+                        </select>
                     </div>
 
                     <div class="ctrl-group" style="margin-left: 10px;">
@@ -335,7 +345,7 @@
                 <!-- Row 2: Account (Debtor Party) & Mobile -->
                 <div class="receipt-form-row" style="margin-top: 4px;">
                     <div class="ctrl-group" style="flex-grow: 1;">
-                        <label for="account_input" style="min-width: 40px;">ACCOUNT</label>
+                        <label for="account_input" style="min-width: 75px;">ACCOUNT</label>
                         <input type="text" name="account_name" id="account_input" list="accounts_datalist" value="{{ old('account_name', isset($existingReceipt) ? $existingReceipt->account_name : ($selectedAccount ? $selectedAccount->ledger_name : '')) }}" placeholder="SEARCH DEBTOR ACCOUNT / PARTY..." style="flex-grow: 1; max-width: 420px; font-weight: bold; color: #000080;" autocomplete="off" required>
                         <datalist id="accounts_datalist">
                             @foreach ($accounts as $acc)
@@ -631,7 +641,7 @@
             tr.innerHTML = `
                 <td class="row-pointer">${idx === 0 ? '▶' : ''}</td>
                 <td class="text-center">${srNo}</td>
-                <td class="text-center font-bold">${inv.series || 'A'}</td>
+                <td class="text-center font-bold">${inv.series || '{{ $defaultSeries ?? '26-27' }}'}</td>
                 <td class="text-center font-bold" style="color: #0044cc;">${inv.invoice_no}</td>
                 <td class="text-right">${gross}</td>
                 <td class="text-right">${gst}</td>

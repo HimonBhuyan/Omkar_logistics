@@ -746,13 +746,14 @@
 @section('scripts')
 <script>
     function filterList() {
-        const group = document.getElementById('groupFilter').value;
+        const group = (document.getElementById('groupFilter').value || '').trim().toUpperCase();
         const query = document.getElementById('searchFilter').value.toLowerCase().trim();
 
         document.querySelectorAll('.ledger-list-item').forEach(function(item) {
-            const matchesGroup = !group || item.dataset.group === group;
+            const itemGroup = (item.dataset.group || '').trim().toUpperCase();
+            const matchesGroup = !group || itemGroup === group;
             const textContent = item.textContent.toLowerCase();
-            const gstContent = item.dataset.gst || '';
+            const gstContent = (item.dataset.gst || '').toLowerCase();
             const matchesQuery = !query || textContent.includes(query) || gstContent.includes(query);
 
             if (matchesGroup && matchesQuery) {
@@ -892,12 +893,15 @@
         const bankSection = document.getElementById('bank_fields_section');
         const staffSection = document.getElementById('staff_fields_section');
         const vehicleSection = document.getElementById('vehicle_fields_section');
-        const selectedGroup = selectEl.value;
+        const rawGroup = selectEl ? selectEl.value : '';
+        const selectedGroup = rawGroup.trim().toUpperCase();
+
+        updateCodeFormat();
 
         const isGroupEmpty = !selectedGroup;
-        const isBankAccount = selectedGroup === 'Bank Accounts';
-        const isStaffSalary = selectedGroup === 'Staff Salary';
-        const isVehicleOrOilExpense = (selectedGroup === 'Vehicle Expense' || selectedGroup === 'Oil Expense');
+        const isBankAccount = (selectedGroup === 'BANK ACCOUNTS' || selectedGroup === 'BANK ACCOUNT' || selectedGroup.includes('BANK'));
+        const isStaffSalary = (selectedGroup === 'STAFF SALARY' || selectedGroup.includes('STAFF') || selectedGroup.includes('SALARY'));
+        const isVehicleOrOilExpense = (selectedGroup === 'VEHICLE EXPENSE' || selectedGroup === 'OIL EXPENSE' || selectedGroup.includes('VEHICLE') || selectedGroup.includes('OIL'));
 
         // Hide all initially
         standardSection.style.display = 'none';
@@ -971,27 +975,103 @@
         document.getElementById('net_salary').value = (gross - deduction).toFixed(2);
     }
 
+    // Automatically update the Code label and formatted value depending on Under Group selection
+    function updateCodeFormat() {
+        const selectEl = document.getElementById('under_group');
+        const codeLabel = document.getElementById('code_label');
+        const codeInput = document.getElementById('top_state_code');
+        const rawCode = "{{ $selected->code ?? $nextCode }}";
+        const selectedGroup = (selectEl && selectEl.value ? selectEl.value : '').trim().toUpperCase();
+
+        if (selectedGroup === 'STAFF SALARY' || selectedGroup.includes('STAFF') || selectedGroup.includes('SALARY')) {
+            if (codeLabel) codeLabel.textContent = 'Emp Code';
+            const formattedNum = String(rawCode).padStart(2, '0');
+            if (codeInput) codeInput.value = 'OML' + formattedNum;
+        } else {
+            if (codeLabel) codeLabel.textContent = 'State Code';
+            if (codeInput && !codeInput.value.startsWith('OML')) {
+                // keep current state code or restore
+            } else if (codeInput) {
+                codeInput.value = "{{ old('state_code', $selected->state_code ?? '') }}";
+            }
+        }
+    }
+
     // Real-time client side validations for required formats
     function setupRealTimeValidations() {
         const rules = [
-            { id: 'pan_no', regex: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, msg: 'PAN format: 5 letters, 4 digits, 1 letter (e.g. ABCDE1234F)' },
-            { id: 'gst_no', regex: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, msg: 'GST format: 15 chars (e.g. 18AABCT1234F1Z5)' },
-            { id: 'pin_code', regex: /^[1-9][0-9]{5}$/, msg: 'PIN must be 6 digits' },
-            { id: 'ifsc_code', regex: /^[A-Z]{4}0[A-Z0-9]{6}$/, msg: 'IFSC format: 4 letters, 0, 6 alpha-numeric chars' },
-            { id: 'account_no', regex: /^[0-9]{9,18}$/, msg: 'Account No must be 9-18 digits' },
+            {
+                id: 'voter_card',
+                errorId: 'err_voter_card',
+                validate: (val) => val === '' || /^[A-Z]{3}\d{7}$/.test(val)
+            },
+            {
+                id: 'adhar_card',
+                errorId: 'err_adhar_card',
+                validate: (val) => val === '' || /^\d{12}$/.test(val)
+            },
+            {
+                id: 'pan_card',
+                errorId: 'err_pan_card',
+                validate: (val) => val === '' || /^[A-Z]{5}\d{4}[A-Z]{1}$/.test(val)
+            },
+            {
+                id: 'driving_license',
+                errorId: 'err_driving_license',
+                validate: (val) => val === '' || (val.length >= 13 && val.length <= 16)
+            },
+            {
+                id: 'account_no',
+                errorId: 'err_account_no',
+                validate: (val) => val === '' || /^\d{9,18}$/.test(val)
+            },
+            {
+                id: 'staff_account_no',
+                errorId: 'err_staff_account_no',
+                validate: (val) => val === '' || /^\d{9,18}$/.test(val)
+            },
+            {
+                id: 'ifsc',
+                errorId: 'err_ifsc',
+                validate: (val) => val === '' || /^[A-Z]{4}0[A-Z0-9]{6}$/.test(val)
+            },
+            {
+                id: 'staff_ifsc',
+                errorId: 'err_staff_ifsc',
+                validate: (val) => val === '' || /^[A-Z]{4}0[A-Z0-9]{6}$/.test(val)
+            },
+            {
+                id: 'gst_no',
+                errorId: null,
+                validate: (val) => val === '' || /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(val),
+                msg: 'GST format: 15 chars (e.g. 18AABCT1234F1Z5)'
+            },
+            {
+                id: 'pin_code',
+                errorId: null,
+                validate: (val) => val === '' || /^[1-9][0-9]{5}$/.test(val),
+                msg: 'PIN must be 6 digits'
+            }
         ];
 
         rules.forEach(rule => {
             const input = document.getElementById(rule.id);
+            const errMsg = rule.errorId ? document.getElementById(rule.errorId) : null;
             if (!input) return;
 
             const check = () => {
                 const val = input.value.trim().toUpperCase();
-                if (val && !rule.regex.test(val)) {
+                if (rule.id !== 'pin_code') {
+                    input.value = val;
+                }
+                const isValid = rule.validate(val);
+                if (!isValid) {
                     input.classList.add('input-error');
-                    input.title = rule.msg;
+                    if (errMsg) errMsg.style.display = 'block';
+                    if (rule.msg) input.title = rule.msg;
                 } else {
                     input.classList.remove('input-error');
+                    if (errMsg) errMsg.style.display = 'none';
                     input.removeAttribute('title');
                 }
             };
@@ -1020,8 +1100,10 @@
                             text: 'Please correct the validation errors (marked in red) before saving.',
                             confirmButtonColor: '#0f3460'
                         });
-                    } else {
+                    } else if (typeof SysDialog !== 'undefined' && SysDialog.alert) {
                         SysDialog.alert('Please correct the validation errors (marked in red) before saving.', 'Validation Errors');
+                    } else {
+                        alert('Please correct the validation errors (marked in red) before saving.');
                     }
                 }
             });

@@ -650,11 +650,23 @@
         @endforeach
     ];
 
-    const vehiclesList = [
-        @foreach ($vehicles as $v)
-            @json($v),
-        @endforeach
+    const vehicleNumbersList = [
+        @if(isset($vehicleNumbers))
+            @foreach ($vehicleNumbers as $v)
+                @json($v),
+            @endforeach
+        @endif
     ];
+
+    const transportNamesList = [
+        @if(isset($transportsList))
+            @foreach ($transportsList as $t)
+                @json($t),
+            @endforeach
+        @endif
+    ];
+
+    const vehiclesList = vehicleNumbersList;
 
     // Toggle showing Billing Party input when T.B.B. or Paid is selected
     function toggleBillingParty() {
@@ -1437,7 +1449,7 @@
                         // Transport info
                         document.getElementById('cn_no').value = data.bilty.cn_no || '';
                         const vehicleVal = data.bilty.vehicle_no || '';
-                        const isTransportOption = vehiclesList.includes(vehicleVal);
+                        const isTransportOption = (data.bilty.type === 'TRANSPORT NAME') || transportNamesList.includes(vehicleVal);
                         const typeSelector = document.getElementById('vehicle_type');
 
                         if (isTransportOption) {
@@ -1445,6 +1457,7 @@
                         } else {
                             typeSelector.value = 'Vehicle Number';
                         }
+                        toggleVehicleFields();
                         document.getElementById('vehicle_no_text').value = vehicleVal;
                         if (document.getElementById('shipping_status')) {
                             document.getElementById('shipping_status').value = data.bilty.shipping_status || (vehicleVal ? (isTransportOption ? 'Shipped' : 'In Transit') : 'Booked');
@@ -1571,7 +1584,8 @@
             dropdownEl,
             getItems,
             onSelect,
-            onClear
+            onClear,
+            showOnFocus = false
         }) {
             if (!inputEl || !dropdownEl) return null;
             let activeIndex = -1;
@@ -1595,27 +1609,32 @@
 
             function renderMatches() {
                 const query = inputEl.value.trim();
+                const items = getItems() || [];
+
                 if (!query) {
-                    dropdownEl.style.display = 'none';
-                    return;
+                    if (showOnFocus && items.length > 0) {
+                        currentMatches = [...items];
+                    } else {
+                        dropdownEl.style.display = 'none';
+                        return;
+                    }
+                } else {
+                    currentMatches = items.filter(item => {
+                        const name = typeof item === 'string' ? item : item.name;
+                        return name.toLowerCase().includes(query.toLowerCase());
+                    });
+
+                    currentMatches.sort((a, b) => {
+                        const nameA = (typeof a === 'string' ? a : a.name).toLowerCase();
+                        const nameB = (typeof b === 'string' ? b : b.name).toLowerCase();
+                        const q = query.toLowerCase();
+                        const aStarts = nameA.startsWith(q);
+                        const bStarts = nameB.startsWith(q);
+                        if (aStarts && !bStarts) return -1;
+                        if (!aStarts && bStarts) return 1;
+                        return nameA.localeCompare(nameB);
+                    });
                 }
-
-                const items = getItems();
-                currentMatches = items.filter(item => {
-                    const name = typeof item === 'string' ? item : item.name;
-                    return name.toLowerCase().includes(query.toLowerCase());
-                });
-
-                currentMatches.sort((a, b) => {
-                    const nameA = (typeof a === 'string' ? a : a.name).toLowerCase();
-                    const nameB = (typeof b === 'string' ? b : b.name).toLowerCase();
-                    const q = query.toLowerCase();
-                    const aStarts = nameA.startsWith(q);
-                    const bStarts = nameB.startsWith(q);
-                    if (aStarts && !bStarts) return -1;
-                    if (!aStarts && bStarts) return 1;
-                    return nameA.localeCompare(nameB);
-                });
 
                 if (currentMatches.length === 0) {
                     dropdownEl.innerHTML = `<div class="autocomplete-no-match">No results matching "${escapeHtml(query)}"</div>`;
@@ -1624,7 +1643,7 @@
                     return;
                 }
 
-                const visibleMatches = currentMatches.slice(0, 25);
+                const visibleMatches = currentMatches.slice(0, 30);
                 dropdownEl.innerHTML = visibleMatches.map((item, idx) => {
                     const name = typeof item === 'string' ? item : item.name;
                     let metaHtml = '';
@@ -1637,7 +1656,7 @@
                         }
                     }
                     return `<div class="autocomplete-item" data-index="${idx}">
-                        <span class="item-name">${highlightMatch(name, query)}</span>
+                        <span class="item-name">${query ? highlightMatch(name, query) : escapeHtml(name)}</span>
                         ${metaHtml}
                     </div>`;
                 }).join('');
@@ -1669,7 +1688,7 @@
             inputEl.addEventListener('input', function() {
                 if (hiddenEl) {
                     const query = inputEl.value.trim().toLowerCase();
-                    const items = getItems();
+                    const items = getItems() || [];
                     const exact = items.find(i => (typeof i === 'string' ? i : i.name).toLowerCase() === query);
                     if (exact) {
                         hiddenEl.value = typeof exact === 'string' ? exact : exact.id;
@@ -1683,14 +1702,20 @@
             });
 
             inputEl.addEventListener('focus', function() {
-                if (inputEl.value.trim().length > 0) {
+                if (showOnFocus || inputEl.value.trim().length > 0) {
+                    renderMatches();
+                }
+            });
+
+            inputEl.addEventListener('click', function() {
+                if (showOnFocus && dropdownEl.style.display === 'none') {
                     renderMatches();
                 }
             });
 
             inputEl.addEventListener('keydown', function(e) {
                 if (dropdownEl.style.display === 'none') {
-                    if (e.key === 'ArrowDown' && inputEl.value.trim()) {
+                    if (e.key === 'ArrowDown' && (showOnFocus || inputEl.value.trim())) {
                         renderMatches();
                         e.preventDefault();
                     }
@@ -1772,6 +1797,9 @@
                     if (hiddenEl) hiddenEl.value = '';
                     dropdownEl.style.display = 'none';
                     if (onClear) onClear();
+                },
+                render: function() {
+                    renderMatches();
                 }
             };
         }
@@ -1781,14 +1809,16 @@
             inputEl: document.getElementById('from_location_text'),
             hiddenEl: document.getElementById('from_location_id'),
             dropdownEl: document.getElementById('from_location_dropdown'),
-            getItems: () => locationsList
+            getItems: () => locationsList,
+            showOnFocus: true
         });
 
         window.toLocAuto = setupAutocomplete({
             inputEl: document.getElementById('to_location_text'),
             hiddenEl: document.getElementById('to_location_id'),
             dropdownEl: document.getElementById('to_location_dropdown'),
-            getItems: () => locationsList
+            getItems: () => locationsList,
+            showOnFocus: true
         });
 
         window.consignorAuto = setupAutocomplete({
@@ -1796,6 +1826,7 @@
             hiddenEl: document.getElementById('consignor_id'),
             dropdownEl: document.getElementById('consignor_dropdown'),
             getItems: () => consignorsList,
+            showOnFocus: true,
             onSelect: (item) => {
                 document.getElementById('consignor_mobile').value = item.mobile || '';
                 document.getElementById('consignor_gstin').value = item.gstin || '';
@@ -1814,6 +1845,7 @@
             hiddenEl: document.getElementById('consignee_id'),
             dropdownEl: document.getElementById('consignee_dropdown'),
             getItems: () => consigneesList,
+            showOnFocus: true,
             onSelect: (item) => {
                 document.getElementById('consignee_mobile').value = item.mobile || '';
                 document.getElementById('consignee_gstin').value = item.gstin || '';
@@ -1831,7 +1863,8 @@
             inputEl: document.getElementById('billing_party_text'),
             hiddenEl: document.getElementById('billing_party_id'),
             dropdownEl: document.getElementById('billing_party_dropdown'),
-            getItems: () => partiesList
+            getItems: () => partiesList,
+            showOnFocus: true
         });
 
         window.vehicleNoAuto = setupAutocomplete({
@@ -1839,8 +1872,9 @@
             dropdownEl: document.getElementById('vehicle_no_dropdown'),
             getItems: () => {
                 const type = document.getElementById('vehicle_type').value;
-                return (type === 'Transport Name') ? vehiclesList : [];
-            }
+                return (type === 'Transport Name') ? transportNamesList : vehicleNumbersList;
+            },
+            showOnFocus: true
         });
 
         // Restore any old submitted values if validation redirected back

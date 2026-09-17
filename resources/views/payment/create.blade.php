@@ -14,8 +14,8 @@
     }
 
     .payment-window {
-        width: 780px;
-        max-width: 100%;
+        width: 820px;
+        max-width: 98%;
         background: #d4d0c8;
         border: 2px solid #808080;
         border-right-color: #404040;
@@ -96,7 +96,8 @@
         font-size: 13px !important;
         color: #000 !important;
         white-space: nowrap;
-        text-align: right;
+        flex-shrink: 0;
+        text-align: left;
     }
 
     .form-input {
@@ -154,6 +155,7 @@
         align-items: center;
         justify-content: center;
         padding: 0;
+        flex-shrink: 0;
     }
 
     .btn-lookup:hover {
@@ -262,17 +264,25 @@
             <div class="payment-form-panel">
                 <!-- Row 1: Series, Payment No, Date, Time, Voucher No. -->
                 <div class="form-row">
-                    <label class="form-label" style="width: 50px;">SERIES</label>
-                    <input type="text" name="series" id="series" class="form-input text-center font-bold" 
-                           value="{{ old('series', isset($existingPayment) ? $existingPayment->series : ($series ?? 'A')) }}" 
-                           style="width: 50px; text-transform: uppercase;" required>
+                    <label class="form-label" style="min-width: 55px;">SERIES</label>
+                    <select name="series" id="series" class="form-input text-center font-bold" style="width: 75px; height: 28px;">
+                        @if(isset($seriesList) && count($seriesList) > 0)
+                            @foreach($seriesList as $s)
+                                @if($s->name !== 'A')
+                                    <option value="{{ $s->name }}" {{ old('series', isset($existingPayment) ? $existingPayment->series : ($series ?? ($defaultSeries ?? '26-27'))) == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
+                                @endif
+                            @endforeach
+                        @else
+                            <option value="{{ $defaultSeries ?? '26-27' }}" selected>{{ $defaultSeries ?? '26-27' }}</option>
+                        @endif
+                    </select>
 
-                    <label class="form-label" style="margin-left: 15px;">PAYMENT NO</label>
+                    <label class="form-label" style="margin-left: 12px;">PAYMENT NO</label>
                     <input type="number" name="payment_no" id="payment_no" class="form-input text-center font-bold" 
                            value="{{ old('payment_no', isset($existingPayment) ? $existingPayment->payment_no : ($nextPaymentNo ?? 1)) }}" 
                            style="width: 75px;" required>
 
-                    <label class="form-label" style="margin-left: 15px;">DATE</label>
+                    <label class="form-label" style="margin-left: 12px;">DATE</label>
                     <input type="date" name="payment_date" id="payment_date" class="form-input" 
                            value="{{ old('payment_date', isset($existingPayment) && $existingPayment->payment_date ? $existingPayment->payment_date->format('Y-m-d') : ($currentDate ?? date('Y-m-d'))) }}" 
                            style="width: 110px;" required>
@@ -291,7 +301,7 @@
 
                 <!-- Row 2: Account, Account Alias / Details -->
                 <div class="form-row" style="position: relative;">
-                    <label class="form-label" style="width: 50px;">ACCOUNT</label>
+                    <label class="form-label" style="min-width: 80px;">ACCOUNT</label>
                     <div style="flex: 1; position: relative;">
                         <input type="text" name="account_name" id="account_name" class="form-input font-bold" 
                                value="{{ old('account_name', isset($existingPayment) ? $existingPayment->account_name : ($selectedAccount ? $selectedAccount->ledger_name : '')) }}" 
@@ -307,7 +317,7 @@
 
                 <!-- Row 3: Customer Invoice Number, Customer Bill Amt. -->
                 <div class="form-row">
-                    <label class="form-label" style="width: 155px; text-align: left;">CUSTOMER INVOICE NUMBER</label>
+                    <label class="form-label" style="min-width: 180px;">CUSTOMER INVOICE NO.</label>
                     <input type="text" name="customer_invoice_no" id="customer_invoice_no" class="form-input" 
                            value="{{ old('customer_invoice_no', isset($existingPayment) ? $existingPayment->customer_invoice_no : '') }}" 
                            style="width: 220px;" placeholder="ENTER CUSTOMER INVOICE NO">
@@ -316,13 +326,13 @@
                         <label class="form-label">CUSTOMER BILL AMT.</label>
                         <input type="number" step="0.01" name="customer_bill_amt" id="customer_bill_amt" class="form-input text-right font-bold" 
                                value="{{ old('customer_bill_amt', isset($existingPayment) && $existingPayment->customer_bill_amt ? number_format($existingPayment->customer_bill_amt, 2, '.', '') : '') }}" 
-                               style="width: 130px;" placeholder="0">
+                               style="width: 120px;" placeholder="0">
                     </div>
                 </div>
 
                 <!-- Row 4: Payment (Yellow), Deduct Amount (Readonly), Discount (Yellow) -->
                 <div class="form-row">
-                    <label class="form-label" style="width: 50px;">PAYMENT</label>
+                    <label class="form-label" style="min-width: 80px;">PAYMENT</label>
                     <input type="number" step="0.01" name="payment_amount" id="payment_amount" class="form-input input-yellow text-right" 
                            value="{{ old('payment_amount', isset($existingPayment) ? number_format($existingPayment->payment_amount, 2, '.', '') : '') }}" 
                            style="width: 110px;" placeholder="0" required>
@@ -330,7 +340,7 @@
                     <label class="form-label" style="margin-left: 10px;">DEDUCT AMOUNT :</label>
                     <input type="number" step="0.01" name="deduct_amount" id="deduct_amount" class="form-input input-readonly text-right font-bold" 
                            value="{{ old('deduct_amount', isset($existingPayment) ? number_format($existingPayment->deduct_amount ?: $existingPayment->due_amount, 2, '.', '') : '0.00') }}" 
-                           style="width: 100px;" readonly>
+                           style="width: 95px;" readonly>
 
                     <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 6px;">
                         <label class="form-label">DISCOUNT</label>
@@ -342,8 +352,8 @@
 
                 <!-- Row 5: Pay Mode, Bank Name, Lookup :: -->
                 <div class="form-row">
-                    <label class="form-label" style="width: 50px;">PAY MODE</label>
-                    <select name="pay_mode" id="pay_mode" class="form-input font-bold" style="width: 170px;">
+                    <label class="form-label" style="min-width: 80px;">PAY MODE</label>
+                    <select name="pay_mode" id="pay_mode" class="form-input font-bold" style="width: 165px;">
                         @php
                             $currentPayMode = old('pay_mode', isset($existingPayment) ? $existingPayment->pay_mode : 'BANK TRANSFER');
                         @endphp
@@ -372,7 +382,7 @@
 
                 <!-- Row 7: Chq No., Chq Date -->
                 <div class="form-row">
-                    <label class="form-label" style="width: 50px;">CHQ NO.</label>
+                    <label class="form-label" style="min-width: 80px;">CHQ NO.</label>
                     <input type="text" name="cheque_no" id="cheque_no" class="form-input" 
                            value="{{ old('cheque_no', isset($existingPayment) ? $existingPayment->cheque_no : '') }}" 
                            style="width: 250px;" placeholder="CHEQUE / UTR / REF NO">
@@ -387,7 +397,7 @@
 
                 <!-- Row 8: Purpose of payment -->
                 <div class="form-row">
-                    <label class="form-label" style="width: 120px; text-align: left;">PURPOSE OF PAYMENT</label>
+                    <label class="form-label" style="min-width: 180px;">PURPOSE OF PAYMENT</label>
                     <input type="text" name="remark" id="remark" class="form-input" 
                            value="{{ old('remark', isset($existingPayment) ? $existingPayment->remark : '') }}" 
                            style="flex: 1;" placeholder="ENTER PURPOSE OF PAYMENT / BILL DETAILS">

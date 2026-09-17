@@ -74,7 +74,9 @@
                 <select name="series" id="series" style="width: 80px; height: 28px; font-size: 13px; border: 1.5px solid #7f9db9; padding: 2px 4px;">
                     <option value="">-- ALL --</option>
                     @foreach($seriesList as $s)
-                        <option value="{{ $s->name }}" {{ request('series') == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
+                        @if($s->name !== 'A')
+                            <option value="{{ $s->name }}" {{ request('series') == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
+                        @endif
                     @endforeach
                 </select>
             </div>

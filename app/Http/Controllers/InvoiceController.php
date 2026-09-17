@@ -21,6 +21,22 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 class InvoiceController extends Controller
 {
     /**
+     * Determine default series based on top navbar Financial Year session (e.g. '2026-2027' -> '26-27').
+     */
+    protected function getDefaultSeries()
+    {
+        $fySession = session('financial_year', '2026-2027');
+        $defaultSeries = '26-27';
+        if ($fySession && $fySession !== 'ALL' && strpos($fySession, '-') !== false) {
+            $parts = explode('-', $fySession);
+            if (count($parts) === 2 && strlen(trim($parts[0])) >= 2 && strlen(trim($parts[1])) >= 2) {
+                $defaultSeries = substr(trim($parts[0]), -2) . '-' . substr(trim($parts[1]), -2);
+            }
+        }
+        return $defaultSeries;
+    }
+
+    /**
      * Show the Invoice / Party Bill creation form.
      */
     public function create(Request $request)
@@ -29,10 +45,12 @@ class InvoiceController extends Controller
             return $this->edit($request->invoice_id);
         }
 
-        // 1. Next Invoice No for series (default series 'A' or '26-27')
-        $series = $request->query('series', session('financial_year') ? 'A' : 'A');
+        // 1. Next Invoice No for series
+        $defaultSeries = $this->getDefaultSeries();
+        $series = strtoupper(trim($request->query('series', $defaultSeries)));
         $maxInvoiceNo = Invoice::where('series', $series)->max('invoice_no');
         $nextInvoiceNo = ($maxInvoiceNo && $maxInvoiceNo >= 40) ? ($maxInvoiceNo + 1) : 40;
+        $seriesList = \App\Models\Series::orderBy('name', 'asc')->get();
 
         // 2. All Debtors / Creditors / Parties from account_ledgers for Account autocomplete
         $accounts = AccountLedger::whereIn('under_group', ['Debtors', 'Creditors', 'Direct Incomes', 'Indirect Incomes', 'Direct Expenses', 'Indirect Expenses'])
@@ -210,6 +228,8 @@ class InvoiceController extends Controller
 
         return view('invoice.create', compact(
             'series',
+            'seriesList',
+            'defaultSeries',
             'nextInvoiceNo',
             'accounts',
             'consignors',
@@ -231,8 +251,10 @@ class InvoiceController extends Controller
     {
         $existingInvoice = Invoice::with(['items', 'account', 'consignor', 'bilties'])->findOrFail($id);
 
-        $series = $existingInvoice->series ?? 'A';
+        $defaultSeries = $this->getDefaultSeries();
+        $series = $existingInvoice->series ?: $defaultSeries;
         $nextInvoiceNo = $existingInvoice->invoice_no;
+        $seriesList = \App\Models\Series::orderBy('name', 'asc')->get();
 
         // All Debtors / Creditors / Parties from account_ledgers
         $accounts = AccountLedger::whereIn('under_group', ['Debtors', 'Creditors', 'Direct Incomes', 'Indirect Incomes', 'Direct Expenses', 'Indirect Expenses'])
@@ -416,6 +438,8 @@ class InvoiceController extends Controller
             'existingInvoice',
             'isEdit',
             'series',
+            'seriesList',
+            'defaultSeries',
             'nextInvoiceNo',
             'accounts',
             'consignors',
@@ -780,7 +804,8 @@ class InvoiceController extends Controller
 
         DB::beginTransaction();
         try {
-            $series = $request->series ?? 'A';
+            $defaultSeries = $this->getDefaultSeries();
+            $series = $request->filled('series') ? strtoupper(trim($request->series)) : $defaultSeries;
             $invoiceNo = (int)$request->invoice_no;
 
             // Check duplicate
@@ -1015,7 +1040,8 @@ class InvoiceController extends Controller
 
         DB::beginTransaction();
         try {
-            $series = $request->series ?? 'A';
+            $defaultSeries = $this->getDefaultSeries();
+            $series = $request->filled('series') ? strtoupper(trim($request->series)) : ($invoice->series ?: $defaultSeries);
             $invoiceNo = (int)$request->invoice_no;
 
             // Check duplicate excluding current invoice
@@ -1267,7 +1293,7 @@ class InvoiceController extends Controller
         $consignor = $request->filled('consignor_name') ? AccountLedger::where('ledger_name', $request->consignor_name)->first() : null;
 
         $invoice = new Invoice([
-            'series' => $request->series ?? 'A',
+            'series' => $request->filled('series') ? strtoupper(trim($request->series)) : $this->getDefaultSeries(),
             'invoice_no' => $request->invoice_no ?? 40,
             'invoice_date' => Carbon::parse($request->invoice_date ?? now()),
             'account_id' => $account ? $account->id : null,
@@ -1396,7 +1422,7 @@ class InvoiceController extends Controller
      */
     public function register(Request $request)
     {
-        $fromDate = $request->input('from_date', date('Y-m-01'));
+        $fromDate = $request->input('from_date', date('Y-m-d'));
         $toDate = $request->input('to_date', date('Y-m-d'));
 
         if (!$request->has('from_date')) {
@@ -1437,10 +1463,15 @@ class InvoiceController extends Controller
             $totalDueAmt += (float)$inv->total_amount;
         }
 
+        $defaultSeries = $this->getDefaultSeries();
+        $seriesList = \App\Models\Series::orderBy('name', 'asc')->get();
+
         return view('invoice.register', compact(
             'invoices',
             'parties',
             'users',
+            'seriesList',
+            'defaultSeries',
             'totalBillAmt',
             'totalCgstAmt',
             'totalSgstAmt',

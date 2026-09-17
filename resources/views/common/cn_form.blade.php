@@ -55,7 +55,9 @@
                 <select name="series" id="series_select" style="height:30px; font-weight:600; background:#fff; border:1px solid #cbd5e1; border-radius:4px; padding:2px 6px; color:#333;">
                     @if(count($seriesList) > 0)
                         @foreach($seriesList as $s)
-                            <option value="{{ $s->name }}" {{ $selectedSeries == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
+                            @if($s->name !== 'A')
+                                <option value="{{ $s->name }}" {{ $selectedSeries == $s->name ? 'selected' : '' }}>{{ $s->name }}</option>
+                            @endif
                         @endforeach
                     @else
                         <option value="26-27" selected>26-27</option>
@@ -198,11 +200,6 @@
                 </div>
 
                 <div class="form-group-custom">
-                    <label for="cn_no">THIRD PARTY C/N NO.</label>
-                    <input type="text" name="cn_no" id="cn_no" value="{{ old('cn_no') }}" placeholder="THIRD PARTY C/N NO.">
-                </div>
-
-                <div class="form-group-custom">
                     <label for="vehicle_type">VEHICLE TYPE</label>
                     <select name="vehicle_type" id="vehicle_type" onchange="toggleVehicleFields()" style="height:32px;">
                         <option value="Vehicle Number">Vehicle Number</option>
@@ -216,6 +213,11 @@
                         <input type="text" name="vehicle_no" id="vehicle_no_text" placeholder="AS-01-XX-1234" value="{{ old('vehicle_no') }}" autocomplete="off">
                         <div class="autocomplete-dropdown" id="vehicle_no_dropdown"></div>
                     </div>
+                </div>
+
+                <div class="form-group-custom">
+                    <label for="cn_no">THIRD PARTY C/N NO.</label>
+                    <input type="text" name="cn_no" id="cn_no" value="{{ old('cn_no') }}" placeholder="THIRD PARTY C/N NO.">
                 </div>
 
                 <div class="form-group-custom" id="shipping_status_wrapper">

@@ -235,9 +235,9 @@ class ReportController extends Controller
             'Consignee',
             'Mob.',
             'Party',
-            'Third Party C.N.',
-            'E-WayBill No',
             'Vehicle No',
+            'E-WayBill No',
+            'Third Party C.N.',
             'Ship Status',
             'Packages',
             'Packing',
@@ -352,9 +352,9 @@ class ReportController extends Controller
             $sheet->setCellValue('K' . $rowNum, $consigneeName);
             $sheet->setCellValueExplicit('L' . $rowNum, (string) $consigneeMobile, DataType::TYPE_STRING);
             $sheet->setCellValue('M' . $rowNum, $billingPartyName);
-            $sheet->setCellValue('N' . $rowNum, $b->cn_no ?? '');
+            $sheet->setCellValue('N' . $rowNum, $b->vehicle_no ?? '');
             $sheet->setCellValueExplicit('O' . $rowNum, (string) ($b->eway_bill_no ?? ''), DataType::TYPE_STRING);
-            $sheet->setCellValue('P' . $rowNum, $b->vehicle_no ?? '');
+            $sheet->setCellValue('P' . $rowNum, $b->cn_no ?? '');
             $sheet->setCellValue('Q' . $rowNum, $shippingStatusText);
             $sheet->setCellValue('R' . $rowNum, intval($b->total_packages));
             $sheet->setCellValue('S' . $rowNum, $packing);

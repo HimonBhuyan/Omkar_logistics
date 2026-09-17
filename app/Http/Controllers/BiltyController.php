@@ -29,11 +29,36 @@ class BiltyController extends Controller
         $consignees = $consignors;
         $parties = $consignors;
 
-        // Pull unique ledger names (which contain vehicle numbers) under Vehicle Expense and Oil Expense
-        $vehicles = AccountLedger::whereIn('under_group', ['Vehicle Expense', 'Oil Expense', 'Transport Expense'])
-            ->orderBy('ledger_name')
-            ->pluck('ledger_name', 'ledger_name')
-            ->unique();
+        // Pull transport names under Transport Expense (and transports from Bilties)
+        $transportsList = AccountLedger::where('under_group', 'like', '%Transport%')
+            ->pluck('ledger_name')
+            ->filter()
+            ->map(fn($v) => trim($v))
+            ->unique()
+            ->sort()
+            ->values();
+
+        $transportsUpper = $transportsList->map(fn($t) => strtoupper($t))->toArray();
+
+        // Pull vehicles under Vehicle Expense and Oil Expense, merged with distinct vehicle numbers from Bilties (excluding transports)
+        $biltyVehicleNos = Bilty::whereNotNull('vehicle_no')
+            ->where('vehicle_no', '!=', '')
+            ->pluck('vehicle_no')
+            ->filter(fn($v) => !in_array(strtoupper(trim($v)), $transportsUpper));
+
+        $vehicleNumbers = AccountLedger::where(function($q) {
+                $q->where('under_group', 'like', '%Vehicle%')
+                  ->orWhere('under_group', 'like', '%Oil%');
+            })
+            ->pluck('ledger_name')
+            ->concat($biltyVehicleNos)
+            ->filter()
+            ->map(fn($v) => trim($v))
+            ->unique()
+            ->sort()
+            ->values();
+
+        $vehicles = $vehicleNumbers;
 
         // Load active Series list
         $seriesList = Series::orderBy('name', 'asc')->get();
@@ -72,7 +97,7 @@ class BiltyController extends Controller
 
         $measurementUnits = MeasurementUnit::forCompany()->active()->orderBy('unit_code')->get();
 
-        return view('bilty.create', compact('locations', 'consignors', 'consignees', 'parties', 'vehicles', 'seriesList', 'defaultSeries', 'nextBiltyNo', 'nextVoucherNo', 'measurementUnits'));
+        return view('bilty.create', compact('locations', 'consignors', 'consignees', 'parties', 'vehicles', 'vehicleNumbers', 'transportsList', 'seriesList', 'defaultSeries', 'nextBiltyNo', 'nextVoucherNo', 'measurementUnits'));
     }
 
     protected function resolveOrCreateSeries($seriesCode)
