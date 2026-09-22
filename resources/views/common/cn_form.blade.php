@@ -200,6 +200,11 @@
                 </div>
 
                 <div class="form-group-custom">
+                    <label for="cn_no">THIRD PARTY C/N NO.</label>
+                    <input type="text" name="cn_no" id="cn_no" value="{{ old('cn_no') }}" placeholder="THIRD PARTY C/N NO.">
+                </div>
+
+                <div class="form-group-custom">
                     <label for="vehicle_type">VEHICLE TYPE</label>
                     <select name="vehicle_type" id="vehicle_type" onchange="toggleVehicleFields()" style="height:32px;">
                         <option value="Vehicle Number">Vehicle Number</option>
@@ -213,11 +218,6 @@
                         <input type="text" name="vehicle_no" id="vehicle_no_text" placeholder="AS-01-XX-1234" value="{{ old('vehicle_no') }}" autocomplete="off">
                         <div class="autocomplete-dropdown" id="vehicle_no_dropdown"></div>
                     </div>
-                </div>
-
-                <div class="form-group-custom">
-                    <label for="cn_no">THIRD PARTY C/N NO.</label>
-                    <input type="text" name="cn_no" id="cn_no" value="{{ old('cn_no') }}" placeholder="THIRD PARTY C/N NO.">
                 </div>
 
                 <div class="form-group-custom" id="shipping_status_wrapper">
