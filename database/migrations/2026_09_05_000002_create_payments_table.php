@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('series')->default('A');
+            $table->string('series')->default('26-27');
             $table->unsignedInteger('payment_no');
             $table->date('payment_date');
             $table->string('payment_time')->nullable(); // e.g. '22:14:39'

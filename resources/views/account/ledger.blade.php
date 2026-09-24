@@ -768,7 +768,7 @@
         const tbody = document.getElementById('seriesBody');
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td><input type="text" name="series_name[]" placeholder="A"></td>
+            <td><input type="text" name="series_name[]" placeholder="26-27"></td>
             <td><input type="number" name="series_opening[]" step="0.01" placeholder="0"></td>
             <td><input type="number" name="series_closing[]" step="0.01" placeholder="0"></td>
         `;

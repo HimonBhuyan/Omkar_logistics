@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('receipts', function (Blueprint $table) {
             $table->id();
-            $table->string('series')->default('A');
+            $table->string('series')->default('26-27');
             $table->unsignedInteger('receipt_no');
             $table->date('receipt_date');
             $table->string('receipt_time')->nullable(); // e.g. '13:22:05'
@@ -53,7 +53,7 @@ return new class extends Migration
             $table->foreignId('receipt_id')->constrained('receipts')->cascadeOnDelete();
             $table->unsignedBigInteger('invoice_id')->nullable();
             $table->integer('sr_no')->default(1);
-            $table->string('series')->default('A');
+            $table->string('series')->default('26-27');
             $table->unsignedInteger('invoice_no');
             
             // Invoice snapshots and amounts

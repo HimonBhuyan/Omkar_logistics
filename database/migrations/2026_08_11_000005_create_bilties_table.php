@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             
             // Header information
-            $table->string('series')->default('A');
+            $table->string('series')->default('26-27');
             $table->unsignedInteger('bilty_no');
             $table->date('invoice_date');
             

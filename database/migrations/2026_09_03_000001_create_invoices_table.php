@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->string('series')->default('A');
+            $table->string('series')->default('26-27');
             $table->unsignedInteger('invoice_no');
             $table->date('invoice_date');
             
