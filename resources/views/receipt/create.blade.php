@@ -329,7 +329,7 @@
 
                     <div class="ctrl-group" style="margin-left: 20px;">
                         <label for="receipt_date_input">DATE</label>
-                        <input type="date" name="receipt_date" id="receipt_date_input" value="{{ old('receipt_date', $currentDate) }}" style="width: 120px;" required>
+                        <input type="date" name="receipt_date" id="receipt_date_input" value="{{ old('receipt_date', $currentDate) }}" style="width: 138px; min-width: 135px;" required>
                     </div>
 
                     <div class="ctrl-group">
@@ -455,7 +455,7 @@
 
                     <div class="ctrl-group" style="margin-left: 12px;">
                         <label for="cheque_date_input">CHQ DATE</label>
-                        <input type="date" name="cheque_date" id="cheque_date_input" value="{{ old('cheque_date', isset($existingReceipt) && $existingReceipt->cheque_date ? $existingReceipt->cheque_date->format('Y-m-d') : $currentDate) }}" style="width: 115px;">
+                        <input type="date" name="cheque_date" id="cheque_date_input" value="{{ old('cheque_date', isset($existingReceipt) && $existingReceipt->cheque_date ? $existingReceipt->cheque_date->format('Y-m-d') : $currentDate) }}" style="width: 138px; min-width: 135px;">
                     </div>
                 </div>
 

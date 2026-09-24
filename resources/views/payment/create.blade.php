@@ -212,25 +212,49 @@
     /* Autocomplete Dropdown */
     .autocomplete-list {
         position: absolute;
+        top: calc(100% + 2px);
+        left: 0;
+        right: 0;
+        width: 100%;
+        min-width: 280px;
         background: #ffffff;
-        border: 1px solid #7f9db9;
-        max-height: 180px;
+        border: 1.5px solid #0055ff;
+        border-radius: 2px;
+        max-height: 220px;
         overflow-y: auto;
-        z-index: 10000;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        z-index: 99999;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.3);
         display: none;
     }
 
     .autocomplete-item {
-        padding: 4px 8px;
+        padding: 5px 8px;
         font-size: 11px;
         cursor: pointer;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.1s ease;
     }
 
-    .autocomplete-item:hover, .autocomplete-item.selected {
-        background: #0055ff;
-        color: #ffffff;
+    .autocomplete-item:hover, .autocomplete-item.active, .autocomplete-item.selected {
+        background: #0055ff !important;
+        color: #ffffff !important;
+    }
+    .autocomplete-item:hover span, .autocomplete-item.active span, .autocomplete-item.selected span,
+    .autocomplete-item:hover .match-text, .autocomplete-item.active .match-text, .autocomplete-item.selected .match-text {
+        color: #ffffff !important;
+    }
+
+    .autocomplete-item .match-text {
+        font-weight: 800;
+        color: #c92a2a;
+        text-decoration: underline;
+    }
+
+    .autocomplete-no-match {
+        padding: 6px 10px;
+        color: #64748b;
+        font-style: italic;
+        font-size: 11px;
     }
 </style>
 @endsection
@@ -278,10 +302,10 @@
                            value="{{ old('payment_no', isset($existingPayment) ? $existingPayment->payment_no : ($nextPaymentNo ?? 1)) }}" 
                            style="width: 75px;" required>
 
-                    <label class="form-label" style="margin-left: 12px;">DATE</label>
-                    <input type="date" name="payment_date" id="payment_date" class="form-input" 
+                    <label class="form-label" style="margin-left: 10px;">DATE</label>
+                    <input type="date" name="payment_date" id="payment_date" class="form-input font-bold" 
                            value="{{ old('payment_date', isset($existingPayment) && $existingPayment->payment_date ? $existingPayment->payment_date->format('Y-m-d') : ($currentDate ?? date('Y-m-d'))) }}" 
-                           style="width: 110px;" required>
+                           style="width: 138px; min-width: 135px; padding: 2px 4px;" required>
 
                     <input type="text" name="payment_time" id="payment_time" class="form-input text-center" 
                            value="{{ old('payment_time', isset($existingPayment) ? $existingPayment->payment_time : ($currentTime ?? date('H:i:s'))) }}" 
@@ -385,9 +409,9 @@
 
                     <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 6px;">
                         <label class="form-label">CHQ DATE</label>
-                        <input type="date" name="cheque_date" id="cheque_date" class="form-input" 
+                        <input type="date" name="cheque_date" id="cheque_date" class="form-input font-bold" 
                                value="{{ old('cheque_date', isset($existingPayment) && $existingPayment->cheque_date ? $existingPayment->cheque_date->format('Y-m-d') : ($currentDate ?? date('Y-m-d'))) }}" 
-                               style="width: 110px;">
+                               style="width: 138px; min-width: 135px; padding: 2px 4px;">
                     </div>
                 </div>
 
@@ -471,11 +495,11 @@
     const accountsData = {!! json_encode($accounts->map(function($a) {
         return [
             'id' => $a->id,
-            'name' => $a->ledger_name,
-            'code' => $a->code ?? '',
-            'group' => $a->under_group ?? '',
+            'name' => (string)($a->ledger_name ?? ''),
+            'code' => (string)($a->code ?? ''),
+            'group' => (string)($a->under_group ?? ''),
             'opening' => (float)($a->opening ?? 0),
-            'bank_name' => $a->bank_name ?? '',
+            'bank_name' => (string)($a->bank_name ?? ''),
         ];
     })->values()) !!};
 
@@ -717,27 +741,55 @@
         });
     }
 
-    // Autocomplete for Account
+    // Autocomplete for Account (prefix match first, exact highlight like Bilty page)
     let currentFocus = -1;
 
-    function renderAccountItems(items) {
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, function(m) {
+            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m];
+        });
+    }
+
+    function highlightMatch(text, query) {
+        if (!query) return escapeHtml(text);
+        const idx = text.toLowerCase().indexOf(query.toLowerCase());
+        if (idx === -1) return escapeHtml(text);
+        const before = text.substring(0, idx);
+        const match = text.substring(idx, idx + query.length);
+        const after = text.substring(idx + query.length);
+        return `${escapeHtml(before)}<span class="match-text">${escapeHtml(match)}</span>${escapeHtml(after)}`;
+    }
+
+    function renderAccountItems(items, query) {
+        if (!accountList) return;
         accountList.innerHTML = '';
         currentFocus = -1;
 
         if (!items || items.length === 0) {
-            accountList.style.display = 'none';
+            accountList.innerHTML = `<div class="autocomplete-no-match">No accounts matching "${escapeHtml(query)}"</div>`;
+            accountList.style.display = 'block';
             return;
         }
 
-        items.slice(0, 30).forEach((m, index) => {
+        items.slice(0, 35).forEach((m, index) => {
             const div = document.createElement('div');
             div.className = 'autocomplete-item';
             div.setAttribute('data-index', index);
-            div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;">
-                <span><strong>${m.name}</strong> ${m.code ? '<span style="color:#666; font-size:10px;">(' + m.code + ')</span>' : ''}</span>
-                ${m.group ? '<span style="color:#0044cc; background:#e6f0ff; padding:1px 5px; border-radius:2px; font-size:10px; font-weight:bold; margin-left:6px;">' + m.group + '</span>' : ''}
+            
+            const highlightedName = query ? highlightMatch(m.name || '', query) : escapeHtml(m.name || '');
+            const codeHtml = m.code ? `<span style="color:#666; font-size:10px; margin-left:4px;">(${escapeHtml(m.code)})</span>` : '';
+            const groupHtml = m.group ? `<span style="color:#0044cc; background:#e6f0ff; padding:1px 5px; border-radius:2px; font-size:10px; font-weight:bold; margin-left:6px; white-space:nowrap;">${escapeHtml(m.group)}</span>` : '';
+
+            div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                <span><strong>${highlightedName}</strong>${codeHtml}</span>
+                ${groupHtml}
             </div>`;
-            div.addEventListener('click', function() {
+            
+            div.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                selectAccount(m);
+            });
+            div.addEventListener('click', function(e) {
                 selectAccount(m);
             });
             accountList.appendChild(div);
@@ -747,56 +799,92 @@
     }
 
     function filterAccounts(val) {
-        if (!val) {
-            renderAccountItems(accountsData);
+        if (!accountList) return;
+
+        const query = (val || '').toString().trim();
+        if (query.length === 0) {
+            accountList.innerHTML = '';
+            accountList.style.display = 'none';
+            currentFocus = -1;
             return;
         }
 
-        const upperVal = val.toUpperCase();
-        const matches = accountsData.filter(a => 
-            a.name.toUpperCase().includes(upperVal) || 
-            (a.code && a.code.toUpperCase().includes(upperVal)) ||
-            (a.group && a.group.toUpperCase().includes(upperVal))
-        );
+        const q = query.toLowerCase();
 
-        renderAccountItems(matches);
+        // 1. Filter items that contain the query
+        let matches = (accountsData || []).filter(a => {
+            if (!a) return false;
+            const name = (a.name || '').toLowerCase();
+            const code = (a.code || '').toLowerCase();
+            const group = (a.group || '').toLowerCase();
+            return name.includes(q) || code.includes(q) || group.includes(q);
+        });
+
+        // 2. Sort prefix match first (items starting with the typed letters come first, exactly like Bilty location matching)
+        matches.sort((a, b) => {
+            const nameA = (a.name || '').toLowerCase();
+            const nameB = (b.name || '').toLowerCase();
+            const aStarts = nameA.startsWith(q);
+            const bStarts = nameB.startsWith(q);
+            if (aStarts && !bStarts) return -1;
+            if (!aStarts && bStarts) return 1;
+            return nameA.localeCompare(nameB);
+        });
+
+        renderAccountItems(matches, query);
     }
 
     if (accountInput) {
         accountInput.addEventListener('focus', function() {
-            filterAccounts(this.value.trim());
+            const val = (this.value || '').trim();
+            if (val.length > 0) {
+                filterAccounts(val);
+            } else {
+                if (accountList) accountList.style.display = 'none';
+            }
         });
 
         accountInput.addEventListener('input', function() {
-            filterAccounts(this.value.trim());
+            filterAccounts(this.value);
+        });
+
+        accountInput.addEventListener('keyup', function(e) {
+            if (!['ArrowDown', 'ArrowUp', 'Enter', 'Escape'].includes(e.key)) {
+                filterAccounts(this.value);
+            }
+        });
+
+        accountInput.addEventListener('paste', function() {
+            setTimeout(() => filterAccounts(this.value), 20);
         });
 
         accountInput.addEventListener('keydown', function(e) {
+            if (!accountList || accountList.style.display !== 'block') return;
             const items = accountList.querySelectorAll('.autocomplete-item');
-            if (accountList.style.display === 'block' && items.length > 0) {
-                if (e.key === 'ArrowDown') {
+            if (!items || items.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentFocus++;
+                if (currentFocus >= items.length) currentFocus = 0;
+                setActive(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentFocus--;
+                if (currentFocus < 0) currentFocus = items.length - 1;
+                setActive(items);
+            } else if (e.key === 'Enter') {
+                if (currentFocus > -1 && items[currentFocus]) {
                     e.preventDefault();
-                    currentFocus++;
-                    if (currentFocus >= items.length) currentFocus = 0;
-                    setActive(items);
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    currentFocus--;
-                    if (currentFocus < 0) currentFocus = items.length - 1;
-                    setActive(items);
-                } else if (e.key === 'Enter') {
-                    if (currentFocus > -1 && items[currentFocus]) {
-                        e.preventDefault();
-                        items[currentFocus].click();
-                    }
-                } else if (e.key === 'Escape') {
-                    accountList.style.display = 'none';
+                    items[currentFocus].click();
                 }
+            } else if (e.key === 'Escape') {
+                accountList.style.display = 'none';
             }
         });
 
         document.addEventListener('click', function(e) {
-            if (e.target !== accountInput && !accountList.contains(e.target)) {
+            if (accountList && e.target !== accountInput && !accountList.contains(e.target)) {
                 accountList.style.display = 'none';
             }
         });
@@ -804,14 +892,19 @@
 
     function setActive(items) {
         if (!items) return;
-        items.forEach(item => item.classList.remove('selected'));
+        items.forEach(item => {
+            item.classList.remove('selected');
+            item.classList.remove('active');
+        });
         if (currentFocus >= 0 && currentFocus < items.length) {
+            items[currentFocus].classList.add('active');
             items[currentFocus].classList.add('selected');
             items[currentFocus].scrollIntoView({ block: 'nearest' });
         }
     }
 
     function selectAccount(acc) {
+        if (!acc) return;
         accountInput.value = acc.name;
         accountIdInput.value = acc.id;
         accountAliasInput.value = acc.code || '';
@@ -823,6 +916,13 @@
                 custBillAmtInput.value = acc.opening.toFixed(2);
             }
             calculateDeduct();
+        }
+
+        // Move to next input field
+        const custInv = document.getElementById('customer_invoice_no');
+        if (custInv) {
+            custInv.focus();
+            if (typeof custInv.select === 'function') custInv.select();
         }
     }
 
